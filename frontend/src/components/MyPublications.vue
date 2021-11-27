@@ -1,0 +1,519 @@
+<template>
+    <div>
+      <!-- Publier un post -->
+
+<!-- Formulaire -->
+      <div class="publicationCard">
+        <form @submit.prevent="onSubmit" enctype="multipart/form-data">
+          <div>
+            <textarea
+              v-model="text"
+              name="text"
+              id=""
+              cols="30"
+              rows="10"
+              placeholder="Tapez votre texte ici"
+            ></textarea>
+          </div>
+
+          <div class="send-it">
+            <input type="file" ref="file" @change="onSelect" />
+
+            <button @click="sendText" type="submit" class="btn btn-publier">
+              Publier
+            </button>
+                       
+          </div>
+          <p class="errorMessage" v-if="error">{{ error }}</p>
+        </form>
+      </div>
+
+<!-- Fin publier un post -->
+<div v-if="publications.length">
+          <div
+        v-for="publication in publications"
+        :key="publication"
+        class="publicationCard"
+      >
+        <div class="publicationDate">
+
+          <div class="userAndImage">
+            <img
+              :src="
+                require(`./../../../backend/images/${publication.profil_picture}`)
+              "
+              width="200"
+              alt=""
+            />
+          </div>
+          <p> {{ publication.user_send }} </p>
+          <p class="datePub">Publiée le: {{ publication.date_send }}</p>
+        </div>
+
+        <div v-if=" publication.image" class="publicationPhoto">
+          <img
+            :src="require(`./../../../backend/images/${publication.image}`)"
+            width="200"
+            alt=""
+          />
+         
+        </div>
+
+        <p class="publicationText">{{ publication.post }}</p>
+
+         
+        <!-- Likes and dislikes -->
+        <div class="likes">
+          <div >
+            <i @click='like_it(publication.postId)' class="fas fa-thumbs-up like"> <span class="like"> &#160;  {{ publication.likes_number }}  </span> </i>
+            
+            <i @click='deslike_it(publication.postId)' class="fas fa-thumbs-down deslike"> <span class="like"> &#160; {{ publication.deslikes_number }} </span> </i>
+          </div>
+
+          <!-- Supprimer et modifier un post -->
+          <div>
+            <!-- Supprimer un post -->
+
+            <i
+              @click="deletePost(publication.postId)"
+              v-if="
+                publication.userId == userConnected.userId ||
+                userConnected.isAdmin == 1
+              "
+              class="fas fa-trash delete"
+            >
+              <span> Supprimer </span></i
+            >
+
+            <!-- Modifier un post -->
+            <i
+              @click="btnModifyPost(publication.postId)"
+              v-if="publication.userId == userConnected.userId"
+              class="fas fa-pen-square modify"
+              ><span > Modifier </span></i
+            >
+          </div>
+          
+        </div>
+        
+        <div
+          v-if="okModifyPost && publication.postId == this.postId"
+          class="publicationCard modifyPostCard"
+        >
+          <form @submit.prevent="onModify" enctype="multipart/form-data">
+            <div>
+              <textarea
+                v-model="textModified"
+                name="text"
+                id=""
+                cols="30"
+                rows="10"
+                placeholder=" Votre nouveau texte "
+              >
+              </textarea>
+            </div>
+
+            <div class="send-it">
+              <div>
+                <input type="file" ref="file" @change="onSelected" />
+              </div>
+              <div class="field">
+                <button
+                  @click="updatePost()"
+                  type="submit"
+                  class="btn btn-publier"
+                >
+                  Valider
+                </button>
+              </div>
+            </div>
+            <p v-if="error" class="errorMessage">{{ error }}></p>
+          </form>
+        </div>
+
+        <!-- Commentaires -->
+
+        <!-- 1/ Publier un commentaire -->
+        <div class="commentCard">
+          <button @click="btnComment(publication.postId)">Commenter</button>
+          <form
+            v-if="okComment && publication.postId == this.postId"
+            @submit.prevent=""
+          >
+            <textarea
+              v-model="comment"
+              cols="30"
+              name="text"
+              rows="10"
+              placeholder=" Votre commentaire "
+            >
+            </textarea>
+            <button
+              v-if="comment"
+              @click="createComment(publication.postId)"
+              type="submit"
+              class="btn"
+            >
+              Envoyer
+            </button>
+          </form>
+        </div>
+        <!--- Fin publier un commentaire    -->
+
+        <!--  2/ Afficher tous les commentaires du postId-->
+        <div class="allComments">
+          
+          <button v-if=" afficherCommentaires" @click="getAllComments(publication.postId)">
+            Afficher tous les commentaires ( {{ publication.commentNumber }})
+          </button>
+          <button v-else @click="getAllComments(publication.postId)">
+            Masquer les commentaires
+          </button>       
+     
+          <div v-if="showComments && publication.postId==comments[0].postId" >
+            <div v-for="comment in comments" :key="comment">
+              <div class="oneCommentCard">
+                <div class="publicationDate">
+                  <div class="userAndImage">
+                    <img
+                      :src="
+                        require(`./../../../backend/images/${comment.profil_picture}`)
+                      "
+                      width="200"
+                      alt=""
+                    />
+                  </div>
+                  <p>{{ comment.user_send }}  </p>
+                  <p class="datePub">Publiée le: {{ comment.date_send }}</p>
+                  
+                </div>
+                <p class="comment"> {{ comment.comment }}</p>
+                <hr>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- Fin afficher les commentaires  -->
+
+
+      </div>
+    </div>
+
+
+
+<div v-else> Il n'y a aucune publication à afficher !</div>
+<p class="authentified"> {{ authentified }}</p>
+
+
+<!--  -->       
+    </div>
+</template>
+
+<script>
+import axios from "axios";
+
+export default {
+    name:"MyPublications",
+
+    props: {
+
+    userConnected: {
+      type: Object,
+      default() {
+        return {
+          userConnected: "userConnected",
+        };
+      },
+    },
+  },
+
+    data() {
+    return {
+      userId:"",
+      text: "",
+      file: "",
+      publications: [],
+      error: "",
+      okModifyPost: false,
+      postId: null,
+      textModified: "",
+      comment: "",
+      okComment: false,
+      okAllComments:false,
+      commentNumber: 0,
+      comments: [],
+      showComments:false,
+      status:0,
+      afficherCommentaires:true,
+      authentified:"",
+    };
+    },
+    created() {
+    this.getAllMyPosts();
+    },
+     mounted(){
+    this.getAllMyPosts();
+  },
+    methods: {
+
+    btnModifyPost(id) {
+      this.okModifyPost = !this.okModifyPost;
+      this.postId = id;
+      console.log("postId:", this.postId);
+    },
+    btnComment(id) {
+      this.okComment = !this.okComment;
+      this.postId = id;
+    },  
+
+
+//----  1- Afficher toutes mes publications ////////
+    getAllMyPosts() {
+      let Token = JSON.parse(localStorage.getItem("Token"));
+      console.log(Token);
+      this.userId = Token.userId;
+
+      axios
+        .get("http://localhost:3000/api/posts/" + this.userId, {
+          headers: {
+          authorization: `bearer ${Token.token}`,
+          },
+        })
+
+        .then((response) => {
+          this.publications = response.data;
+          // Si requête non authentifiée
+          if (response.data.message){
+            console.log("Requête non authentifié:", this.publications.message);
+            this.authentified=response.data.message
+          // Si requête authentifiée
+          } else {
+            console.log("Requête authentifiée: Tableau des bublications:", this.publications);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    ///// Fin afficher tous mes posts ////////
+  // ---- 2- Publier un post //
+
+    sendText(f) {
+     
+      if (!this.file && !this.text) {
+        this.error = " Merci de joindre du texte ou une image à publier !";
+        f.preventDefault();
+      }
+    },
+
+    onSelect() {
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      const file = this.$refs.file.files[0];
+      this.file = file;
+      if (!allowedTypes.includes(file.type)) {
+        this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
+        this.file="";
+      }
+      if (file.size > 500000) {
+        this.error = "Votre fichier est trop volumineux: 500kb max! ";
+        this.file="";
+      }
+    },
+
+    async onSubmit() {
+      const formData = new FormData();
+      formData.append("file", this.file);
+      formData.append("post", this.text);
+      formData.append("user_send", this.userConnected.name);
+      formData.append("userId", this.userConnected.userId);
+      formData.append("profil_picture", this.userConnected.profil_picture)
+           console.log ('file: ', this.file)
+           console.log ('user_send: ', this.userConnected.name)
+      try {
+        await axios.post("http://localhost:3000/api/posts", formData),
+        {
+            headers:('Content-Type: multipart/form-data'),
+           
+          }
+          
+          .then(function (res) {
+            console.log(res);
+            
+          })
+          .catch(function (err) {
+            console.log(err);
+          });
+      } catch (err) {
+        console.log(err);
+      }
+      this.file="";
+      this.text="";
+      this.getAllMyPosts();
+    },
+//---------- Fin publier un post ---------------//
+
+//---3/- Supprimer un post ------------ //
+    deletePost(id) {
+      console.log("postId:", id);
+      const self = this;
+      axios
+        .delete("http://localhost:3000/api/posts/" + id)
+
+        .then(function (res) {
+          console.log(res);
+          self.getAllMyPosts();
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+    },
+    // ----------- Fin supprimer un post ---------- //
+
+//-- 4/ ---------- Modifier un post -------------//
+    onModify(f2) {
+      if (!this.file && !this.textModified) {
+        this.error = " Merci de joindre du texte ou une image pour envoyer !";
+        f2.preventDefault();
+        this.okModifyPost=!this.okModifyPost
+      }
+    },
+    onSelected() {
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      const file = this.$refs.file.files[0];
+      this.file = file;
+      if (!allowedTypes.includes(file.type)) {
+        this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
+      }
+      if (file.size > 500000) {
+        this.error = "Votre fichier est trop volumineux: 500kb max! ";
+      }
+    },
+    updatePost(f) {
+      if (!this.textModified && !this.file.name) {
+        f.preventDefault();
+      }
+      const formData = new FormData();
+      if (this.textModified) {
+        formData.append("textModified", this.textModified);
+      }
+      if (this.file) {
+        formData.append("file", this.file);
+      }
+      console.log(formData);
+      const self=this
+      axios
+          .put("http://localhost:3000/api/posts/" + this.postId, formData)
+
+          .then(function (res) {
+            console.log(res);
+            self.getAllMyPosts();
+          })
+          .catch(function (err) {
+            console.log("Erreur :", err);
+          });
+          
+          this.okModifyPost = !this.okModifyPost;
+          this.textModified="";
+          this.error="";
+          self.getAllMyPosts();
+    },
+    
+    // ---------- Fin modifier un post ------------//
+
+// --- 5/ --- Créer un commentaire -------------- //
+    createComment(postId) {
+      console.log("comment:", this.comment);
+      console.log("postId:", postId);
+      console.log("UserId", this.userConnected.userId);
+      console.log("User_send:", this.userConnected.user_send);
+
+      axios
+        .post("http://localhost:3000/api/comments", {
+          comment: this.comment,
+          postId: postId,
+          userId: this.userConnected.userId,
+          user_send: this.userConnected.name,
+          profil_picture: this.userConnected.profil_picture,
+        })
+        .then(function (res) {
+          console.log(res);
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+    },
+    // ------- Fin créer un commentaire --------- //
+
+// --6/ ----- Afficher tous les commentaires d'un post--------- //
+    getAllComments(postId) {
+      //this.afficherCommentaires=false;
+      this.afficherCommentaires=!this.afficherCommentaires;
+      this.showComments=!this.showComments
+      const self=this
+      axios.get("http://localhost:3000/api/comments/" + postId)
+        .then(function (res) {
+        //  self.getAllPosts()
+          console.log ("Résultats: ", res.data)
+          self.comments=res.data
+          console.log ("comments:", self.comments[0].user_send)
+        
+        })
+        .catch(function (err) {
+          console.log("Erreur: ", err);
+        });
+    },
+
+    // ------- Fin afficher tous les commentaires ------  //
+
+// -- 7/ -- Liker un post ---- //
+like_it(postId) {
+  console.log ("postId: ", postId)
+  const self = this
+  axios
+        .post("http://localhost:3000/api/like/"+ postId, {
+          
+          postId: postId,
+          userId: this.userConnected.userId,
+          
+        })
+        .then(function (res) {
+          console.log("La réponse du serveur: ", res.data.status);
+          
+          self.status=res.data.status
+          console.log("Le status du users est:", self.status)
+          self.getAllMyPosts()
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+},
+// --- Fin Liker un post ------- //
+
+// --8/ ----- Desliker un post ---- //
+deslike_it(postId) {
+  console.log ("postId: ", postId)
+  const self=this
+  axios
+        .post("http://localhost:3000/api/deslike/"+ postId, {
+          
+          postId: postId,
+          userId: this.userConnected.userId,
+          
+        })
+        .then(function (res) {
+          console.log(res.data.message);
+          self.getAllMyPosts()
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+}
+// --- Fin Liker un post ------- //
+  
+  },
+/////
+}
+
+
+</script>
