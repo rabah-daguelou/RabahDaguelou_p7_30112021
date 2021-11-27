@@ -273,7 +273,8 @@ export default {
       showComments:false,
       status:0,
       afficherCommentaires:true,
-      authentified:""
+      authentified:"",
+      Token:""
     };
   },
 
@@ -308,11 +309,15 @@ export default {
 
 
 //----  1- Afficher toutes les publications ////////
+    
+      
+   
+
     getAllPosts() {
       let Token = JSON.parse(localStorage.getItem("Token"));
-      console.log(Token);
       this.user_id = Token.userId;
-
+      console.log("Token:", Token.token);
+      console.log("UserId:", Token.userId);
       axios
         .get("http://localhost:3000/api/posts", {
           headers: {
@@ -370,13 +375,18 @@ export default {
       formData.append("profil_picture", this.userConnected.profil_picture)
            console.log ('file: ', this.file)
            console.log ('user_send: ', this.userConnected.name)
+      let Token = JSON.parse(localStorage.getItem("Token"));
+      
       try {
-        await axios.post("http://localhost:3000/api/posts", formData),
+        await axios.post("http://localhost:3000/api/posts", formData,
         {
-            headers:('Content-Type: multipart/form-data'),
-           
+            headers:
+            //('Content-Type: multipart/form-data'),
+            {
+            authorization: `bearer ${Token.token}`,
+            }
           }
-          
+          )
           .then(function (res) {
             console.log(res);
             
@@ -397,9 +407,16 @@ export default {
     deletePost(id) {
       console.log("postId:", id);
       const self = this;
+      let Token = JSON.parse(localStorage.getItem("Token"));
+      console.log ( "ici: Token: ", Token.token)
       axios
-        .delete("http://localhost:3000/api/posts/" + id)
-
+        .delete("http://localhost:3000/api/posts/" + id,
+        {
+          headers: {
+          authorization: `bearer ${Token.token}`,
+          
+          }
+        })
         .then(function (res) {
           console.log(res);
           self.getAllPosts();

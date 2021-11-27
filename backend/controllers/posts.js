@@ -82,6 +82,7 @@ exports.createPost=(req, res, next)=>{
 ///////// Afficher tous les posts //////
 
 exports.getAllPosts=(req, res, next)=> {
+    
     db.query("SELECT * FROM posts ORDER BY date_send DESC", (err, results) => {
         res.json(results);
         if (err){ console.log ("Erreur Bdd !")} 
@@ -89,7 +90,7 @@ exports.getAllPosts=(req, res, next)=> {
     });
 };
 
-///////// Afficher tous mes posts //////
+///////// Afficher mes posts ( sur le profil de l'utilisateur)//////
 
 exports.getAllMyPosts=(req, res, next)=> {
     
@@ -104,6 +105,7 @@ exports.getAllMyPosts=(req, res, next)=> {
 
 ///////// Supprimer un post ///////////
 exports.deletePost=(req, res, next)=> {
+    console.log (" Token:", req.headers)
     console.log ("postId à supprimer:", req.params.id)
     db.query("SELECT image FROM posts WHERE postId=?", [req.params.id], (err, results) => {
         res.json(results);

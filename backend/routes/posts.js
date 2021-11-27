@@ -15,13 +15,13 @@ const postsCtrl= require ('../controllers/posts')
 const multer= require ('../middlewares/multer_config')
 
 // Publier un post //
-router.post("/posts", multer, postsCtrl.createPost);
+router.post("/posts", auth, multer, postsCtrl.createPost);
 // Afficher tous les posts
 router.get("/posts", auth, postsCtrl.getAllPosts);
 // Afficher les posts d'un utilisateur
 router.get("/posts/:id", postsCtrl.getAllMyPosts);
 // Supprimer un post
-router.delete("/posts/:id", postsCtrl.deletePost);
+router.delete("/posts/:id", auth, postsCtrl.deletePost);
 // Modifier un post
 router.put("/posts/:id", multer, postsCtrl.updatePost);
 
