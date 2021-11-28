@@ -50,7 +50,7 @@
         placeholder="Votre nouvel Email"
       />
       <br>
-      <button @click="updateEmail" class="btn">Valider</button>
+      <button v-if="email2" @click="updateEmail" class="btn">Valider</button>
         <p v-if="errorEmail2" class="errorEmail2"> {{ errorEmail2 }}</p>
 
     </div>
@@ -79,7 +79,7 @@
         name="password3"
       />
       <br />
-      <button class="btn" @click="updatePassword">Valider</button>
+      <button v-if="password3" class="btn" @click="updatePassword">Valider</button>
       
       <p v-if="errorPassword2" class="errorPassword2"> {{ errorPassword2 }}</p>
     </div>
@@ -96,7 +96,7 @@
         name="name2"
       />
       <br>
-      <button class="btn" @click="updateName">Valider</button>
+      <button v-if="name2" class="btn" @click="updateName">Valider</button>
       <p v-if="errorName2" class="errorName2"> {{ errorName2 }}</p>
     </div>
     <br />
@@ -421,6 +421,9 @@ p {
   color: black;
   text-decoration: none;
 }
+.modifyProfil, .deleteProfil{
+  height:40px;
+}
 .modifyProfil i {
   color:rgb(81, 136, 240)
 }
@@ -435,6 +438,7 @@ p {
   background: rgb(255, 255, 255);
   border-radius: 10px;
   box-shadow: 2px 2px 5px ;
+  padding-bottom: 15px;
 }
 .modifyPhoto {
   margin: auto;

@@ -90,7 +90,7 @@
             />
           </div>
           <p> {{ publication.user_send }} </p>
-          <p class="datePub">Publiée le: {{ publication.date_send }}</p>
+          <p class="datePub">Publiée le: {{ publication.DATETIME_FR }}</p>
         </div>
 
         <div v-if=" publication.image" class="publicationPhoto">
@@ -179,7 +179,7 @@
 
         <!-- 1/ Publier un commentaire -->
         <div class="commentCard">
-          <button @click="btnComment(publication.postId)">Commenter</button>
+          <button @click="btnComment(publication.postId)">Commenter &emsp; <i class="far fa-comment-dots"></i> </button>
           <form
             v-if="okComment && publication.postId == this.postId"
             @submit.prevent=""
@@ -207,12 +207,12 @@
         <!--  2/ Afficher tous les commentaires du postId-->
         <div class="allComments">
           
-          <button v-if=" afficherCommentaires" @click="getAllComments(publication.postId)">
+          <button v-if=" afficherCommentaires && publication.commentNumber" @click="getAllComments(publication.postId)">
             Afficher tous les commentaires ( {{ publication.commentNumber }})
           </button>
-          <button v-else @click="getAllComments(publication.postId)">
+          <button v-if="!afficherCommentaires && publication.commentNumber"  @click="getAllComments(publication.postId)">
             Masquer les commentaires
-          </button>       
+          </button>      
      
           <div v-if="showComments && publication.postId==comments[0].postId" >
             <div v-for="comment in comments" :key="comment">
@@ -707,6 +707,7 @@ button:hover{
   margin-left: 10px;
   text-align: left;
   font-size: 1rem;
+  font-weight: 900;
 }
 .comment {
   background: rgb(233, 228, 228);

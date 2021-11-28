@@ -83,7 +83,8 @@ exports.createPost=(req, res, next)=>{
 
 exports.getAllPosts=(req, res, next)=> {
     
-    db.query("SELECT * FROM posts ORDER BY date_send DESC", (err, results) => {
+   // db.query("SELECT * FROM posts ORDER BY date_send DESC", (err, results) => {
+    db.query("SELECT *, DATE_FORMAT (date_send, '%d/ %m/ %Y à %H:%i:%s') as DATETIME_FR FROM posts ORDER BY date_send DESC", (err, results) => {
         res.json(results);
         if (err){ console.log ("Erreur Bdd !")} 
         else {console.log ( " Toutes les publicatiions seront affichées avec succès !")}
