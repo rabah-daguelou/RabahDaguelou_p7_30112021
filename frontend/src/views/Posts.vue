@@ -1,5 +1,7 @@
 <template>
-    <div class="all">
+  <div>
+    <p v-if="authentified || Token==null" class="authentified"> {{ authentified }}</p>
+    <div v-else class="all">
 
         <div class="bar-nav">
         <p class="bienvenue">Bienvenue chez</p>
@@ -14,6 +16,7 @@
         <all-publications :userConnected="userConnected"> </all-publications>
     
     </div>
+  </div>
 </template>
 
 <script>
@@ -31,34 +34,49 @@ export default {
     data() {
         return {
             userConnected: {},
+            authentified:"",
+            Token:null,
         }
     },
     
     mounted() {
     this.getUserConnected();
-    
+    //this.connexion();
   },
 
     methods: {
-        
+           
         //// Get the User connected
     async getUserConnected() {
-      let Token = JSON.parse(localStorage.getItem("Token"));
-      console.log("Token:", Token);
-      this.userId = Token.userId;
+      
+      this.Token = JSON.parse(localStorage.getItem("Token"));
+      if (this.Token) {
+      console.log("Token:", this.Token);
+      this.userId = this.Token.userId;
       try {
         const response = await axios.get(
           "http://localhost:3000/api/users/userConnected/" + this.userId,{
         headers: {
-           authorization: `bearer ${Token.token}`,
+           authorization: `bearer ${this.Token.token}`,
           },
           
           })
+        
+        // Si requête non authentifiée
+       if (response.data.message){
+         this.authentified=response.data.message;
+        // Si requête authentifiée
+       } else {
         this.userConnected=response.data[0];
         console.log ("User Connected: ", this.userConnected)
         
+       }
+                
       } catch (err) {
         console.log(err);
+      }
+      }else {
+        this.authentified=" Merci de vous connecter d'abord !"
       }
     },
 
@@ -73,6 +91,11 @@ export default {
 </script>
 
 <style scoped>
+.authentified {
+  color:red;
+  font-weight: bold;
+  
+}
 .all {
   margin: auto;
   text-align: center;

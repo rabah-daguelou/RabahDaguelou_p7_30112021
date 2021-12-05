@@ -21,29 +21,30 @@ const multer= require ('../middlewares/multer_config')
 router.post("/signup", checkEmail, checkPassword, checkName, usersCtrl.signup );
 // se connecter
 router.post("/login", usersCtrl.login);
+
 // Afficher l'utilisateur connecté
 router.get("/users/userConnected/:id", auth, usersCtrl.getUserConnected)
 
 // Afficher la liste des salariés
-router.get("/users", usersCtrl.getAllUsers);
+router.get("/users", auth, usersCtrl.getAllUsers);
 
 // Afficher le profil d'un utilisateur
-router.get("/users:id", usersCtrl.getOneUser);
+router.get("/users:id", auth, usersCtrl.getOneUser);
 
 // Modifier la photo du profil
-router.patch('/users/photo/:id', multer, usersCtrl.modifyProfilPicture);
+router.patch('/users/photo/:id', auth, multer, usersCtrl.modifyProfilPicture);
 
 // Modifier l'Email
-router.patch('/users/email/:id', checkEmail, usersCtrl.updateEmail);
+router.patch('/users/email/:id', auth, checkEmail, usersCtrl.updateEmail);
 
 // Modifier le nom d'un utilisateur
-router.patch("/users/name:id", usersCtrl.updateName);
+router.patch("/users/name:id", auth, usersCtrl.updateName);
 
 // Modifier le mot de passe 
-router.put ('/users/password/:id', checkPassword, usersCtrl.updatePassword)
+router.put ('/users/password/:id', auth, checkPassword, usersCtrl.updatePassword)
 
 // Supprimer un utilisateur
-router.delete("/users:id", usersCtrl.deleteOneUser);
+router.delete("/users:id", auth, usersCtrl.deleteOneUser);
 
 
 

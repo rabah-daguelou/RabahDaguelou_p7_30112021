@@ -29,6 +29,23 @@ db.connect(function (err) {
 
 exports.createPost=(req, res, next)=>{
    console.log (" req.body:", req.body)
+// ajout
+/*
+const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+let image=req.file   
+if (image.size > 500000) {
+    res.status(200).json({
+        message:"Votre fichier est trop volumineux: 500kb max! ",
+     } )
+} 
+
+else if (!allowedTypes.includes(image.type)) {
+    res.status(200).json({
+        message:"Merci de choisir un fichier PNG, JPG ou JPEG!",
+     } )   
+    }  
+  */  
+// fin ajout 
     // Si uniquement texte 
     if (!req.file) {
     
@@ -54,6 +71,7 @@ exports.createPost=(req, res, next)=>{
 
     // Si texte + image 
     else {
+
         let image = req.file.filename;
         const post = {
     
@@ -71,12 +89,9 @@ exports.createPost=(req, res, next)=>{
                 console.log("Post enregistré dans la Bdd");
           }
         });
-      //  return;
-        //console.log (post)
-        
+     
         }; 
-      //  return  
-      //
+      
 }
 
 ///////// Afficher tous les posts //////
@@ -84,7 +99,7 @@ exports.createPost=(req, res, next)=>{
 exports.getAllPosts=(req, res, next)=> {
     
    // db.query("SELECT * FROM posts ORDER BY date_send DESC", (err, results) => {
-    db.query("SELECT *, DATE_FORMAT (date_send, '%d/ %m/ %Y à %H:%i:%s') as DATETIME_FR FROM posts ORDER BY date_send DESC", (err, results) => {
+    db.query("SELECT *, DATE_FORMAT (date_send, '%d/%m/%Y à %H:%i:%s') as DATETIME_FR FROM posts ORDER BY date_send DESC", (err, results) => {
         res.json(results);
         if (err){ console.log ("Erreur Bdd !")} 
         else {console.log ( " Toutes les publicatiions seront affichées avec succès !")}
@@ -96,11 +111,15 @@ exports.getAllPosts=(req, res, next)=> {
 exports.getAllMyPosts=(req, res, next)=> {
     
     let userId=req.params.id
-
+    console.log( "userId:", userId);
     db.query("SELECT * FROM posts WHERE userId=" + userId + " ORDER BY date_send DESC ", (err, results) => {
-        res.json(results);
-        if (err){ console.log ("Erreur Bdd !")} 
-        else {console.log ( " Toutes les publicatiions seront affichées avec succès !")}
+        
+        if (err){ 
+            console.log ("Erreur Bdd !")
+        } else {
+            res.json(results);
+          //  console.log ( " Mes publications:", results);
+        };
     });
 };
 

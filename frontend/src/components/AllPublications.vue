@@ -61,7 +61,7 @@
             </button>
                        
           </div>
-          <p class="errorMessage" v-if="error">{{ error }}</p>
+          <p class="errorMessage" v-if="error && !text && !file">{{ error }}</p>
         </form>
       </div>
     </div>
@@ -90,7 +90,7 @@
             />
           </div>
           <p> {{ publication.user_send }} </p>
-          <p class="datePub">Publiée le: {{ publication.DATETIME_FR }}</p>
+          <p class="datePub">Publié le {{ publication.DATETIME_FR }}</p>
         </div>
 
         <div v-if=" publication.image" class="publicationPhoto">
@@ -196,7 +196,7 @@
               v-if="comment"
               @click="createComment(publication.postId)"
               type="submit"
-              class="btn"
+              class="btn btnComment"
             >
               Envoyer
             </button>
@@ -228,10 +228,20 @@
                     />
                   </div>
                   <p>{{ comment.user_send }}  </p>
-                  <p class="datePub">Publiée le: {{ comment.date_send }}</p>
+                  <p class="datePub">Publié le {{ comment.DATETIME_FR }}</p>
                   
                 </div>
-                <p class="comment"> {{ comment.comment }}</p>
+                <!-- Désactiver un commentaire -->
+                <div class="notShowComment">
+                  <p v-if="comment.masked==1"> Ce commentaire est masqué par l'administrateur !</p>
+                  <p v-else class="comment"> {{ comment.comment }} </p>
+
+                  <div>
+                  <button v-if="userConnected.isAdmin==1 && comment.masked==0"> Masquer</button>
+                  <button v-if="userConnected.isAdmin==1 && comment.masked==1"> Montrer</button>
+                  </div>
+                </div>
+                <!-- -->
                 <hr>
               </div>
             </div>
@@ -289,9 +299,9 @@ export default {
     },
   },
 
-  created() {
+ /* created() {
     this.getAllPosts();
-  },
+  },*/
   mounted(){
     this.getAllPosts();
   },
@@ -310,18 +320,15 @@ export default {
 
 //----  1- Afficher toutes les publications ////////
     
-      
-   
-
     getAllPosts() {
-      let Token = JSON.parse(localStorage.getItem("Token"));
-      this.user_id = Token.userId;
-      console.log("Token:", Token.token);
-      console.log("UserId:", Token.userId);
+      this.Token = JSON.parse(localStorage.getItem("Token"));
+      this.user_id = this.Token.userId;
+      console.log("Token:", this.Token.token);
+      console.log("UserId:", this.Token.userId);
       axios
         .get("http://localhost:3000/api/posts", {
           headers: {
-          authorization: `bearer ${Token.token}`,
+          authorization: `bearer ${this.Token.token}`,
           },
         })
 
@@ -334,39 +341,47 @@ export default {
           // Si requête authentifiée
           } else {
             console.log("Requête authentifiée: Tableau des bublications:", this.publications);
+            
           }
         })
         .catch((error) => {
           console.log(error);
         });
+        
     },
     ///// Fin Get All posts ////////
 
 // ---- 2- Publier un post //
-
+  onSelect() {
+      
+      let file = this.$refs.file.files[0];
+      this.file = file;
+      
+    },
     sendText(f) {
      
       if (!this.file && !this.text) {
         this.error = " Merci de joindre du texte ou une image à publier !";
         f.preventDefault();
-      }
-    },
-
-    onSelect() {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      const file = this.$refs.file.files[0];
-      this.file = file;
-      if (!allowedTypes.includes(file.type)) {
-        this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
-        this.file="";
-      }
-      if (file.size > 500000) {
-        this.error = "Votre fichier est trop volumineux: 500kb max! ";
-        this.file="";
-      }
+      } 
     },
 
     async onSubmit() {
+      
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      // Si le format du fichier n'est pas valide
+      if (this.file && !allowedTypes.includes(this.file.type)) {
+        
+        this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
+        console.log("Merci de choisir un fichier PNG, JPG ou JPEG! ")
+      } 
+      // Si le fichier est trop volumineux
+      else if (this.file && this.file.size > 500000) {
+        this.error = "Votre fichier est trop volumineux: 500kb max! ";
+      }
+      // Si tout va bien
+      else {
+      
       const formData = new FormData();
       formData.append("file", this.file);
       formData.append("post", this.text);
@@ -375,15 +390,13 @@ export default {
       formData.append("profil_picture", this.userConnected.profil_picture)
            console.log ('file: ', this.file)
            console.log ('user_send: ', this.userConnected.name)
-      let Token = JSON.parse(localStorage.getItem("Token"));
-      
       try {
         await axios.post("http://localhost:3000/api/posts", formData,
         {
             headers:
-            //('Content-Type: multipart/form-data'),
+            
             {
-            authorization: `bearer ${Token.token}`,
+            authorization: `bearer ${this.Token.token}`,
             }
           }
           )
@@ -397,9 +410,12 @@ export default {
       } catch (err) {
         console.log(err);
       }
-      this.file="";
+      location.reload()
+      //this.getAllPosts();
+      this.file=null;
       this.text="";
-      this.getAllPosts();
+      
+    }
     },
 //---------- Fin publier un post ---------------//
 
@@ -432,7 +448,7 @@ export default {
       if (!this.file && !this.textModified) {
         this.error = " Merci de joindre du texte ou une image pour envoyer !";
         f2.preventDefault();
-        this.okModifyPost=!this.okModifyPost
+        //this.okModifyPost=!this.okModifyPost
       }
     },
     onSelected() {
@@ -441,9 +457,11 @@ export default {
       this.file = file;
       if (!allowedTypes.includes(file.type)) {
         this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
+        this.updatePost.preventDefault()
       }
       if (file.size > 500000) {
         this.error = "Votre fichier est trop volumineux: 500kb max! ";
+        this.f.preventDefault()
       }
     },
     updatePost(f) {
@@ -458,13 +476,22 @@ export default {
         formData.append("file", this.file);
       }
       console.log(formData);
-      const self=this
+      
       axios
-          .put("http://localhost:3000/api/posts/" + this.postId, formData)
+          .put("http://localhost:3000/api/posts/" + this.postId, formData,
+          {
+            headers:
+            
+            {
+            authorization: `bearer ${this.Token.token}`,
+            }
+          }
+          )
 
           .then(function (res) {
             console.log(res);
             self.getAllPosts();
+           
           })
           .catch(function (err) {
             console.log("Erreur :", err);
@@ -473,7 +500,7 @@ export default {
           this.okModifyPost = !this.okModifyPost;
           this.textModified="";
           this.error="";
-          
+          this.getAllPosts();
     },
     
     // ---------- Fin modifier un post ------------//
@@ -484,7 +511,7 @@ export default {
       console.log("postId:", postId);
       console.log("UserId", this.userConnected.userId);
       console.log("User_send:", this.userConnected.user_send);
-
+      let self=this
       axios
         .post("http://localhost:3000/api/comments", {
           comment: this.comment,
@@ -492,25 +519,42 @@ export default {
           userId: this.userConnected.userId,
           user_send: this.userConnected.name,
           profil_picture: this.userConnected.profil_picture,
-        })
+        },
+        {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
+          }
+        }
+        )
         .then(function (res) {
           console.log(res);
+          self.getAllPosts();
         })
         .catch(function (err) {
           console.log(err);
         });
+        this.comment="";
+        this.okComment=false;
     },
     // ------- Fin créer un commentaire --------- //
 
 // --6/ ----- Afficher tous les commentaires d'un post--------- //
     getAllComments(postId) {
-      //this.afficherCommentaires=false;
+      
       this.afficherCommentaires=!this.afficherCommentaires;
       this.showComments=!this.showComments
       const self=this
-      axios.get("http://localhost:3000/api/comments/" + postId)
+      axios.get("http://localhost:3000/api/comments/" + postId,
+        {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
+          }
+        }
+      )
         .then(function (res) {
-        //  self.getAllPosts()
+          self.getAllPosts()
           console.log ("Résultats: ", res.data)
           self.comments=res.data
           console.log ("comments:", self.comments[0].user_send)
@@ -533,7 +577,14 @@ like_it(postId) {
           postId: postId,
           userId: this.userConnected.userId,
           
-        })
+        },
+        {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
+          }
+        }
+        )
         .then(function (res) {
           console.log("La réponse du serveur: ", res.data.status);
           
@@ -557,7 +608,14 @@ deslike_it(postId) {
           postId: postId,
           userId: this.userConnected.userId,
           
-        })
+        },
+        {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
+          }
+        }
+        )
         .then(function (res) {
           console.log(res.data.message);
           self.getAllPosts()
@@ -574,8 +632,10 @@ deslike_it(postId) {
 };
 </script>
 
-<!-- ///////// Style CSS  //////// -->
+<!-- ........ Style CSS  ............ -->
+
 <style>
+
 /* Publier un post */
 .all {
   margin: auto;
@@ -616,7 +676,11 @@ deslike_it(postId) {
   box-shadow: 2px 2px 5px grey;
   
 }
-
+.publicationText {
+  text-align: justify;
+  padding: 5px;
+  font-family:'Courier New', Courier, monospace;
+}
 textarea {
   width: 85%;
   height: 100px;
@@ -624,8 +688,12 @@ textarea {
   border: 0.1px solid rgb(226, 219, 219);
   border-radius: 5px;
   box-shadow: 1px 2px 5px grey;
+  
 }
-
+textarea:focus,.btnComment:hover {
+  outline:2px solid rgb(21, 14, 65);
+}
+ 
 .send-it {
   width: 100%;
   margin: 15px 0px;
@@ -640,11 +708,13 @@ textarea {
   color:rgb(8, 240, 8)
 }
 .errorMessage {
+  /*
   animation-duration: 10s;
   animation-name: errors;
-  opacity:0;
+  opacity:0;*/
   color:crimson;
 }
+/*
 @keyframes errors {
   0% {
     opacity:1;
@@ -654,12 +724,13 @@ textarea {
   }
   
 }
+*/
 /* Fin publier un post */
 
 button {
-  background:black;
+  background:rgb(21, 14, 65);
   color: white;
-  height: 30px;
+  height: 40px;
   border-radius: 20px;
   border: none;
   padding:5px 15px;
@@ -707,10 +778,18 @@ button:hover{
   margin-left: 10px;
   text-align: left;
   font-size: 1rem;
+  font-style: italic;
   font-weight: 900;
+  color: rgb(56, 55, 55);
+  font-family:cursive;
 }
-.comment {
+
+/* Les commentaires -*/
+
+.notShowComment {
   background: rgb(233, 228, 228);
+  display:flex;
+  justify-content: space-between;
 }
 .publicationPhoto {
   width: 60%;

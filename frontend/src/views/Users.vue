@@ -1,13 +1,14 @@
 <template>
   <div class="all">
+    <div v-if="authentified || Token==null" class="authentified"> {{ authentified }}</div>
+    <div v-else>
     <h1>Liste des salariés</h1>
+    
     <div class="usersList">
       <div v-for="user in users" :key="user.userId">
         
-   <router-link :to="{ name: 'Profil', params: { id: user.userId } }">
+      <router-link :to="{ name: 'Profil', params: { id: user.userId } }">
           <div class="userCard">
-                      
-            
         <img v-if="user.profil_picture"
           :src="require(`./../../../backend/images/${user.profil_picture}`)"
           width="200"
@@ -19,9 +20,11 @@
             <p class="identifiant"> Identifiant: {{ user.userId }}</p>
           </div>
       </router-link> 
+
       </div>
     </div>
-  </div>
+  </div> 
+</div>
  
 </template>
 
@@ -35,25 +38,46 @@ export default {
   data() {
     return {
       users: [],
+      authentified:"",
+      Token:null,
     };
   },
 
   created() {
     this.getAllUsers();
-  },
+ },
 
   methods: {
     // Get all users
     getAllUsers() {
+     this.Token = JSON.parse(localStorage.getItem("Token"));
+      if (this.Token){
       axios
-        .get("http://localhost:3000/api/users")
+        .get("http://localhost:3000/api/users",
+       {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
+          }
+        })
         .then((res) => {
           console.log('Liste des salariés:' , res.data);
-          this.users = res.data;
+          
+           if (res.data.message){
+           // console.log ("Requête non authentifié:", this.publications.message);
+            this.authentified=res.data.message
+          // Si requête authentifiée
+          } else {
+            this.users = res.data;
+            console.log("Requête authentifiée: Liste des salariés:", this.users);
+          }
         })
         .catch((err) => {
           console.log(err);
         });
+      } else {
+        this.authentified=" Merci de vous connecter d'abord !"
+      }
     },
 
     //
@@ -107,5 +131,10 @@ p, h1 {
   color: black;
   text-decoration: none;
   text-shadow: 1px 1px 1px rgb(100, 98, 98);
+  font-family: cursive;
+}
+.authentified {
+  color:red;
+  font-weight: bold;
 }
 </style>

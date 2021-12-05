@@ -1,9 +1,10 @@
 <template>
-    <div>
+    <div class="all">
       <!-- Publier un post -->
-
+<h2> Publiez...</h2>
 <!-- Formulaire -->
       <div class="publicationCard">
+        
         <form @submit.prevent="onSubmit" enctype="multipart/form-data">
           <div>
             <textarea
@@ -200,8 +201,6 @@
       </div>
     </div>
 
-
-
 <div v-else> Il n'y a aucune publication à afficher !</div>
 <p class="authentified"> {{ authentified }}</p>
 
@@ -247,10 +246,12 @@ export default {
       status:0,
       afficherCommentaires:true,
       authentified:"",
+      Token:""
     };
     },
     created() {
     this.getAllMyPosts();
+    this.userId=this.$route.params.id
     },
      mounted(){
     this.getAllMyPosts();
@@ -270,25 +271,26 @@ export default {
 
 //----  1- Afficher toutes mes publications ////////
     getAllMyPosts() {
-      let Token = JSON.parse(localStorage.getItem("Token"));
-      console.log(Token);
-      this.userId = Token.userId;
+      this.Token = JSON.parse(localStorage.getItem("Token"));
+      console.log(this.Token);
+      //this.userId = Token.userId;
 
       axios
         .get("http://localhost:3000/api/posts/" + this.userId, {
           headers: {
-          authorization: `bearer ${Token.token}`,
+          authorization: `bearer ${this.Token.token}`,
           },
         })
 
         .then((response) => {
-          this.publications = response.data;
+          
           // Si requête non authentifiée
           if (response.data.message){
             console.log("Requête non authentifié:", this.publications.message);
             this.authentified=response.data.message
           // Si requête authentifiée
           } else {
+            this.publications = response.data;
             console.log("Requête authentifiée: Tableau des bublications:", this.publications);
           }
         })
@@ -297,6 +299,7 @@ export default {
         });
     },
     ///// Fin afficher tous mes posts ////////
+  
   // ---- 2- Publier un post //
 
     sendText(f) {
@@ -331,11 +334,14 @@ export default {
            console.log ('file: ', this.file)
            console.log ('user_send: ', this.userConnected.name)
       try {
-        await axios.post("http://localhost:3000/api/posts", formData),
+        await axios.post("http://localhost:3000/api/posts", formData,
         {
-            headers:('Content-Type: multipart/form-data'),
+          headers: {
+          authorization: `bearer ${this.Token.token}`,
+          },
+          //headers:('Content-Type: multipart/form-data'),
            
-          }
+          })
           
           .then(function (res) {
             console.log(res);
@@ -347,9 +353,10 @@ export default {
       } catch (err) {
         console.log(err);
       }
-      this.file="";
+      
       this.text="";
       this.getAllMyPosts();
+      this.file="";
     },
 //---------- Fin publier un post ---------------//
 
@@ -358,7 +365,13 @@ export default {
       console.log("postId:", id);
       const self = this;
       axios
-        .delete("http://localhost:3000/api/posts/" + id)
+        .delete("http://localhost:3000/api/posts/" + id,
+        {
+        headers: {
+          authorization: `bearer ${this.Token.token}`,
+          }
+        })
+        
 
         .then(function (res) {
           console.log(res);
@@ -403,8 +416,13 @@ export default {
       console.log(formData);
       const self=this
       axios
-          .put("http://localhost:3000/api/posts/" + this.postId, formData)
-
+          .put("http://localhost:3000/api/posts/" + this.postId, formData,
+          {
+        headers: {
+          authorization: `bearer ${this.Token.token}`,
+          }
+        })
+          
           .then(function (res) {
             console.log(res);
             self.getAllMyPosts();
@@ -435,7 +453,13 @@ export default {
           userId: this.userConnected.userId,
           user_send: this.userConnected.name,
           profil_picture: this.userConnected.profil_picture,
+        },
+        {
+        headers: {
+          authorization: `bearer ${this.Token.token}`,
+          }
         })
+        
         .then(function (res) {
           console.log(res);
         })
@@ -451,7 +475,13 @@ export default {
       this.afficherCommentaires=!this.afficherCommentaires;
       this.showComments=!this.showComments
       const self=this
-      axios.get("http://localhost:3000/api/comments/" + postId)
+      axios.get("http://localhost:3000/api/comments/" + postId,
+      {
+        headers: {
+          authorization: `bearer ${this.Token.token}`,
+          }
+        })
+      
         .then(function (res) {
         //  self.getAllPosts()
           console.log ("Résultats: ", res.data)
@@ -476,7 +506,13 @@ like_it(postId) {
           postId: postId,
           userId: this.userConnected.userId,
           
+        },
+        {
+        headers: {
+          authorization: `bearer ${this.Token.token}`,
+          }
         })
+        
         .then(function (res) {
           console.log("La réponse du serveur: ", res.data.status);
           
@@ -500,7 +536,13 @@ deslike_it(postId) {
           postId: postId,
           userId: this.userConnected.userId,
           
+        },
+        {
+        headers: {
+          authorization: `bearer ${this.Token.token}`,
+          }
         })
+        
         .then(function (res) {
           console.log(res.data.message);
           self.getAllMyPosts()
@@ -517,3 +559,7 @@ deslike_it(postId) {
 
 
 </script>
+
+<style scoped>
+
+</style>

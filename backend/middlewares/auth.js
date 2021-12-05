@@ -16,9 +16,42 @@ module.exports = (req, res, next) => {
       next();
     }
   } catch {
-    console.log("Requête non authentifiée!")
+    console.log("Votre requête n'est pas authentifiée! Merci de vous reconnecter.")
     res.status(200).json({
-      message:'Requête non authentifiée!'
+      message:"Votre requête n'est pas authentifiée! Merci de vous connecter."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
     });
     
   }

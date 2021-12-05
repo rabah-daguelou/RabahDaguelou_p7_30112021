@@ -64,7 +64,8 @@ exports.createComment=(req,res,next)=>{
 exports.getAllComments=(req, res, next)=> {
   console.log ("postId:", req.params.id)
   let postId=req.params.id
-  let sql="SELECT * FROM comments WHERE postId="+postId+" ORDER BY date_send DESC"
+  let sql= "SELECT *, DATE_FORMAT (date_send, '%d/%m/%Y à %H:%i:%s') as DATETIME_FR FROM comments WHERE postId=" +postId+ " ORDER BY date_send DESC"
+// let sql="SELECT * FROM comments WHERE postId="+postId+" ORDER BY date_send DESC"
   db.query(sql, (err, results) => {
     if (err){
       console.log (" Erreur BDD:", err) 

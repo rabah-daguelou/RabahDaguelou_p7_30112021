@@ -19,7 +19,7 @@ router.post("/posts", auth, multer, postsCtrl.createPost);
 // Afficher tous les posts
 router.get("/posts", auth, postsCtrl.getAllPosts);
 // Afficher les posts d'un utilisateur
-router.get("/posts/:id", postsCtrl.getAllMyPosts);
+router.get("/posts/:id", auth, postsCtrl.getAllMyPosts);
 // Supprimer un post
 router.delete("/posts/:id", auth, postsCtrl.deletePost);
 // Modifier un post

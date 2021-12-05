@@ -1,7 +1,7 @@
 <template >
   <div class="all">
     
-   <navigation class="navigation"> </navigation>
+   <navigation :isConnected="isConnected" class="navigation"> </navigation>
   <router-view/>
     
   </div>
@@ -15,15 +15,15 @@ import Navigation from './components/Navigation.vue'
 export default {
   components: { Navigation },
   name: 'App',
- /*
-  components: {
-    Login
-  }*/
-  
 }
+
 </script>
 
 <style scoped>
+
+body {
+  height: 100vh;
+}
 .all{
   
   background:#ffd7d7;

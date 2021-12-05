@@ -278,7 +278,7 @@ exports.updateEmail = (req, res, next) => {
   });
 };
 
-//////////////////////////////////////////////
+/// Modifier le mot de passe  ///////////////////////////////////////////
 exports.updatePassword = (req, res, next) => {
   bcrypt.hash(req.body.password, 10).then((hash) => {
     const newPassword = hash;

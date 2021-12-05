@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="all">
 
   <!-- Carte du formulaire -->
   <div class="form-card">
@@ -187,7 +187,9 @@ export default {
               } else {
                 console.log("data : ", res.data);
                 localStorage.setItem("Token", JSON.stringify(res.data));
+                
                 self.$router.push("/Posts");
+                
               }
             })
             .catch(function (err) {
@@ -216,7 +218,9 @@ export default {
 </script>
 
 <style scoped>
-
+.all {
+  height: 100vh;
+}
 li {
   color: red;
   list-style: none;
@@ -242,9 +246,9 @@ li {
 #input-card > button, button {
   width: 80%;
   height: 50px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   text-align: center;
-  border-radius: 5px;
+  border-radius: 8px;
   transition: transform 0.2s;
   color: rgb(12, 11, 11);
 }
@@ -256,14 +260,19 @@ li {
   font-weight: 900;
   color: rgb(255, 0, 140);
   cursor: pointer;
+  font-size: 1em;
 }
 
 button {
-  background: rgb(165, 162, 162);
+  background: #ffd7d7;
   color: #000;
   font-weight: 900;
 }
-
+input:focus {
+  color:black;
+  font-size: 1.2em;
+  font-weight: bold;
+}
 /* medias queries */
 
 @media screen and (max-width: 769px) {

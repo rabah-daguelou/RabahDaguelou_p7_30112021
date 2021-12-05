@@ -1,32 +1,43 @@
 <template>
+<div class="all">
+  <p v-if="authentified || Token==null" class="authentified"> {{ authentified }}</p>
   <!---  <Profil> </Profil>  --->
-  <div class="main">
-    <h2>Mon profil</h2>
+  <div v-else class="all">
+    <h2> Le profil de {{ oneUser.name}}</h2>
 
     <!-- Profil image / name / Email / is_admin-->
-     <img v-if="oneUser.profil_picture"
+    <div class="user-infos">
+      <div>
+          
+        <img v-if="oneUser.profil_picture"
           :src="require(`./../../../backend/images/${oneUser.profil_picture}`)"
           width="200"
           alt=""
         />  
         <img v-else src="../assets/icon.png" alt="" />
     
-     
     <p class="username" > {{ oneUser.name }} 
-          <span v-if="oneUser.isAdmin == 1" title="Administrateur"> <i class="fas fa-user-cog"> </i> </span>
-        </p>
+      <span v-if="oneUser.isAdmin == 1" my_title="Administrateur"> <i class="fas fa-user-cog"> </i> </span>
+    </p>
   
+    </div>
+      <div class="infos-user">
+        <p> Mail: <span>{{ oneUser.email }}</span>  </p>
+        <p> Matricule: <span>{{ oneUser.userId }}</span> </p>
+        <p v-if="oneUser.isAdmin == 1"> Administrateur </p>
+        
+      </div>
+    </div>
    <!--   -->
   <div>
         <!-- Modifier ou supprimer mon profil -->
-    <div class="modify">
+    <div v-if="oneUser.userId==Token.userId" class="modify">
     <button v-if="!okDeleteProfil" @click="btnModifyProfil()" class="btn modifyProfil">
        Modifier mon profil &#160;  <i class="fas fa-pen-square"> </i></button>
     <button v-if="!okModifyProfil" class="btn deleteProfil" @click="btnDeleteProfil()">
       <i class="fas fa-user-minus"></i> Supprimer mon profil
     </button>
     
-
     <!-- Supprimer mon profil -->
     <p v-if="okDeleteProfil && !okModifyProfil" class="attention">
       Attention, la suppression de votre profil est irréversible !!!
@@ -112,12 +123,13 @@
       </form>
     </div>
     </div>
+    
   </div>
 
 <!-- Mes publications -->
-  <h2> Mes publications </h2>
-  <button v-if="!okShowMyPublications" class="btn" @click="btnShowMyPublications"> Afficher mes publications </button>
-  <button v-else class="btn" @click="btnShowMyPublications"> Masquer mes publications </button>
+  <h2> Les publications de {{ oneUser.name }} </h2>
+  <button v-if="!okShowMyPublications" class="btn" @click="btnShowMyPublications"> Afficher toutes les publications </button>
+  <button v-else class="btn" @click="btnShowMyPublications"> Masquer les publications </button>
   
   <div v-if="okShowMyPublications">
     <MyPublications :userConnected="oneUser"> </MyPublications>
@@ -125,7 +137,8 @@
 <!-- Fin mes publications  -->
   </div>
 
- 
+
+</div> 
 </template>
 
 <script>
@@ -165,6 +178,8 @@ export default {
       profil_picture:'',
       okShowMyPublications:false,
       text: "",
+      Token:null,
+      authentified:""
       
     };
   },
@@ -195,26 +210,51 @@ export default {
   
 // Get one user
     async getOneUserById(userId) {
+      this.Token = JSON.parse(localStorage.getItem("Token"));
+      if (this.Token) {  
         try {
         const response = await axios.get(
-          "http://localhost:3000/api/users" + userId
+          "http://localhost:3000/api/users" + userId,
+          {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
+          }
+        }
         );
-        console.log(response.data[0]);
-        this.oneUser = response.data[0];
+        // Si requête non authentifiée
+       if (response.data.message){
+         this.authentified=response.data.message;
+        // Si requête authentifiée
+       } else {
+         this.oneUser = response.data[0];
+       }
+        
       } catch (err) {
         console.log(err);
+      }
+      } else {
+        this.authentified=" Merci de vous connecter d'abord !"
       }
     },
     ///////////////////
 // Delete One User
 
     deleteOneUser: function (event) {
-        console.log ("userId", this.oneUser.userId)
+        
         this.id=this.$route.params.id
-        console.log ('id:', this.id)
+        console.log ('userId:', this.id)
       if (event) {
         axios
-          .delete("http://localhost:3000/api/users" + this.id)
+          .delete("http://localhost:3000/api/users" + this.id,
+          {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
+          }
+        }
+          
+          )
           .then((res) => {
             console.log(res);
           })
@@ -250,7 +290,15 @@ export default {
         let self=this
         await axios
           .patch("http://localhost:3000/api/users/photo/" + this.id, 
-         formData)
+         formData,
+         {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
+          }
+        }
+         
+         )
           .then(function (res) {
             console.log('profil_picture à modifier:', res.data[0].profil_picture);
             console.log('nouvelle profil_picture:', self.profil_picture);  
@@ -274,7 +322,13 @@ export default {
           {
             email: this.email2,
             
+          },
+          {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
           }
+        }
           )
           .then ( (res)=>{
               this.errorEmail2="";
@@ -285,14 +339,10 @@ export default {
                 this.errorEmail2="";
                 this.errorEmail2="Votre email a été modifié avec succès!"
                 console.log("Email modifié ! ");
-               
-                }
-
-
+              }
           })
           .catch( (err)=> {
            console.log("Erreur serveur !", err)
-            
           })
        }
     },
@@ -309,7 +359,13 @@ export default {
             password: this.password2,
             password1: this.password1
         
+          },
+          {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
           }
+        }
           )
           .then ( (res)=>{
               this.errorPassword2="";
@@ -345,7 +401,13 @@ updateName: function (event) {
           {
             name: this.name2,
             
+          },
+          {
+          headers:
+          {
+            authorization: `bearer ${this.Token.token}`,
           }
+        }
           )
           .then ( (res)=>{
             console.log(res.data.message)
@@ -368,16 +430,62 @@ updateName: function (event) {
 
 <!--   Style --->
 
-<style scoped>
-.main {
+<style scoped >
+.all {
   text-align: center;
   margin: auto;
+  background:#ffd7d7 ;
+  height: 100%;
 }
 
+/* --------- Les infos-bulles ------------ */
+[my_title] {
+    position: relative;
+}
+[my_title]:hover:after {
+    opacity: 1;
+    transition: all 0.1s ease 0.5s;
+    visibility: visible;
+}
+[my_title]:after {
+    content: attr(my_title);
+    position: absolute;
+    bottom:0px;
+    left:35px;
+    visibility: hidden;
+    font-family: cursive;
+    font-weight: 600;
+    font-size: 1.7em;
+}
+[my_title]:after:active{
+  visibility: hidden;
+}
+/* ----  */
+/*-- userInfos -- */
+.user-infos {
+  display: flex;
+  justify-content: space-around;
+}
+.infos-user {
+  text-align: left;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 600;
+}
+.infos-user span {
+  font-size: 1em;
+  font-weight: 200;
+  font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
+}
+/* ----- */
+
+.authentified {
+  color:red;
+  font-weight: bold;
+}
 .username {
   color:#000;
   text-shadow: 1px 1px 2px #222;
-  margin-left: 18px;
+  margin-top: 10px;
 }
 .username i{
   color:rgb(10, 10, 248)
@@ -438,7 +546,7 @@ p {
   background: rgb(255, 255, 255);
   border-radius: 10px;
   box-shadow: 2px 2px 5px ;
-  padding-bottom: 15px;
+  padding-bottom: 0px;
 }
 .modifyPhoto {
   margin: auto;
@@ -446,10 +554,7 @@ p {
 }
 
 /******** */
-.all {
-  margin: auto;
-  text-align: center;
-}
+
 .bar-nav {
   width: 100%;
   height: 50px;

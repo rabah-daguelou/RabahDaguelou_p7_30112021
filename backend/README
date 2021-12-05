@@ -1,0 +1,23 @@
+
+Groupomania est un réseau social interne de l'entreprise. C'est un outil d'échange et d'interaction entre les collègues. Les employés de l'entreprise peuvent publier, partager et commenter des publications et des articles de sujets divers pour favoriser l'ambiance et la motivation au sein de l'équipe. Plusieurs fonctionnalités ont été développées afin de faciliter la communication entre collègues. Néanmoins, le projet demeure un MVP à améliorer selon les besoins de l'entreprise! 
+
+Pour lancer l'application:
+dsdxw
+1- Accédez à votre terminal ( cmd, gitbush, shell ...)
+
+2- Clonez le repos GitHub: git clone https://github.com/rabah-daguelou/RabahDaguelou_p7_20082021.git
+
+3- Créez un fichier .env dans le dossier backend et renseignez votre token et éventuellement le PORT.
+
+exemple:
+TokenSecret="GVxODN08"
+PORT="3000"
+
+4- Accédez au dossier frontend: cd frontend
+5- Exécuter npm install.
+6- Lancez la commande: npm run serve
+7- Accédez au dossier backend: cd backend 
+8- Lancez la commande: nodemon server
+
+Si vous n'arrivez pas à vous connecter à l'application, merci d'envoyer un mail
+à l'adresse suivante: lounislina@yahoo.fr
