@@ -57,8 +57,8 @@
      -->
       </div>
 
-      <div v-else>
-        <button @click="login()" class="button" type="submit">
+      <div v-else  >
+        <button  @keyup.enter="login()" @click="login()" class="button" type="submit">
           Je me connecte
         </button>
       </div>
@@ -114,10 +114,12 @@ export default {
   methods: {
     signupOne: function () {
       this.mode = "signup";
+      this.errors=[];
     },
     //
     loginOne: function () {
       this.mode = "login";
+      this.errors=[];
     },
     
 
@@ -168,7 +170,7 @@ export default {
       }
     },
 
-    //
+    // ------- Se connecter -----
     //
     async login() {
       // Controler le formulaire
