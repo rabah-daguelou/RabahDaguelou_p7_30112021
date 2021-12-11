@@ -1,22 +1,33 @@
 <template >
   <div class="all">
     
-   <navigation :isConnected="isConnected" class="navigation"> </navigation>
-  <router-view/>
+   <navigation class="navigation"> </navigation>
+   <router-view />
     
   </div>
 
 </template>
 
 <script>
-import Navigation from './components/Navigation.vue'
-// import Login from "./views/Login.vue";
+import Navigation from './components/Navigation.vue';
+//import {eventBus} from './main';
+
 
 export default {
   components: { Navigation },
   name: 'App',
-}
+  data (){
+    return {
+      isConnected:false
+    }
+  },
 
+  created(){
+   // this.isConnected=eventBus.isConnected;
+    console.log ("isConnected:", this.isConnected)
+  },
+
+}
 </script>
 
 <style scoped>

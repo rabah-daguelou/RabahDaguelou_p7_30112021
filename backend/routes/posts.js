@@ -23,6 +23,8 @@ router.get("/posts/:id", auth, postsCtrl.getAllMyPosts);
 // Supprimer un post
 router.delete("/posts/:id", auth, postsCtrl.deletePost);
 // Modifier un post
-router.put("/posts/:id", multer, postsCtrl.updatePost);
+router.put("/posts/:id", auth, multer, postsCtrl.updatePost);
+// Partager un post
+router.post("/posts/share", auth, postsCtrl.sharePost);
 
 module.exports = router;

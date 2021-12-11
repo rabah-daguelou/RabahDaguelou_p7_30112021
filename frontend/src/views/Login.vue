@@ -189,9 +189,7 @@ export default {
               } else {
                 console.log("data : ", res.data);
                 localStorage.setItem("Token", JSON.stringify(res.data));
-                
                 self.$router.push("/Posts");
-                
               }
             })
             .catch(function (err) {

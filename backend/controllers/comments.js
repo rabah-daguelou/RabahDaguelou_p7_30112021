@@ -77,4 +77,19 @@ exports.getAllComments=(req, res, next)=> {
    
 };
 
+// ----- Masquer un commentaire 
 
+exports.maskComment=(req, res, next)=>{
+  console.log ( "Commentaire à masquer:", req.params.id)
+  let sql=" UPDATE comments SET masked=1 WHERE commentId=" + req.params.id
+  db.query(sql, (err, results )=>{
+    if (err) {
+      console.log("Erreur Bdd", err)
+    } else {
+      console.log ( " Commentaire masqué dans la Bdd ")
+      res.status(201).json ({ message: " Commentaire masqué dans la Bdd "
+        })
+    }
+  })
+
+}

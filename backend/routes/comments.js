@@ -15,9 +15,14 @@ const commentsCtrl= require ('../controllers/comments')
 
 
 // Publier un commentaire //
-
 router.post("/comments", commentsCtrl.createComment);
+
+// Afficher tous les commentaires
 router.get("/comments/:id", commentsCtrl.getAllComments);
+
+// Masquer un commentaire
+router.patch("/comments/:id", commentsCtrl.maskComment)
+
 
 
 module.exports = router;

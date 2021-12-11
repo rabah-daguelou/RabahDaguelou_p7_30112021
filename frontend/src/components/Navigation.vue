@@ -28,9 +28,10 @@
             <router-link to="/"><i class="fas fa-plug"></i></router-link>
           </li>
          
+
+         
           <li my_title=" Forum" class="infobulle">
             <router-link to="/Posts"> <img src="../assets/icon.png" alt="" width="23"> </router-link>
-            
           </li>
 
           <li my_title=" Utilisateurs" class="infobulle">
@@ -47,7 +48,6 @@
             </router-link>
             
           </li>
-
 
           <li v-if="connexion" @click="deconnected" my_title=" Se déconnecter" class="infobulle">
             <router-link to="/"
@@ -71,12 +71,21 @@ export default {
   data (){
     return{
       userId:"null",
-      isConnected:false,
       Token:""
-      
     }
   },
+  props:
+  ["isConnected"],
+ 
+
   created(){
+    if (JSON.parse(localStorage.getItem("Token"))) {
+      this.userId=JSON.parse(localStorage.getItem("Token")).userId
+     // this.isConnected==true
+      
+    }
+    
+    console.log("Utilisateur connecté:", this.userId)
     //this.deconnected();
     //this.connexion()
   },
@@ -84,18 +93,18 @@ export default {
   computed:{
     connexion(){
       return JSON.parse(localStorage.getItem("Token"))
-      
-    }
+    },
   },
+ 
   methods:{
     deconnected(){
       localStorage.removeItem("Token");
+      //this.isConnected==false
       location.reload()
+      this.isConnected==false
     },
+  
   }
-  
-  
- 
 };
 </script>
 

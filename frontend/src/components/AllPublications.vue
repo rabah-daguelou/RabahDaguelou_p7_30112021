@@ -73,11 +73,45 @@
     <!-- Les publications  -->
     <div v-if="publications.length">
       <div
-        v-for="publication in publications"
-        :key="publication"
+        v-for="publication in publications" :key="publication"
+        
         class="publicationCard"
-      >
+      > 
+           <!-- Si la publication est partagée -->
+           
+           <div v-if="publication.shared==1" class="publicationDate shared"> 
+           <div  class="userAndImage shared">
+   
+            <img
+              :src="
+                require(`./../../../backend/images/${publication.shared_userProfil_picture}`)
+              "
+              width="100"
+              alt=""
+            />
+                      
+            </div>
+            <p> partagée par: {{ publication.shared_userName }}</p>
+             <p class="datePub">Partagé le {{ publication.DATETIME_FR }}</p>
+            <hr/>
+            </div>
+            
+          <!-- 
+          
+          
+          
+          
+          <p class="datePub">Partagée le {{ publication.DATETIME_FR }}</p>
+          
+          </div>
+          </div>
+          -->
+          <!-- fin si publication partagée -->
+      
         <div class="publicationDate">
+          
+         
+          
           <div class="userAndImage">
             <img
               :src="
@@ -88,15 +122,16 @@
             />
           </div>
           <p>{{ publication.user_send }}</p>
-          <p class="datePub">Publié le {{ publication.DATETIME_FR }}</p>
+          <p v-if="publication.shared_number>0" class="datePub">Publié le {{ publication.shared_date }}</p>
+          <p v-else class="datePub">Publié le {{ publication.DATETIME_FR }} </p>
         </div>
 
         <div v-if="publication.image" class="publicationPhoto">
           <img
             :src="require(`./../../../backend/images/${publication.image}`)"
             width="200"
-            alt=""
-          />
+            alt=" pas de photo"
+          /> 
         </div>
 
         <p class="publicationText">{{ publication.post }}</p>
@@ -178,7 +213,7 @@
               </div>
             </div>
 
-            <p v-if="error" class="errorMessage">{{ error }}></p>
+            <p v-if="error" class="errorMessage">{{ error }}</p>
           </form>
         </div>
 
@@ -186,14 +221,24 @@
 
         <!-- 1/ Publier un commentaire -->
         <div class="commentCard">
-          <button @click="btnComment(publication.postId)">
-            Commenter &emsp; <i class="far fa-comment-dots"></i>
-          </button>
+       
+          <div class="commentAndPartage likes" >
+
+          <i class="far fa-comment-dots comment" @click="btnComment(publication.postId)">
+            <span> Commenter  </span> 
+          </i>
+          <!-- Bouton Partager -->
+          <i class="fas fa-share-square share">
+            <span @click="share(publication)"> Partager <span class="shared_number"> {{ publication.shared_number}}</span> </span>
+          </i>
+                  
+          </div>
+
           <form
             v-if="okComment && publication.postId == this.postId"
             @submit.prevent=""
           >
-            <textarea
+            <textarea 
               v-model="comment"
               cols="30"
               name="text"
@@ -215,12 +260,15 @@
 
         <!--  2/ Afficher tous les commentaires du postId-->
         <div class="allComments">
+          
           <button
             v-if="afficherCommentaires && publication.commentNumber"
-            @click="getAllComments(publication.postId)"
-          >
-            Afficher tous les commentaires ( {{ publication.commentNumber }})
+            @click="getAllComments(publication.postId)">
+          
+            Commentaires
+          <span> {{ publication.commentNumber }} </span> 
           </button>
+
           <button
             v-if="!afficherCommentaires && publication.commentNumber"
             @click="getAllComments(publication.postId)"
@@ -244,28 +292,33 @@
                   <p>{{ comment.user_send }}</p>
                   <p class="datePub">Publié le {{ comment.DATETIME_FR }}</p>
                 </div>
+
                 <!-- Désactiver un commentaire -->
                 <div class="notShowComment">
-                  <p v-if="comment.masked == 1">
+
+                  <p v-if="comment.masked == 1" class="masked">
                     Ce commentaire est masqué par l'administrateur !
                   </p>
-                  <p v-else class="comment">{{ comment.comment }}</p>
+                  <p v-if="comment.masked==0 || demasked" class="comment">{{ comment.comment }}</p>
 
                   <div>
-                    <button
+                    <button @click="maskComment(comment.commentId)"
                       v-if="userConnected.isAdmin == 1 && comment.masked == 0"
                     >
-                      Masquer
+                      Masquer 
                     </button>
-                    <button
+
+                    <button @click="demask"
                       v-if="userConnected.isAdmin == 1 && comment.masked == 1"
                     >
                       Montrer
                     </button>
                   </div>
+
                 </div>
                 <!-- -->
-                <hr />
+
+                <hr/>
               </div>
             </div>
           </div>
@@ -305,6 +358,7 @@ export default {
       afficherCommentaires: true,
       authentified: "",
       Token: "",
+      demasked:false,
     };
   },
   
@@ -324,6 +378,10 @@ export default {
   },*/
   mounted() {
     this.getAllPosts();
+    
+  },
+  created () {
+  this.share()
   },
 
   methods: {
@@ -370,6 +428,38 @@ export default {
         });
     },
     ///// Fin Get All posts ////////
+
+    
+    // ------ Partager une publication ---//
+    share(publication){
+    
+      axios.post("http://localhost:3000/api/posts/share",
+      
+      { 
+        publication1:publication,
+        publication2:{
+          shared:1,
+          shared_userId: this.userConnected.userId,
+          shared_userName: this.userConnected.name,
+          shared_userProfil_picture: this.userConnected.profil_picture,
+        }
+     
+      },
+      {
+        headers: {
+            authorization: `bearer ${this.Token.token}`,
+          },
+      })
+    .then ((res)=> {
+      console.log ("Partager:", res)
+      
+    })
+    .catch ((err)=>{
+      console.log (" Erreur:", err)
+    })
+    this.getAllPosts()
+    },
+    // ---- Fin partager une publication --- //
 
     // ---- 2- Publier un post //
     onSelect() {
@@ -452,32 +542,47 @@ export default {
         });
     },
     // ----------- Fin supprimer un post ---------- //
-
+    
     //-- 4/ ---------- Modifier un post -------------//
-    onModify(f2) {
-      if (!this.file && !this.textModified) {
-        this.error = " Merci de joindre du texte ou une image pour envoyer !";
-        f2.preventDefault();
-        //this.okModifyPost=!this.okModifyPost
-      }
-    },
-    onSelected() {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    
+     onSelected() {
       const file = this.$refs.file.files[0];
       this.file = file;
-      if (!allowedTypes.includes(file.type)) {
-        this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
-        this.updatePost.preventDefault();
-      }
-      if (file.size > 500000) {
-        this.error = "Votre fichier est trop volumineux: 500kb max! ";
-        this.f.preventDefault();
-      }
+      console.log ('Photo modifiée:', this.file)
     },
-    updatePost(f) {
-      if (!this.textModified && !this.file.name) {
-        f.preventDefault();
+
+    updatePost() {
+      this.error="";
+      if (!this.file && !this.textModified) {
+        this.error = " Merci de joindre du texte ou une image pour envoyer !";
+        console.log("error:", this.error)
+        
+      //  this.okModifyPost=!this.okModifyPost
       }
+      
+    },
+   
+
+    onModify() {
+       this.error="";
+       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      if (!this.file && !this.textModified) {
+        this.error = " Merci de joindre du texte ou une image pour envoyer !";
+        console.log("error:", this.error)
+      } else if( this.file && !allowedTypes.includes(this.file.type)) {
+      
+      
+      // Si le format du fichier n'est pas valide
+       
+        this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
+      
+      // Si la photo est trop volumineuse
+      } else if (this.file && this.file.size > 500000) {
+        this.error = "Votre fichier est trop volumineux: 500kb max! ";
+      
+      // Si tout va bien
+      } else {
+      
       const formData = new FormData();
       if (this.textModified) {
         formData.append("textModified", this.textModified);
@@ -485,7 +590,7 @@ export default {
       if (this.file) {
         formData.append("file", this.file);
       }
-      console.log(formData);
+      console.log("FormData:", formData);
 
       axios
         .put("http://localhost:3000/api/posts/" + this.postId, formData, {
@@ -506,8 +611,11 @@ export default {
       this.textModified = "";
       this.error = "";
       this.getAllPosts();
+     // location.reload()
+      }
+      
     },
-
+    
     // ---------- Fin modifier un post ------------//
 
     // --- 5/ --- Créer un commentaire -------------- //
@@ -535,13 +643,15 @@ export default {
         )
         .then(function (res) {
           console.log(res);
-          self.getAllPosts();
+          self.getAllPosts()
+          this.okComment = false;
         })
         .catch(function (err) {
           console.log(err);
         });
       this.comment = "";
       this.okComment = false;
+      this.getAllPosts()
     },
     // ------- Fin créer un commentaire --------- //
 
@@ -558,7 +668,7 @@ export default {
         })
         .then(function (res) {
           self.getAllPosts();
-          console.log("Résultats: ", res.data);
+          console.log("Commentaires: ", res.data);
           self.comments = res.data;
           console.log("comments:", self.comments[0].user_send);
         })
@@ -566,6 +676,31 @@ export default {
           console.log("Erreur: ", err);
         });
     },
+    //  ------- Fin afficher les comentaires d'un post ---------//
+
+    // ----- Masquer un commentaire par l'administrateur  -------- //
+    maskComment(commentId){
+      console.log ('N° commentaire à masquer:', commentId)
+      axios.patch("http://localhost:3000/api/comments/" + commentId, {
+        headers:{
+          authorization: `bearer ${this.Token.token}`,
+        }
+        })
+        .then (function (res) {
+          console.log ("Réponse de masquer un commentaire:", res.data.message)
+        })
+        .catch (function (err){
+          console.log ("Erreur pour masquer un commentaire:", err)
+        })
+    },
+
+    // ------ Fin masquer un commentaire par l'administrateur  ----//
+    // --- Montrer le commentaire masqué pour l'administrateur
+    demask () {
+      this.demasked=true
+    },
+    ///--------
+
 
     // ------- Fin afficher tous les commentaires ------  //
 
@@ -779,6 +914,12 @@ button:hover {
   color: rgb(56, 55, 55);
   font-family: cursive;
 }
+/* user partage */
+.shared {
+  background: #cccaca;
+  padding: 5px;
+}
+
 
 /* Les commentaires -*/
 
@@ -811,8 +952,9 @@ button:hover {
   width: 100%;
   height: 40px;
   background: #ffd7d7;
+  padding: 5px;
 }
-.likes span.like {
+.likes span.like, .shared_number {
   display: inline-block;
   width: 20px;
   height: 20px;
@@ -823,6 +965,11 @@ button:hover {
   color: white;
   margin-left: 5px;
   box-shadow: 2px 2px 1px grey;
+  font-size: 10px;
+  text-align: center;
+}
+.shared_number {
+  padding-right: 0;
 }
 .like {
   color: green;
@@ -838,10 +985,13 @@ button:hover {
 .likes .modify {
   color: rgb(62, 89, 240);
 }
-.like,
-.deslike,
-.likes .delete,
-.likes .modify {
+.likes .share {
+color:rgb(114, 179, 50)
+}
+.likes .comment {
+  color:blue
+}
+ i {
   cursor: pointer;
 }
 div i {
@@ -857,7 +1007,12 @@ span {
 .authentified {
   color: red;
 }
-/* The communts */
+/* The communts
+.commentAndPartage {
+  display: flex;
+  justify-content: space-between;
+  background:#ffd7d7;
+} */
 .commentCard textarea {
   height: 70px;
 }
@@ -879,6 +1034,25 @@ span {
 }
 .allComments {
   margin-top: 20px;
+}
+.allComments span {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  margin-top:-5px;
+  margin-right: -20px;
+  border-radius: 0px 20px 20px 0px;
+  background: rgb(34, 102, 190);
+  color:#fff;
+  font-size: 1em;
+}
+p.comment {
+  padding-left: 10px;
+  font-family: "Courier New", Courier, monospace;
+}
+.masked {
+  color:crimson;
 }
 hr {
   box-shadow: 2px 2px 5px black;

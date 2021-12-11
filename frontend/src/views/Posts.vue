@@ -38,15 +38,16 @@ export default {
             Token:null,
         }
     },
-    
+  
     mounted() {
     this.getUserConnected();
+    
     //this.connexion();
   },
 
     methods: {
-           
-        //// Get the User connected
+   
+   //// Get the User connected
     async getUserConnected() {
       
       this.Token = JSON.parse(localStorage.getItem("Token"));
@@ -69,7 +70,7 @@ export default {
        } else {
         this.userConnected=response.data[0];
         console.log ("User Connected: ", this.userConnected)
-        
+       
        }
                 
       } catch (err) {
