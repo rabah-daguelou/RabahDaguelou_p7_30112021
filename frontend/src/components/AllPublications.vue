@@ -91,7 +91,7 @@
             />
                       
             </div>
-            <p> partagée par: {{ publication.shared_userName }}</p>
+            <p> partagé par {{ publication.shared_userName }}</p>
              <p class="datePub">Partagé le {{ publication.DATETIME_FR }}</p>
             <hr/>
             </div>
@@ -174,7 +174,7 @@
             <!-- Modifier un post -->
             <i
               @click="btnModifyPost(publication.postId)"
-              v-if="publication.userId == userConnected.userId"
+              v-if="publication.userId == userConnected.userId && publication.shared==0"
               class="fas fa-pen-square modify"
               ><span> Modifier </span></i
             >
@@ -466,26 +466,31 @@ export default {
       let file = this.$refs.file.files[0];
       this.file = file;
     },
+    
     sendText(f) {
       if (!this.file && !this.text) {
+       
         this.error = " Merci de joindre du texte ou une image à publier !";
+        
         f.preventDefault();
       }
+      
       
     },
 
     async onSubmit() {
       this.error = "";
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      
       // Si le format du fichier n'est pas valide
       if (this.file && !allowedTypes.includes(this.file.type)) {
         this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
-        console.log("Error:", this.error)
+        
       }
       // Si le fichier est trop volumineux
       else if (this.file && this.file.size > 500000) {
         this.error = "Votre fichier est trop volumineux: 500kb max! ";
-        console.log("Votre fichier est trop volumineux: 500kb max!  ");
+        
       }
       // Si tout va bien
       else {
@@ -568,7 +573,7 @@ export default {
        const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       if (!this.file && !this.textModified) {
         this.error = " Merci de joindre du texte ou une image pour envoyer !";
-        console.log("error:", this.error)
+        
       } else if( this.file && !allowedTypes.includes(this.file.type)) {
       
       
@@ -604,6 +609,7 @@ export default {
           self.getAllPosts();
         })
         .catch(function (err) {
+          this.error=" La modification n'a pas pu se faire !"
           console.log("Erreur :", err);
         });
 
@@ -611,9 +617,8 @@ export default {
       this.textModified = "";
       this.error = "";
       this.getAllPosts();
-     // location.reload()
+      location.reload()
       }
-      
     },
     
     // ---------- Fin modifier un post ------------//
@@ -652,6 +657,7 @@ export default {
       this.comment = "";
       this.okComment = false;
       this.getAllPosts()
+      location.reload()
     },
     // ------- Fin créer un commentaire --------- //
 
@@ -918,6 +924,19 @@ button:hover {
 .shared {
   background: #cccaca;
   padding: 5px;
+  border-radius: 5px;
+  box-shadow: 1px 1px 5px;
+}
+.shared .userAndImage {
+  background: #e5e5e9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.shared img {
+ width: 50px;
+ height: 40px;
+ box-shadow: 2px 1px 3px black;
 }
 
 
@@ -953,6 +972,7 @@ button:hover {
   height: 40px;
   background: #ffd7d7;
   padding: 5px;
+  border-radius: 5px;
 }
 .likes span.like, .shared_number {
   display: inline-block;
@@ -979,17 +999,29 @@ button:hover {
   color: red;
   text-shadow: 1px 1px 1px black;
 }
-.likes .delete {
+.likes .delete  {
+  margin-right: -8px;
   color: rgb(240, 62, 62);
+  text-shadow: 1px 1px 1px black;
 }
 .likes .modify {
-  color: rgb(62, 89, 240);
+  margin-right: -8px;
+  margin-left: 5px;
+  color: rgb(67, 87, 196);
 }
 .likes .share {
-color:rgb(114, 179, 50)
+margin-right: -19px;
+color:rgb(114, 179, 50);
+text-shadow: 1px 1px 1px black;
 }
 .likes .comment {
-  color:blue
+  color:blue;
+  text-shadow: 1px 1px 1px black;
+}
+.likes span {
+  text-shadow: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: bold;
 }
  i {
   cursor: pointer;

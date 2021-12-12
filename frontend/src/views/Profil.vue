@@ -718,6 +718,7 @@ span {
 /** MEDIAS QUERIES  */
 
 @media screen and (max-width: 768px) {
+  
   #formPub {
     width: 80%;
   }
@@ -726,6 +727,12 @@ span {
   }
   .send-it {
     flex-direction: column;
+  }
+}
+@media screen and (min-width: 991px) {
+.all {
+  width: 70%;
+  margin: auto;
   }
 }
 </style>

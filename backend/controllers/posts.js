@@ -282,6 +282,7 @@ exports.sharePost=(req, res,next) => {
   
   req.body.publication1.shared_date=req.body.publication1.DATETIME_FR
   delete req.body.publication1.DATETIME_FR
+  req.body.publication1.commentNumber=0
   const post= {...req.body.publication1 ,...req.body.publication2 }
   console.log ("date de publication:", post.shared_date)
   //console.log ("nouvelle publication:", post)
