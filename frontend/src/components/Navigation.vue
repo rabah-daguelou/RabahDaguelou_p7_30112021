@@ -24,7 +24,7 @@
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-right">
 
-          <li v-if="!connexion" my_title=" Se connecter" class="infobulle">
+          <li v-if="!$store.state.isConnected" my_title=" Se connecter" class="infobulle">
             <router-link to="/"><i class="fas fa-plug"></i></router-link>
           </li>
          
@@ -49,59 +49,49 @@
             
           </li>
 
-          <li v-if="connexion" @click="deconnected" my_title=" Se déconnecter" class="infobulle">
+          <li v-if="$store.state.isConnected" @click="deconnected" my_title=" Se déconnecter" class="infobulle">
             <router-link to="/"
               ><i class="fas fa-sign-out-alt"></i
             ></router-link>
           </li>
+         
          </ul>
       </div>
     </div>
   </nav>
-  <!--
-  <p v-if="isDeconnected" class="isDeconnected"> Vous êtes déconnecté! Merci de vous connecter d'abord.</p>
-  -->
+  <p> isConnected: {{ $store.state.isConnected}}</p>
 </div>
+
 </template>
 
 <script>
+//import Login from '../views/Login.vue';
 export default {
   name: "Navigation",
-  
+  //components: { Login },
   data (){
     return{
       userId:"null",
       Token:""
     }
   },
-  props:
-  ["isConnected"],
- 
-
+  
   created(){
+    this.$store.commit("CONNEXION")
     if (JSON.parse(localStorage.getItem("Token"))) {
       this.userId=JSON.parse(localStorage.getItem("Token")).userId
-     // this.isConnected==true
       
+      console.log(" isConnected: ", this.$store.state.isConnected )
+      console.log("Utilisateur connecté:", this.userId)
     }
     
-    console.log("Utilisateur connecté:", this.userId)
-    //this.deconnected();
-    //this.connexion()
   },
 
-  computed:{
-    connexion(){
-      return JSON.parse(localStorage.getItem("Token"))
-    },
-  },
- 
   methods:{
     deconnected(){
       localStorage.removeItem("Token");
-      //this.isConnected==false
-      location.reload()
-      this.isConnected==false
+      //location.reload()
+      this.$store.commit("DECONNEXION")
     },
   
   }

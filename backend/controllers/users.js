@@ -79,8 +79,7 @@ exports.login = (req, res, next) => {
         res.status(500).json({ error: " Erreur serveur Bdd!" });
       } else {
         // user not found
-        console.log(data.length);
-        if (data.length < 1) {
+          if (data.length < 1) {
           console.log(" pas de user !");
           res
             .status(200)
@@ -98,6 +97,7 @@ exports.login = (req, res, next) => {
             } else {
               res.status(200).json({
                 userId: data[0].userId,
+                userConnected: data[0].name,
                 token: jwt.sign(
                   { userId: data[0].userId },
                   process.env.secretToken,

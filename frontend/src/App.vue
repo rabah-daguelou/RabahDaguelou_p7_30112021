@@ -2,6 +2,7 @@
   <div class="all">
     
    <navigation class="navigation"> </navigation>
+   
    <router-view />
     
   </div>
@@ -10,12 +11,18 @@
 
 <script>
 import Navigation from './components/Navigation.vue';
+
 //import {eventBus} from './main';
 
 
 export default {
-  components: { Navigation },
   name: 'App',
+  
+  components: { 
+    Navigation,
+    
+  },
+  
   data (){
     return {
       isConnected:false
@@ -23,7 +30,7 @@ export default {
   },
 
   created(){
-   // this.isConnected=eventBus.isConnected;
+    this.$store.commit("CONNEXION")
     console.log ("isConnected:", this.isConnected)
   },
 

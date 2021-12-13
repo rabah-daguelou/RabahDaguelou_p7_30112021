@@ -189,7 +189,10 @@ export default {
               } else {
                 console.log("data : ", res.data);
                 localStorage.setItem("Token", JSON.stringify(res.data));
+                self.$store.commit("CONNEXION")
                 self.$router.push("/Posts");
+                
+
               }
             })
             .catch(function (err) {

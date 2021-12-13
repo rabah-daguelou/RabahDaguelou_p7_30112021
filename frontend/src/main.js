@@ -1,25 +1,12 @@
 
 import { createApp } from 'vue'
 
-
-//import Vue from 'vue'
 import App from './App.vue'
 import router from './router';
-
-
-// Vue.config.productionTip=false;
-/*
-// Nouvelle instance Vue eventBus
-/*
-export const eventBus= new Vue({
-    data () {
-        return {
-        isConnected:false
-        }
-    }
-})/**/
+import store from './store'
 
 
 
-createApp(App).use(router).use(router).mount('#app')
+
+createApp(App).use(store).use(router).mount('#app')
 
