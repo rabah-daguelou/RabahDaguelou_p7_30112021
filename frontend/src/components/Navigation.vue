@@ -40,7 +40,7 @@
           </li>
 
           <li my_title=" Mon profil" class="infobulle">
-             <router-link :to="{ name: 'Profil', params: { id: userId } }">
+             <router-link :to="{ name: 'Profil', params: { id:userId}}">
             <!--
             <router-link to="/Profil/:id">
             -->
@@ -59,7 +59,7 @@
       </div>
     </div>
   </nav>
-  <p> isConnected: {{ $store.state.isConnected}}</p>
+  
 </div>
 
 </template>
@@ -77,13 +77,10 @@ export default {
   },
   
   created(){
-    this.$store.commit("CONNEXION")
-    if (JSON.parse(localStorage.getItem("Token"))) {
+    
+    
       this.userId=JSON.parse(localStorage.getItem("Token")).userId
-      
-      console.log(" isConnected: ", this.$store.state.isConnected )
-      console.log("Utilisateur connecté:", this.userId)
-    }
+    
     
   },
 

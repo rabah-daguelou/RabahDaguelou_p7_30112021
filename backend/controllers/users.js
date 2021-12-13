@@ -167,7 +167,9 @@ exports.deleteOneUser = (req, res) => {
     "SELECT profil_picture FROM users WHERE userId=?",
     [id],
     (err, results) => {
-      res.json(results);
+      if (err){
+        console.log ("Erreur Bdd:", err)
+      } else {
       console.log("Ancienne profil_picture:", results[0].profil_picture);
       let profil_picture = results[0].profil_picture;
 
@@ -180,6 +182,7 @@ exports.deleteOneUser = (req, res) => {
           }
         });
       }
+    }
       //   Supprimer le user de la bdd
       db.query("DELETE FROM users WHERE userId=?", [id], (err, results) => {
         // res.json(results);
@@ -187,11 +190,29 @@ exports.deleteOneUser = (req, res) => {
       });
       // Supprimer les publications du user supprimé
 
-      let sql = `DELETE * FROM posts JOIN users ON posts.userId=${id} WHERE users.id=${id}`;
+      let sql = `DELETE FROM posts WHERE userId=${id}`;
 
       db.query(sql, (err, results) => {
-        res.json(results);
-        return;
+        if (err){
+          console.log( " Les publications n'ont pas été supprimées!", err)
+        //  res.status(401).json({message:" Les publications n'ont pas été supprimées!"}) 
+        }else {
+          console.log (" Les publications ont été supprimées avec succès!")
+          //res.status(200).json({message:" Les publications ont été supprimées avec succès!"}) 
+        }
+        
+      });
+      // Supprimer les commentaires du user supprimé
+      let sql2 = `DELETE FROM comments WHERE userId=${id}`;
+      db.query(sql2, (err, results) => {
+        if (err){
+          console.log (" Les commentaires n'ont pas été supprimés!")
+          res.status(401).json({message:" Les commentaires n'ont pas été supprimés!"}) 
+        } else {
+          console.log (" Les commentaires ont été supprimés avec succès!")
+          res.status(200).json({message:" Les commentaires ont été supprimés avec succès!"}) 
+        }
+        
       });
     }
   );

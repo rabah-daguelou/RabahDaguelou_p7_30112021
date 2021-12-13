@@ -256,10 +256,13 @@ export default {
           
           )
           .then((res) => {
-            console.log(res);
+
+            console.log(" Le user, ses publications et ses commentairesont été supprimés avec succès!", res);
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION")
           })
           .catch((err) => {
-            console.log(err);
+            console.log("Le user n'a pas été supprimé!", err);
           });
       }
     },

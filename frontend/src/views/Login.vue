@@ -190,6 +190,7 @@ export default {
                 console.log("data : ", res.data);
                 localStorage.setItem("Token", JSON.stringify(res.data));
                 self.$store.commit("CONNEXION")
+                self.$store.commit("USER_CONNECTED")
                 self.$router.push("/Posts");
                 
 
