@@ -209,12 +209,12 @@ export default {
   },
   
 // Get one user
-    async getOneUserById(userId) {
+    async getOneUserById(id) {
       this.Token = JSON.parse(localStorage.getItem("Token"));
       if (this.Token) {  
         try {
         const response = await axios.get(
-          "http://localhost:3000/api/users" + userId,
+          "http://localhost:3000/api/users" + id,
           {
           headers:
           {

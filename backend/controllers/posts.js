@@ -282,8 +282,14 @@ exports.sharePost=(req, res,next) => {
   
   req.body.publication1.shared_date=req.body.publication1.DATETIME_FR
   delete req.body.publication1.DATETIME_FR
-  req.body.publication1.commentNumber=0
+  console.log ("Nombre de commentaires avant:",req.body.publication1.commentNumber )
+  
+  
   const post= {...req.body.publication1 ,...req.body.publication2 }
+  Object.defineProperty(post,'commentNumber', {
+    value:0
+  }),
+  console.log ("Nombre de commentaires après:",post.commentNumber )
   console.log ("date de publication:", post.shared_date)
   //console.log ("nouvelle publication:", post)
  db.query ("insert into posts set ?", [post], (err, results)=> {

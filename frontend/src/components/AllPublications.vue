@@ -373,18 +373,23 @@ export default {
     },
   },
 
-  /* created() {
-    this.getAllPosts();
-  },*/
   mounted() {
     this.getAllPosts();
-    
+     
   },
   created () {
   this.share()
+  //this.message()
   },
-
+  computed(){
+  //  this.$store.commit("CONNEXION")
+  //  this.$store.commit("USER_CONNECTED")
+  },
   methods: {
+   /* message(){
+        this.error=null
+      },
+*/
     btnModifyPost(id) {
       this.okModifyPost = !this.okModifyPost;
       this.postId = id;
@@ -466,18 +471,20 @@ export default {
       let file = this.$refs.file.files[0];
       this.file = file;
     },
-    
+   
     sendText(f) {
+     
       if (!this.file && !this.text) {
-       
         this.error = " Merci de joindre du texte ou une image à publier !";
-        
+      //  setTimeout(this.message(), 1000)
         f.preventDefault();
       }
-      
-      
     },
-
+    /*
+    message(){
+      this.error=""
+    },
+*/
     async onSubmit() {
       this.error = "";
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
@@ -494,6 +501,7 @@ export default {
       }
       // Si tout va bien
       else {
+        
         const formData = new FormData();
         formData.append("file", this.file);
         formData.append("post", this.text);

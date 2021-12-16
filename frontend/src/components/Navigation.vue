@@ -24,32 +24,54 @@
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-right">
 
-          <li v-if="!$store.state.isConnected" my_title=" Se connecter" class="infobulle">
+
+
+
+<!-- Bouton Seconnecter --------->
+
+          <li v-if="$store.state.isConnected==false" my_title=" Se connecter" class="infobulle">
             <router-link to="/"><i class="fas fa-plug"></i></router-link>
           </li>
-         
 
-         
+<!-- Bouton Forum --------------->         
           <li my_title=" Forum" class="infobulle">
             <router-link to="/Posts"> <img src="../assets/icon.png" alt="" width="23"> </router-link>
           </li>
 
+<!-- Bouton Utilisateurs ---------->
           <li my_title=" Utilisateurs" class="infobulle">
             <router-link to="/Users"> <i class="fas fa-users"></i></router-link>
-            
           </li>
-
+<!--
           <li my_title=" Mon profil" class="infobulle">
-             <router-link :to="{ name: 'Profil', params: { id:userId}}">
-            <!--
-            <router-link to="/Profil/:id">
-            -->
-              <i class="fas fa-user-tie"></i>
+             <router-link :to="{ name: 'Profil', params: {id:userId}}">
+            <i class="fas fa-user-tie"></i>
+             
             </router-link>
-            
           </li>
+-->
+<!-- Bouton Mon profil ---------------->              
+           
+            <li my_title=" Mon profil" class="infobulle">
+             
+             <router-link :to="{ name: 'Profil', params: {id:userId}}">
+              <span v-if="$store.state.isConnected==true" class="connected_circle"> <i class="fas fa-circle"></i> </span>
+              <img v-if="$store.state.isConnected==true"
+                :src=" require(`./../../../backend/images/${$store.state.userConnected.profil_picture}`)"
+                
+                width="30"
+                height="30"
+                alt=""
+              />
+              
+              <i v-else class=" fas fa-user-tie"></i>
+            
+                        
+              </router-link>
+            </li>
 
-          <li v-if="$store.state.isConnected" @click="deconnected" my_title=" Se déconnecter" class="infobulle">
+<!-- Bouton Se déconnecter ------------------>         
+          <li v-if="$store.state.isConnected==true" @click="deconnected" my_title=" Se déconnecter" class="infobulle">
             <router-link to="/"
               ><i class="fas fa-sign-out-alt"></i
             ></router-link>
@@ -59,38 +81,44 @@
       </div>
     </div>
   </nav>
-  
+ 
 </div>
 
 </template>
 
 <script>
-//import Login from '../views/Login.vue';
+
 export default {
   name: "Navigation",
-  //components: { Login },
+ 
   data (){
     return{
-      userId:"null",
-      Token:""
+      userId:1,
+      Token:"",
+      profil_picture:"",
     }
   },
-  
-  created(){
-    
-    
-      this.userId=JSON.parse(localStorage.getItem("Token")).userId
-    
-    
+  computed () {
+    this.Token=JSON.parse(localStorage.getItem("Token"))
+    this.$store.commit("USER_CONNECTED")
   },
-
+  created(){
+  // this.$store.commit("CONNEXION")
+  // 
+  
+  if (JSON.parse(localStorage.getItem("Token"))) {
+    this.Token=JSON.parse(localStorage.getItem("Token"))
+    this.$store.commit("USER_CONNECTED") 
+    }
+  
+  },
+  
   methods:{
     deconnected(){
       localStorage.removeItem("Token");
-      //location.reload()
-      this.$store.commit("DECONNEXION")
+      this.$store.commit("DECONNEXION");
+    
     },
-  
   }
 };
 </script>
@@ -137,7 +165,12 @@ li i {
 [my_title]:after:active{
   visibility: hidden;
 }
+/*----*/
+.connected_circle i{
+  color: greenyellow;
+  font-size: 12px;
 
+}
 @media screen and (min-width: 768px) {
   li {
     width:105px;

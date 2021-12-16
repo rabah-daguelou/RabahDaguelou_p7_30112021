@@ -191,9 +191,8 @@ export default {
                 localStorage.setItem("Token", JSON.stringify(res.data));
                 self.$store.commit("CONNEXION")
                 self.$store.commit("USER_CONNECTED")
+                console.log (" Profil_picture:", self.$store.state.userConnected.profil_picture)
                 self.$router.push("/Posts");
-                
-
               }
             })
             .catch(function (err) {
@@ -211,7 +210,7 @@ export default {
         if (!this.password) {
           this.errors.push("Le champs Mot de passe est requis");
         }
-       // e.preventDefault();
+       
       }
     },
 

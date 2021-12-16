@@ -30,9 +30,13 @@ export default {
   },
 
   created(){
-    this.$store.commit("CONNEXION")
+  //  this.$store.commit("CONNEXION")
     console.log ("isConnected:", this.isConnected)
   },
+  computed(){
+    this.$store.commit("USER_CONNECTED")
+    //this.$store.commit("CONNEXION")
+  }
 
 }
 </script>

@@ -75,24 +75,25 @@
           <div>
             <!-- Supprimer un post -->
 
-            <i
-              @click="deletePost(publication.postId)"
-              v-if="
+            <i v-if="
                 publication.userId == userConnected.userId ||
                 userConnected.isAdmin == 1
               "
+              @click="deletePost(publication.postId)"
+              
               class="fas fa-trash delete"
             >
               <span> Supprimer </span></i
             >
 
             <!-- Modifier un post -->
-            <i
+           
+            <i v-if="userConnected.userId==publication.userId"
               @click="btnModifyPost(publication.postId)"
-              v-if="publication.userId == userConnected.userId"
+                         
               class="fas fa-pen-square modify"
               ><span > Modifier </span></i
-            >
+            > 
           </div>
           
         </div>
@@ -249,11 +250,17 @@ export default {
       Token:""
     };
     },
+
     created() {
     this.getAllMyPosts();
     this.userId=this.$route.params.id
     },
-     mounted(){
+
+    computed (){
+      this.$route.params.id
+    },
+
+    mounted(){
     this.getAllMyPosts();
   },
     methods: {

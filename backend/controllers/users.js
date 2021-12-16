@@ -98,6 +98,7 @@ exports.login = (req, res, next) => {
               res.status(200).json({
                 userId: data[0].userId,
                 userConnected: data[0].name,
+                profil_picture: data[0].profil_picture,
                 token: jwt.sign(
                   { userId: data[0].userId },
                   process.env.secretToken,
@@ -158,6 +159,10 @@ exports.getOneUser = (req, res) => {
 };
 ////////////////////////
 // Delete User
+
+// Supression du compte, de la photo du profil, 
+// des publications et des commentaires du user
+/*
 exports.deleteOneUser = (req, res) => {
   console.log(req.params.id);
 
@@ -217,6 +222,120 @@ exports.deleteOneUser = (req, res) => {
     }
   );
 };
+*/
+// Deuxième solution pour la suppression d'un compte user
+
+exports.deleteOneUser = (req, res) => {
+  let id = req.params.id;
+  // Remplacer la photo du user dans la table users par le logo 
+  let sql1 = `UPDATE users SET profil_picture="icon.png" WHERE userId=${id}`;
+
+  db.query(sql1, (err, results) => {
+    if (err) {
+      console.log("err");
+    } else {
+      console.log("profil_picture modifiée avec succès dans la table users !");
+    }
+  });
+
+  // Remplacer la photo du user dans la table posts par le logo 
+  let sql5 = `UPDATE posts SET profil_picture="icon.png" WHERE userId=${id}`;
+
+  db.query(sql5, (err, results) => {
+    if (err) {
+      console.log("err");
+    } else {
+      console.log("profil_picture modifiée avec succès dans la table posts !");
+    }
+  });
+
+  //
+// Remplacer la photo du user dans la table posts par le logo 
+let sql6 = `UPDATE comments SET profil_picture="icon.png" WHERE userId=${id}`;
+
+db.query(sql6, (err, results) => {
+  if (err) {
+    console.log("err");
+  } else {
+    console.log("profil_picture modifiée avec succès dans la table Comments !");
+  }
+});
+
+  // Suppression de l'ancienne photo du user dans le dossier image
+  db.query(
+    "SELECT profil_picture FROM users WHERE userId=?",
+    [id],(err, results) => {
+      if (err){
+        console.log ("Erreur Bdd:", err)
+      } else {
+      console.log("Ancienne profil_picture:", results[0].profil_picture);
+      let profil_picture = results[0].profil_picture;
+      if (profil_picture != "icon.png") {
+        fs.unlink("./images/" + profil_picture, (err) => {
+          if (err) {
+            console.log("L'image n'est pas supprimée: " + err);
+          } else {
+            console.log("L'image est supprimée avec succès!");
+          }
+        });
+      }
+    
+    }
+    }
+  )
+    
+  // Modifier l'email dans la bdd ( grouopomaniaid@groupomania.fr)
+  let sql = `UPDATE users SET email='groupomania${id}@groupomania.fr' WHERE userId=${id}`;
+  console.log(sql);
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.log("Erreur", err);
+    } else {
+      console.log("Email modifié !");
+    }
+  });
+
+// Modifier le pseudo dans la bdd ( grouopomaniaid) 
+let sql2 = `UPDATE users SET name='Groupomania${id}' WHERE userId=${id}`;
+db.query(sql2, (err, results) => {
+  if (err) {
+   
+    console.log(" Erreur Bdd ");
+  } else {
+    console.log(" Votre pseudo a été modifié avec succès !");
+    
+  }
+});
+
+// Modifier le user_send dans la table posts
+let sql3 = `UPDATE posts SET user_send='Groupomania${id}' WHERE userId=${id}`;
+db.query(sql3, (err, results) => {
+  if (err) {
+    
+    console.log(" Erreur Bdd ", err);
+  } else {
+    console.log(" Votre pseudo a été modifié avec succès dans la table posts!");
+    
+  }
+});
+////
+// Modifier le user_send dans la table comments
+let sql4 = `UPDATE comments SET user_send='Groupomania${id}' WHERE userId=${id}`;
+db.query(sql4, (err, results) => {
+  if (err) {
+    
+    console.log(" Erreur Bdd ", err);
+  } else {
+    console.log(" Votre pseudo a été modifié avec succès dans la table comments!");
+    
+     console.log( " Votre pseudo a été modifié avec succès dans la table posts!")
+    
+  }
+});
+
+}
+  
+
 ///////////////////////////
 // Update profil picture
 exports.modifyProfilPicture = (req, res) => {

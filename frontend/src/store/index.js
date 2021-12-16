@@ -5,13 +5,7 @@ export default createStore({
     isConnected:0,
     userConnected:{}
   },
-/*
-  getters: {
-    connexion(){
-      return JSON.parse(localStorage.getItem("Token"))
-    }
-  },
-*/  
+ 
   mutations: {
     CONNEXION(state){
       state.isConnected=true
@@ -19,15 +13,13 @@ export default createStore({
     
     DECONNEXION(state){
       state.isConnected=false
+      state.userConnected=null
       },
     
     USER_CONNECTED (state){
       state.userConnected=JSON.parse(localStorage.getItem("Token"))
     }
-    
-    
+  
   },
-   
-  modules: {
-  }
+
 })
