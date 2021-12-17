@@ -76,8 +76,8 @@
             <!-- Supprimer un post -->
 
             <i v-if="
-                publication.userId == userConnected.userId ||
-                userConnected.isAdmin == 1
+                publication.userId == Token.userId ||
+                Token.isAdmin == 1
               "
               @click="deletePost(publication.postId)"
               
@@ -88,7 +88,7 @@
 
             <!-- Modifier un post -->
            
-            <i v-if="userConnected.userId==publication.userId"
+            <i v-if="publication.userId==Token.userId"
               @click="btnModifyPost(publication.postId)"
                          
               class="fas fa-pen-square modify"
@@ -165,15 +165,16 @@
         <!--  2/ Afficher tous les commentaires du postId-->
         <div class="allComments">
           
-          <button v-if=" afficherCommentaires" @click="getAllComments(publication.postId)">
+          <button v-if="afficherCommentaires" @click="getAllComments(publication.postId)">
             Afficher tous les commentaires ( {{ publication.commentNumber }})
           </button>
           <button v-else @click="getAllComments(publication.postId)">
             Masquer les commentaires
           </button>       
      
-          <div v-if="showComments && publication.postId==comments[0].postId" >
+          
             <div v-for="comment in comments" :key="comment">
+              <div v-if="showComments && publication.postId==comments[0].postId" >
               <div class="oneCommentCard">
                 <div class="publicationDate">
                   <div class="userAndImage">

@@ -3,7 +3,12 @@
     <div v-if="authentified || Token==null" class="authentified"> {{ authentified }}</div>
     <div v-else>
     <h1>Liste des salariés</h1>
-    
+
+    <!-- Bouton de recherche -->
+    <input v-model="searchUser" type="text" placeholder="Chercher un utilisateur">
+    <p> {{ searchUser }}</p>
+    <!-- -->
+
     <div class="usersList">
       <div v-for="user in users" :key="user.userId">
         
@@ -17,7 +22,7 @@
         <img v-else src="../assets/icon.png" alt="" />
             
             <p>{{ user.name }}</p>
-            <p class="identifiant"> Identifiant: {{ user.userId }}</p>
+            <p v-if="user.isAdmin==1" class="identifiant"> Administrateur </p>
           </div>
       </router-link> 
 
@@ -33,20 +38,22 @@ import axios from "axios";
 
 export default {
   name: "Users",
-  components: {},
-  
+   
   data() {
     return {
       users: [],
       authentified:"",
       Token:null,
+      searchUser:""
     };
   },
 
   created() {
     this.getAllUsers();
  },
-
+  computed(){
+    this.users=[this.searchUser]
+  },
   methods: {
     // Get all users
     getAllUsers() {
@@ -89,10 +96,6 @@ export default {
 <!--   Style --->
 
 <style scoped>
-.all {
-  text-align: center;
-  margin: auto;
-}
 .btn {
   background: #000;
   color: #fff;
@@ -100,6 +103,7 @@ export default {
 }
 .usersList {
   display: flex;
+  justify-content: space-evenly;
   flex-direction: row;
   flex-wrap: wrap;
 }
@@ -118,11 +122,11 @@ export default {
   padding: 5px;
 }
 img {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
   width: 70px;
   height: 70px;
-  
   border-radius: 35px;
+  box-shadow: 2px 1px 2px black;
 }
 .identifiant {
   font-size: .7em;

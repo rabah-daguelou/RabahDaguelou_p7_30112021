@@ -97,6 +97,7 @@ exports.login = (req, res, next) => {
             } else {
               res.status(200).json({
                 userId: data[0].userId,
+                isAdmin:data[0].isAdmin,
                 userConnected: data[0].name,
                 profil_picture: data[0].profil_picture,
                 token: jwt.sign(

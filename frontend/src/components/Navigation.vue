@@ -169,7 +169,12 @@ li i {
 .connected_circle i{
   color: greenyellow;
   font-size: 12px;
-
+  animation: clignoter 1.5s infinite;
+}
+@keyframes clignoter{
+  0% {opacity:1;}
+  50% { opacity:0;}
+  100% { opacity:1;}
 }
 @media screen and (min-width: 768px) {
   li {

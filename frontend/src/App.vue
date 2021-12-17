@@ -30,11 +30,17 @@ export default {
   },
 
   created(){
-  //  this.$store.commit("CONNEXION")
+  //  
+  if (JSON.parse(localStorage.getItem("Token"))) {
+    this.Token=JSON.parse(localStorage.getItem("Token"))
+    this.$store.commit("CONNEXION")
+    this.$store.commit("USER_CONNECTED") 
+    }
     console.log ("isConnected:", this.isConnected)
   },
   computed(){
-    this.$store.commit("USER_CONNECTED")
+    //this.$store.commit("USER_CONNECTED")
+    this.isConnected==this.$store.state.userConnected
     //this.$store.commit("CONNEXION")
   }
 
