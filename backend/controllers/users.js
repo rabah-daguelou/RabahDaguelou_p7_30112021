@@ -342,13 +342,14 @@ db.query(sql4, (err, results) => {
 exports.modifyProfilPicture = (req, res) => {
   let image = req.file.filename;
   let id = req.params.id;
+  res.status(200).json({ image: image})
   console.log("image:", image, "id:", id);
 
   db.query(
     "SELECT profil_picture FROM users WHERE userId=?",
     [id],
     (err, results) => {
-      res.json(results);
+     // res.json(results);
       console.log(results[0].profil_picture);
       let profil_picture = results[0].profil_picture;
 
@@ -375,7 +376,7 @@ exports.modifyProfilPicture = (req, res) => {
     }
   });
 
-  // Mettre à jour la photo du profil dans la table posts
+  // Mettre à jour profil_picture dans la table posts
   let sql2 = `UPDATE posts SET profil_picture="${image}" WHERE userId=${id}`;
 
   db.query(sql2, (err, results) => {
@@ -386,6 +387,17 @@ exports.modifyProfilPicture = (req, res) => {
     }
   });
 
+  // Mettre à jour shared_userProfil_picture dans la table posts
+  let sql5 = `UPDATE posts SET shared_userProfil_picture="${image}" WHERE userId=${id}`;
+
+  db.query(sql5, (err, results) => {
+    if (err) {
+      console.log("err");
+    } else {
+      console.log("shared_userProfil_picture modifiée avec succès dans la table posts!");
+    }
+  });
+  
   // Mettre à jour la photo du profil dans la table comments
   let sql3 = `UPDATE comments SET profil_picture="${image}" WHERE userId=${id}`;
 

@@ -48,11 +48,11 @@
             <i class="fas fa-user-tie"></i>
              
             </router-link>
-          </li>
+          </li>88888888888888888888888888888888888*9
 -->
 <!-- Bouton Mon profil ---------------->              
            
-            <li my_title=" Mon profil" class="infobulle">
+            <li v-if="$store.state.isConnected==true" my_title=" Mon profil" class="infobulle">
              
              <router-link :to="{ name: 'Profil', params: {id:userId}}">
               <span v-if="$store.state.isConnected==true" class="connected_circle"> <i class="fas fa-circle"></i> </span>
@@ -93,7 +93,7 @@ export default {
  
   data (){
     return{
-      userId:1,
+      userId:0,
       Token:"",
       profil_picture:"",
     }
@@ -101,14 +101,14 @@ export default {
   computed () {
     this.Token=JSON.parse(localStorage.getItem("Token"))
     this.$store.commit("USER_CONNECTED")
+    this.userId=this.Token.userId
   },
   created(){
-  // this.$store.commit("CONNEXION")
-  // 
   
   if (JSON.parse(localStorage.getItem("Token"))) {
     this.Token=JSON.parse(localStorage.getItem("Token"))
     this.$store.commit("USER_CONNECTED") 
+    this.userId=this.Token.userId
     }
   
   },
@@ -117,6 +117,7 @@ export default {
     deconnected(){
       localStorage.removeItem("Token");
       this.$store.commit("DECONNEXION");
+      //location.reload()
     
     },
   }
@@ -185,6 +186,7 @@ li i {
   [my_title]:after {
     right:0px;
     bottom: -4px;
+    
     
  }
 }

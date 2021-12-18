@@ -420,6 +420,7 @@ export default {
           if (response.data.message) {
             console.log("Requête non authentifié:", this.publications.message);
             this.authentified = response.data.message;
+            this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
             console.log(
@@ -476,6 +477,7 @@ export default {
      
       if (!this.file && !this.text) {
         this.error = " Merci de joindre du texte ou une image à publier !";
+      //  if(this.text || this.file ){}
       //  setTimeout(this.message(), 1000)
         f.preventDefault();
       }
@@ -569,27 +571,24 @@ export default {
       if (!this.file && !this.textModified) {
         this.error = " Merci de joindre du texte ou une image pour envoyer !";
         console.log("error:", this.error)
-        
-      //  this.okModifyPost=!this.okModifyPost
       }
       
     },
    
-
     onModify() {
        this.error="";
        const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      
+      // Si ni texte ni photo
       if (!this.file && !this.textModified) {
         this.error = " Merci de joindre du texte ou une image pour envoyer !";
-        
+      
+      // Si le format du fichier photo invalide  
       } else if( this.file && !allowedTypes.includes(this.file.type)) {
       
-      
-      // Si le format du fichier n'est pas valide
-       
         this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
       
-      // Si la photo est trop volumineuse
+      // Si le fichier photo trop volumineux
       } else if (this.file && this.file.size > 500000) {
         this.error = "Votre fichier est trop volumineux: 500kb max! ";
       
@@ -612,12 +611,12 @@ export default {
           },
         })
 
-        .then(function (res) {
-          console.log(res);
+        .then(function ( res) {
+          console.log("response:", res);
           self.getAllPosts();
         })
         .catch(function (err) {
-          this.error=" La modification n'a pas pu se faire !"
+          self.error=" La modification n'a pas pu se faire !"
           console.log("Erreur :", err);
         });
 
@@ -665,7 +664,7 @@ export default {
       this.comment = "";
       this.okComment = false;
       this.getAllPosts()
-      location.reload()
+     // location.reload()
     },
     // ------- Fin créer un commentaire --------- //
 

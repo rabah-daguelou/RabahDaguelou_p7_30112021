@@ -29,7 +29,7 @@ db.connect(function (err) {
 
 exports.createPost = (req, res, next) => {
   console.log(" req.body:", req.body);
- 
+
   // Si uniquement texte
   if (!req.file) {
     const post = {
@@ -120,9 +120,8 @@ exports.deletePost = (req, res, next) => {
       console.log(results);
 
       // Supprimer l'image du dossier si le post a une image
-     // if (results !== []) {
-      if (results[0].image && results[0].shared==0) {
-
+      // if (results !== []) {
+      if (results[0].image && results[0].shared == 0) {
         let image = results[0].image;
         fs.unlink("./images/" + image, (err) => {
           if (err) {
@@ -150,119 +149,102 @@ exports.deletePost = (req, res, next) => {
 exports.updatePost = (req, res, next) => {
   //1------  Si photo + texte
   if (req.file && req.body.textModified) {
-    let image = req.file.filename;
-    let post = req.body.textModified;
-    let postId = req.params.id;
-    let sql = `UPDATE posts SET post="${post}", image="${image}" WHERE postId=${postId}`;
+    const image = req.file.filename;
+    const post = req.body.textModified;
+    const postId = req.params.id;
+    
     console.log("image:", image);
     console.log("texte:", post);
     console.log("postId:", postId);
 
-/*    
+    // Chercher l'ancienne image de la bdd pour la
 
-db.query(
-      `SELECT image FROM posts WHERE postId=${postId}`,
-      (err, results) => {
-        //res.json(results);
-        if (err) {
-          console.log("Erreur Bdd:", err);
-        } else {
-          console.log("Ancienne photo: ", results[0].image);
-          const imageToDelete= results[0].image
-        }
-    });/* Ajout
-*/
+    db.query(`SELECT * FROM posts WHERE postId=${postId}`, (err, results) => {
+      //res.json(results);
+      if (err) {
+        console.log("Erreur Bdd:", err);
+      } else {
+        const imageToDelete = results[0].image;
+        console.log("Ancienne photo à supprimer: ", imageToDelete);
 
-
-
-// Chercher l'ancienne photo du post de la Bdd et
-    // Supprimer le fichier dans images
-/*   
-    db.query(
-      `SELECT image FROM posts WHERE postId=${postId}`,
-      (err, results) => {
-        //res.json(results);
-        if (err) {
-          console.log("Erreur Bdd:", err);
-        } else {
-          console.log("Ancienne photo: ", results);
-          fs.unlink("./images/" + results[0].image, (err) => {
+        // si le post n'est pas partagé,
+        // on supprime le fichier dans le dossier image
+        if (results[0].shared_number == 0) {
+          fs.unlink("./images/" + imageToDelete, (err) => {
             if (err) {
-              console.log("L'image n'est pas supprimée: " + err);
+              console.log(
+                "Erreur: L'ancienne image n'est pas supprimée! " + err
+              );
             } else {
-              console.log("L'image est supprimée avec succès!");
+              console.log("L'ancienne image est supprimée avec succès!");
             }
           });
         }
       }
-    );
-*/
-    // Modifier le post dans la Bdd
-    db.query(sql, (err, results) => {
+    });
+
+    // Modifier la publication ( texte + photo) dans la Bdd
+    let sql1 = `UPDATE posts SET post="${post}", image="${image}" WHERE postId=${postId}`;
+    db.query(sql1, (err, results) => {
       if (err) {
         console.log("Erreur Bdd:", err);
       } else {
         console.log(" Post modifié dans la Bdd aevc succès !", results);
       }
     });
+    res.status(201).json({ message: " Le texte ainsi que la photo ont été modifiés avec succès!"})
+  // 2--- Si modifier uniquement la photo
 
-/* Ajout ---- 
-fs.unlink("./images/" + imageToDelete, (err) => {
-            if (err) {
-              console.log("L'image n'est pas supprimée: " + err);
-            } else {
-              console.log("L'image est supprimée avec succès!");
-            }
-          });
-
-*/
-/* ----  Fin ajout ------- */
-
-    // 2--- Modifier uniquement la photo
   } else if (req.file && !req.body.textModified) {
-    let image = req.file.filename;
-    let postId = req.params.id;
-    let sql = `UPDATE posts SET image="${image}" WHERE postId=${postId}`;
 
-    // Chercher la photo du post de la Bdd et
-    // Supprimer le fichier dans images
-/*
-    db.query(
-      `SELECT image FROM posts WHERE postId=${postId}`,
-      (err, results) => {
-        res.json(results);
-        if (err) {
-          console.log("Erreur Bdd:", err);
-        } else {
-          console.log("résultats: ", results);
-          fs.unlink("./images/" + results[0].image, (err) => {
+    const image = req.file.filename;
+    const postId = req.params.id;
+    
+    // Chercher l'ancienne image de la bdd 
+
+    db.query(`SELECT * FROM posts WHERE postId=${postId}`, (err, results) => {
+      //res.json(results);
+      if (err) {
+        console.log("Erreur Bdd:", err);
+      } else {
+        const imageToDelete = results[0].image;
+        console.log("Ancienne photo à supprimer: ", imageToDelete);
+
+        // si le post n'est pas partagé,
+        // on supprime le fichier dans le dossier image
+        if (results[0].shared_number == 0) {
+          fs.unlink("./images/" + imageToDelete, (err) => {
             if (err) {
-              console.log("L'image n'est pas supprimée: " + err);
+              console.log(
+                "Erreur: L'ancienne image n'est pas supprimée! " + err
+              );
             } else {
-              console.log("L'image est supprimée avec succès!");
+              console.log("L'ancienne image est supprimée avec succès!");
             }
           });
         }
       }
-    );
-*/
+    });
+
     // Modifier la photo dans la Bdd
-    db.query(sql, (err, results) => {
+    let sql2 = `UPDATE posts SET image="${image}" WHERE postId=${postId}`;
+    db.query(sql2, (err, results) => {
       if (err) {
         console.log("Erreur Bdd:", err);
       } else {
-        console.log(" Photo modifiée dans la Bdd aevc succès !");
+        console.log(" Photo modifiée dans la Bdd aevc succès !", results);
       }
     });
-  
-    // 3---- Modifier uniquement le texte
+
+  // 3---- Modifier uniquement le texte
+
   } else {
     let post = req.body.textModified;
     let postId = req.params.id;
-    let sql = `UPDATE posts SET post="${post}" WHERE postId=${postId}`;
+    let sql3 = `UPDATE posts SET post="${post}" WHERE postId=${postId}`;
 
     // Modifier le texte dans la Bdd
-    db.query(sql, (err, results) => {
+    db.query(sql3, (err, results) => {
       if (err) {
         console.log("Erreur Bdd:", err);
       } else {
@@ -272,32 +254,32 @@ fs.unlink("./images/" + imageToDelete, (err) => {
   }
 };
 
-// Partager un post 
+// Partager un post
 
-exports.sharePost=(req, res,next) => {
-   
-  delete req.body.publication1.date_send
-  delete req.body.publication1.postId
-  req.body.publication1.shared_number+=1
-  
-  req.body.publication1.shared_date=req.body.publication1.DATETIME_FR
-  delete req.body.publication1.DATETIME_FR
-  console.log ("Nombre de commentaires avant:",req.body.publication1.commentNumber )
-  
-  
-  const post= {...req.body.publication1 ,...req.body.publication2 }
-  Object.defineProperty(post,'commentNumber', {
-    value:0
+exports.sharePost = (req, res, next) => {
+  delete req.body.publication1.date_send;
+  delete req.body.publication1.postId;
+  req.body.publication1.shared_number += 1;
+
+  req.body.publication1.shared_date = req.body.publication1.DATETIME_FR;
+  delete req.body.publication1.DATETIME_FR;
+  console.log(
+    "Nombre de commentaires avant:",
+    req.body.publication1.commentNumber
+  );
+
+  const post = { ...req.body.publication1, ...req.body.publication2 };
+  Object.defineProperty(post, "commentNumber", {
+    value: 0,
   }),
-  console.log ("Nombre de commentaires après:",post.commentNumber )
-  console.log ("date de publication:", post.shared_date)
+    console.log("Nombre de commentaires après:", post.commentNumber);
+  console.log("date de publication:", post.shared_date);
   //console.log ("nouvelle publication:", post)
- db.query ("insert into posts set ?", [post], (err, results)=> {
+  db.query("insert into posts set ?", [post], (err, results) => {
     if (err) {
-      console.log ( "Erreur Bdd:", err)
+      console.log("Erreur Bdd:", err);
     } else {
-      console.log ("Post partagé avec succès!")
+      console.log("Post partagé avec succès!");
     }
-  })
-  
+  });
 };

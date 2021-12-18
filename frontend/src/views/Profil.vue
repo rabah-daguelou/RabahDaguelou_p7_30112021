@@ -257,7 +257,7 @@ export default {
           )
           .then((res) => {
 
-            console.log(" Le user, ses publications et ses commentairesont été supprimés avec succès!", res);
+            console.log(" Le user, ses publications et ses commentaires ont été supprimés avec succès!", res);
             localStorage.removeItem("Token");
             this.$store.commit("DECONNEXION")
           })
@@ -285,7 +285,7 @@ export default {
     async onSubmit() {
       const formData = new FormData();
       formData.append("file", this.file);
-      console.log ('new profil_picture:', this.file.name)
+      //console.log ('new profil_picture:', this.file.name)
       this.profil_picture=this.file.name
       
       try {
@@ -303,9 +303,18 @@ export default {
          
          )
           .then(function (res) {
-            console.log('profil_picture à modifier:', res.data[0].profil_picture);
-            console.log('nouvelle profil_picture:', self.profil_picture);  
             
+                   
+            // Modifier localStorage et Store
+            console.log ( "Profil_picture du Token avant modif:", self.Token.profil_picture)
+            console.log("response:", res.data.image) 
+            Object.defineProperty(self.Token, 'profil_picture', {
+             value:res.data.image
+              })
+            console.log ( "Token après modif:", self.Token.profil_picture)
+            localStorage.setItem("Token", JSON.stringify(self.Token));
+            self.$store.commit("USER_CONNECTED")
+            //
           })
           .catch(function (err) {
             console.log(err);
