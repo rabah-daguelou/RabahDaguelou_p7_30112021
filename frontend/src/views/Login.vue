@@ -48,13 +48,11 @@
     <!-- Valider l'inscription et se diriger vers publications -->
     <div id="input-card">
       <div v-if="mode == 'signup'">
-        <button @click="createAccount()" type="submit" class="button">
+     
+        <button @click="createAccount()" class="button">
           Je valide mon compte
         </button>
-
-        <!--  <router-link v-else to="/">
-        <p>{{ errors[0] }} </p> </router-link>
-     -->
+       
       </div>
 
       <div v-else  >
@@ -74,14 +72,10 @@
         <span class="haveNotCount" @click="loginOne()">me connecter</span>
       </p>
 
-    <!--
-      <router-link to="/Users"><p>Users</p></router-link>
-      <router-link to="/Posts"><p>Publications</p></router-link>
-      <router-link to="/Profil"><p>Profil</p></router-link>
-    -->
-
     </div>
   </div>
+  <!-- Charte d'utilisation --> 
+  <!-- Fin Charte d'utilisation -->
   <router-view/>
   </div>
   
@@ -101,6 +95,7 @@ export default {
       name: null,
       errors: [],
       error: "",
+     
     };
   },
   components: {
@@ -123,11 +118,14 @@ export default {
     },
     
 
+    
     // Signup
-    async createAccount() {
+   
+   async createAccount() {
       // Controler le formulaire
-      if (this.email && this.password && this.name) {
-        try {
+       
+    if (this.email && this.password && this.name) {
+      try {
           const self = this;
           await axios
             .post("http://localhost:3000/api/auth/signup", {
@@ -155,6 +153,7 @@ export default {
         } catch (err) {
           this.errors.push(err);
         }
+        
       } else {
         this.errors = [];
         if (!this.email) {
@@ -166,10 +165,10 @@ export default {
         if (!this.name) {
           this.errors.push("Le champs Nom est requis");
         }
-       // e.preventDefault();
+       
       }
     },
-
+ 
     // ------- Se connecter -----
     //
     async login() {

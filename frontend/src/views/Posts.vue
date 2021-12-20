@@ -70,6 +70,7 @@ export default {
        } else {
         this.userConnected=response.data[0];
         console.log ("User Connected: ", this.userConnected)
+        this.$store.commit("USER_CONNECTED")
        
        }
                 

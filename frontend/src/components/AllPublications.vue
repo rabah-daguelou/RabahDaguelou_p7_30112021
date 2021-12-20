@@ -96,21 +96,9 @@
             <hr/>
             </div>
             
-          <!-- 
-          
-          
-          
-          
-          <p class="datePub">Partagée le {{ publication.DATETIME_FR }}</p>
-          
-          </div>
-          </div>
-          -->
-          <!-- fin si publication partagée -->
+         <!-- fin si publication partagée -->
       
         <div class="publicationDate">
-          
-         
           
           <div class="userAndImage">
             <img
@@ -294,36 +282,47 @@
                 </div>
 
                 <!-- Désactiver un commentaire -->
-                <div class="notShowComment">
-
-                  <p v-if="comment.masked == 1" class="masked">
+                <p v-if="comment.masked == 1" class="masked">
                     Ce commentaire est masqué par l'administrateur !
                   </p>
-                  <p v-if="comment.masked==0 || demasked" class="comment">{{ comment.comment }}</p>
+                <div class="notShowComment">
+
+                  
+
+                  <div v-if="comment.masked==0 || okMasked" class="deleteComment">
+                    
+                    <p> {{ comment.comment }}</p>
+
+                    <!-- Supprimer un commentaire -->
+                   <p> <i v-if="comment.userId == userConnected.userId || userConnected.isAdmin==1"
+                   @click="deleteComment(comment.commentId, publication.postId)" class="fas fa-trash-alt"></i> </p>
+                    <!-- Fin supprimer un commentaire -->
+                    
+                  </div>
+                  
 
                   <div>
-                    <button @click="maskComment(comment.commentId)"
-                      v-if="userConnected.isAdmin == 1 && comment.masked == 0"
-                    >
-                      Masquer 
-                    </button>
-
-                    <button @click="demask"
-                      v-if="userConnected.isAdmin == 1 && comment.masked == 1"
-                    >
-                      Montrer
-                    </button>
+                    <i @click="maskComment(comment.commentId)"
+                      v-if="userConnected.isAdmin == 1 && comment.masked == 0 "
+                      class="fas fa-eye-slash maskedIcone"> </i>
+                   
+                    <i @click="demaskComment(comment.commentId)"
+                      v-if="userConnected.isAdmin == 1 && comment.masked == 1 && !okMasked"
+                      class="fas fa-eye demaskedIcone"></i>
+                  
                   </div>
+                
 
                 </div>
-                <!-- -->
-
+                <!-- --> 
+                
                 <hr/>
               </div>
             </div>
           </div>
         </div>
         <!-- Fin afficher les commentaires  -->
+
       </div>
     </div>
     <!-- Fin les publications -->
@@ -359,6 +358,7 @@ export default {
       authentified: "",
       Token: "",
       demasked:false,
+      okMasked:false,
     };
   },
   
@@ -378,12 +378,17 @@ export default {
      
   },
   created () {
-  this.share()
+  this.getAllPosts();
+  this.share();
+  this.error="";
   //this.message()
   },
-  computed(){
-  //  this.$store.commit("CONNEXION")
-  //  this.$store.commit("USER_CONNECTED")
+  computed:{
+    
+    allPosts:function(){
+      return this.publications
+
+    }
   },
   methods: {
    /* message(){
@@ -424,9 +429,8 @@ export default {
             // Si requête authentifiée
           } else {
             console.log(
-              "Requête authentifiée: Tableau des bublications:",
-              this.publications
-            );
+              "Tableau des bublications:", this.publications);
+              this.publications = response.data;
           }
         })
         .catch((error) => {
@@ -482,11 +486,7 @@ export default {
         f.preventDefault();
       }
     },
-    /*
-    message(){
-      this.error=""
-    },
-*/
+    
     async onSubmit() {
       this.error = "";
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
@@ -521,6 +521,8 @@ export default {
             })
             .then(function (res) {
               console.log(res);
+              this.publications=res.data
+              this.allPosts()
             })
             .catch(function (err) {
               console.log(err);
@@ -528,10 +530,11 @@ export default {
         } catch (err) {
           console.log(err);
         }
-        location.reload();
-        //this.getAllPosts();
+        
+        this.getAllPosts();
         this.file = null;
         this.text = "";
+      //  location.reload();
       }
     },
     //---------- Fin publier un post ---------------//
@@ -603,7 +606,7 @@ export default {
         formData.append("file", this.file);
       }
       console.log("FormData:", formData);
-
+      const self=this
       axios
         .put("http://localhost:3000/api/posts/" + this.postId, formData, {
           headers: {
@@ -613,7 +616,8 @@ export default {
 
         .then(function ( res) {
           console.log("response:", res);
-          self.getAllPosts();
+         // self.publications=res.data  
+          //self.getAllPosts();
         })
         .catch(function (err) {
           self.error=" La modification n'a pas pu se faire !"
@@ -623,6 +627,8 @@ export default {
       this.okModifyPost = !this.okModifyPost;
       this.textModified = "";
       this.error = "";
+      this.file="";
+      
       this.getAllPosts();
       location.reload()
       }
@@ -690,9 +696,35 @@ export default {
         });
     },
     //  ------- Fin afficher les comentaires d'un post ---------//
+  
+  // Supprimer un commentaire 
+  deleteComment(commentId, postId){
+    console.log ( "commentId:", commentId)
+    console.log ( "postId:", postId)
+    const self=this
+    axios.delete("http://localhost:3000/api/comments/"+ `${commentId} ${postId}`, {
+    
+       headers:{
+          authorization: `bearer ${this.Token.token}`,
+        }
+    })
+    .then(function () {
+          
+          self.okComment = false;
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+      
+      this.okComment = false;
+      location.reload()
+  },
+  // Fin Supprimer un commentaire
+
 
     // ----- Masquer un commentaire par l'administrateur  -------- //
     maskComment(commentId){
+      this.okMasked=!this.okMasked
       console.log ('N° commentaire à masquer:', commentId)
       axios.patch("http://localhost:3000/api/comments/" + commentId, {
         headers:{
@@ -709,8 +741,9 @@ export default {
 
     // ------ Fin masquer un commentaire par l'administrateur  ----//
     // --- Montrer le commentaire masqué pour l'administrateur
-    demask () {
-      this.demasked=true
+    demaskComment (commentId) {
+      console.log ("commentId", commentId)
+      this.okMasked=true
     },
     ///--------
 
@@ -820,6 +853,7 @@ export default {
   background: #fff;
   border-radius: 10px;
   box-shadow: 2px 2px 5px grey;
+  box-sizing: border-box;
 }
 .publicationText {
   text-align: justify;
@@ -1073,6 +1107,7 @@ span {
 }
 .allComments {
   margin-top: 20px;
+  
 }
 .allComments span {
   display: inline-block;
@@ -1086,12 +1121,22 @@ span {
   color:#fff;
   font-size: 1em;
 }
-p.comment {
-  padding-left: 10px;
+.deleteComment {
+  width: 100%;
+  padding: 10px;
   font-family: "Courier New", Courier, monospace;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 100%;
 }
-.masked {
+.masked, .deleteComment i {
   color:crimson;
+  padding: 10px;
+}
+.maskedIcone, .demaskedIcone {
+  margin-top: 10px;
+  color:blue
 }
 hr {
   box-shadow: 2px 2px 5px black;
@@ -1104,6 +1149,9 @@ hr {
   }
   .publicationCard {
     width: 95%;
+  }
+  h2{
+    font-size: 2rem;
   }
 }
 </style>

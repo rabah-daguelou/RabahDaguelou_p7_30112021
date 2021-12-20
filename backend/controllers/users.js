@@ -433,47 +433,48 @@ exports.updateEmail = (req, res, next) => {
 
 /// Modifier le mot de passe  ///////////////////////////////////////////
 exports.updatePassword = (req, res, next) => {
+
+  // Hacher le nouveau mot de passe  
   bcrypt.hash(req.body.password, 10).then((hash) => {
     const newPassword = hash;
     console.log("newPassword:", newPassword);
-
+  
+  // Vérifier l'ancien mot de passe dans la bdd
     let sql = `SELECT password FROM users WHERE userId=${req.params.id}`;
     db.query(sql, (err, results) => {
       if (err) {
         console.log("Erreur BDD:", err);
       } else {
+
+        // si pas de mot de passe correspondant
         if (!results) {
           console.log("User introuvable dans la bdd !");
         } else {
+
+        // Si mot de passe trouvé
           console.log("Mot de passe trouvé:", results[0].password);
           bcrypt
             .compare(req.body.password1, results[0].password)
             .then((valid) => {
+              
+              // Si l'ancien mot de passe invalide
               if (!valid) {
                 res.status(200).json({
                   type: "error",
                   message: "L'ancien mot de passe est incorrect !",
                 });
                 console.log(" L'ancien mot de passe n'est pas correct !");
+              
+                // Si l'ancien mot de passe est valide
+                // Modifier le mot de passe dans la bdd
               } else {
-                res.status(200).json({
-                  type: "true",
-                  message: "Le mot de passe correspond",
-                });
-                console.log(" L'ancien mot de passe correspond!");
-
-                console.log("newPassword:", newPassword);
                 let sql = `UPDATE users SET password='${newPassword}' WHERE userId=${req.params.id}`;
                 db.query(sql, (err, results) => {
                   if (err) {
                     console.log("Erreur BDD:", err);
-                    res.status(200).json({
-                      type: "error",
-                      message: " Erreur Bdd !",
-                    });
                   } else {
                     console.log("Mot de passe modifié avec succès !");
-                    res.status(200).json({
+                    res.status(201).json({
                       message: " Votre mot de passe a été modifié avec succès!",
                     });
                   }

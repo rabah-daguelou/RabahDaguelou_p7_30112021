@@ -1,10 +1,10 @@
 <template>
     <div class="all">
       <!-- Publier un post -->
-<h2> Publiez...</h2>
+
 <!-- Formulaire -->
-      <div class="publicationCard">
-        
+      <div v-if="userId==Token.userId" class="publicationCard">
+        <h2> Publiez...</h2>
         <form @submit.prevent="onSubmit" enctype="multipart/form-data">
           <div>
             <textarea
@@ -165,10 +165,10 @@
         <!--  2/ Afficher tous les commentaires du postId-->
         <div class="allComments">
           
-          <button v-if="afficherCommentaires" @click="getAllComments(publication.postId)">
+          <button v-if="!showComments && publication.commentNumber>0" @click="getAllComments(publication.postId)">
             Afficher tous les commentaires ( {{ publication.commentNumber }})
           </button>
-          <button v-else @click="getAllComments(publication.postId)">
+          <button v-if="showComments" @click="getAllComments(publication.postId)">
             Masquer les commentaires
           </button>       
      
@@ -241,7 +241,7 @@ export default {
       textModified: "",
       comment: "",
       okComment: false,
-      okAllComments:false,
+      okAllComments:true,
       commentNumber: 0,
       comments: [],
       showComments:false,
@@ -347,8 +347,7 @@ export default {
           headers: {
           authorization: `bearer ${this.Token.token}`,
           },
-          //headers:('Content-Type: multipart/form-data'),
-           
+                  
           })
           
           .then(function (res) {
@@ -364,7 +363,7 @@ export default {
       
       this.text="";
       this.getAllMyPosts();
-      this.file="";
+      !this.onSelect
     },
 //---------- Fin publier un post ---------------//
 
@@ -442,7 +441,8 @@ export default {
           this.okModifyPost = !this.okModifyPost;
           this.textModified="";
           this.error="";
-          self.getAllMyPosts();
+          this.getAllMyPosts();
+          location.reload()
     },
     
     // ---------- Fin modifier un post ------------//
@@ -470,17 +470,23 @@ export default {
         
         .then(function (res) {
           console.log(res);
+          this.okComment=false
+          
+          
         })
         .catch(function (err) {
           console.log(err);
         });
+         this.okComment=false
+         this.comment=""
+         //this.getAllComments()
     },
     // ------- Fin créer un commentaire --------- //
 
 // --6/ ----- Afficher tous les commentaires d'un post--------- //
     getAllComments(postId) {
       //this.afficherCommentaires=false;
-      this.afficherCommentaires=!this.afficherCommentaires;
+      //this.afficherCommentaires=!this.afficherCommentaires;
       this.showComments=!this.showComments
       const self=this
       axios.get("http://localhost:3000/api/comments/" + postId,
@@ -493,8 +499,14 @@ export default {
         .then(function (res) {
         //  self.getAllPosts()
           console.log ("Résultats: ", res.data)
-          self.comments=res.data
-          console.log ("comments:", self.comments[0].user_send)
+          if (res.data.length>0){
+            self.comments=res.data
+            self.showComments==true
+          } else {
+            self.showComments==false
+          }
+          
+          
         
         })
         .catch(function (err) {

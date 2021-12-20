@@ -10,6 +10,7 @@ const cors = require("cors");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const { isContext } = require("vm");
+const { brotliDecompress } = require("zlib");
 require("dotenv").config();
 
 //// Se connecter à la base de données
@@ -93,3 +94,35 @@ exports.maskComment=(req, res, next)=>{
   })
 
 }
+
+// Supprimer un commentaire
+
+exports.deleteComment=(req, res, next) => {
+  
+  // Récupérer commentId et postId dans les paramètres
+  
+  const commentId= req.params.id.split(' ')[0];
+  const postId= req.params.id.split(' ')[1];
+  let sql1=`DELETE FROM comments WHERE commentId=${commentId}`;
+  let sql2=`UPDATE posts SET commentNumber=commentNumber-1 WHERE postId=${postId}`
+  
+  // Supprimer le commentaire dans la table comments
+  db.query(sql1,(err, results)=>{
+    if (err){
+      console.log ( "Erreur Bdd:", err)
+    } else {
+      console.log (" Commentaire supprimé de la Bdd")
+      res.status(200).json({ message: " Commentaire supprimé de la Bdd"})
+    }
+  })
+
+  // Décrémenter le nombre de commentaire pour la publication dans la table posts
+  db.query(sql2,(err, results)=>{
+    if (err){
+      console.log ( "Erreur Bdd:", err)
+    } else {
+      console.log (" Le nombre de commentaires est décrémenté pour le post", postId)
+     // res.status(201).json({ message: " Le nombre de commentaires est décrémenté pour le post", postId })
+    }
+  })
+};

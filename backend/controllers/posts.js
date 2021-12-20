@@ -120,7 +120,7 @@ exports.deletePost = (req, res, next) => {
       console.log(results);
 
       // Supprimer l'image du dossier si le post a une image
-      // if (results !== []) {
+
       if (results[0].image && results[0].shared == 0) {
         let image = results[0].image;
         fs.unlink("./images/" + image, (err) => {
@@ -131,7 +131,7 @@ exports.deletePost = (req, res, next) => {
           }
         });
       }
-      //
+      // Supprimer le post de la Bdd
 
       db.query(
         "DELETE FROM posts WHERE postId=?",
@@ -152,12 +152,12 @@ exports.updatePost = (req, res, next) => {
     const image = req.file.filename;
     const post = req.body.textModified;
     const postId = req.params.id;
-    
+
     console.log("image:", image);
     console.log("texte:", post);
     console.log("postId:", postId);
 
-    // Chercher l'ancienne image de la bdd pour la
+    // Chercher l'ancienne image de la bdd
 
     db.query(`SELECT * FROM posts WHERE postId=${postId}`, (err, results) => {
       //res.json(results);
@@ -167,8 +167,22 @@ exports.updatePost = (req, res, next) => {
         const imageToDelete = results[0].image;
         console.log("Ancienne photo à supprimer: ", imageToDelete);
 
+        // Modifier la publication ( texte + photo) dans la Bdd
+        let sql1 = `UPDATE posts SET post="${post}", image="${image}" WHERE postId=${postId}`;
+        db.query(sql1, (err, results) => {
+          if (err) {
+            console.log("Erreur Bdd:", err);
+          } else {
+            console.log(" Post modifié dans la Bdd aevc succès !", results);
+          }
+        });
+        res.status(201).json({
+          message: " Le texte ainsi que la photo ont été modifiés avec succès!",
+        });
+        
         // si le post n'est pas partagé,
         // on supprime le fichier dans le dossier image
+        /*
         if (results[0].shared_number == 0) {
           fs.unlink("./images/" + imageToDelete, (err) => {
             if (err) {
@@ -180,9 +194,11 @@ exports.updatePost = (req, res, next) => {
             }
           });
         }
+        */
       }
     });
-
+   
+    /*
     // Modifier la publication ( texte + photo) dans la Bdd
     let sql1 = `UPDATE posts SET post="${post}", image="${image}" WHERE postId=${postId}`;
     db.query(sql1, (err, results) => {
@@ -193,14 +209,13 @@ exports.updatePost = (req, res, next) => {
       }
     });
     res.status(201).json({ message: " Le texte ainsi que la photo ont été modifiés avec succès!"})
-  // 2--- Si modifier uniquement la photo
-
+*/
+    // 2--- Si modifier uniquement la photo
   } else if (req.file && !req.body.textModified) {
-
     const image = req.file.filename;
     const postId = req.params.id;
-    
-    // Chercher l'ancienne image de la bdd 
+
+    // Chercher l'ancienne image de la bdd
 
     db.query(`SELECT * FROM posts WHERE postId=${postId}`, (err, results) => {
       //res.json(results);
@@ -236,8 +251,7 @@ exports.updatePost = (req, res, next) => {
       }
     });
 
-  // 3---- Modifier uniquement le texte
-
+    // 3---- Modifier uniquement le texte
   } else {
     let post = req.body.textModified;
     let postId = req.params.id;

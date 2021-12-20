@@ -21,7 +21,10 @@ router.post("/comments", commentsCtrl.createComment);
 router.get("/comments/:id", commentsCtrl.getAllComments);
 
 // Masquer un commentaire
-router.patch("/comments/:id", commentsCtrl.maskComment)
+router.patch("/comments/:id", commentsCtrl.maskComment);
+
+// Supprimer un commentaire
+router.delete("/comments/:id", commentsCtrl.deleteComment);
 
 
 
