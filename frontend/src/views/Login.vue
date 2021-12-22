@@ -141,9 +141,6 @@ export default {
                 self.errors.push(res.data.message);
 
               } else {
-                console.log(res);
-                self.errors.push(" Inscription effectuée avec succès! Vous pouvez désormais vous connecter !")
-                console.log ( "Inscription effectuée avec succès !")
                 self.login();
               }
             })
@@ -173,6 +170,9 @@ export default {
     //
     async login() {
       // Controler le formulaire
+      if (this.email.startsWith('Groupomania')){
+        this.errors.push("Cet email est interdit !")
+      } else {
       if (this.email && this.password) {
         try {
           const self = this;
@@ -209,12 +209,13 @@ export default {
         if (!this.password) {
           this.errors.push("Le champs Mot de passe est requis");
         }
-       
+        }
       }
     },
 
    
     //
+   
   },
 };
 </script>

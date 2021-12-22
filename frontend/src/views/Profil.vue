@@ -345,11 +345,13 @@ export default {
       }
       this.getOneUserById(this.userId);
       this.btnModifyProfil();
+      location.reload()
     },
 
     /////////////////
     // update Email
     updateEmail: function (event) {
+      let self=this
       if (event) {
         axios
           .patch(
@@ -367,17 +369,19 @@ export default {
             this.errorEmail2 = "";
             if (res.data.type == "error") {
               this.errorEmail2 = "Votre nouvel email n'est pas valide!";
+              this.email2=""
             } else {
-              this.errorEmail2 = "";
-              this.errorEmail2 = "Votre email a été modifié avec succès!";
+              this.email2=""
+              // Afficher le message pendant 3 secondes
+              //self.errorEmail2 = "Votre email a été modifié avec succès!";
               console.log("Email modifié ! ");
+              self.btnModifyProfil();
+              self.getOneUserById(this.userId);
             }
           })
           .catch((err) => {
             console.log("Erreur serveur !", err);
           });
-        this.getOneUserById(this.userId);
-        this.btnModifyProfil();
       }
     },
 
@@ -408,6 +412,7 @@ export default {
                 this.password1="";
                 this.password2="";
                 this.password3="";
+                // Afficher le message pendant 3 secondes
                // this.errorPassword2 =
                 //  "Votre mot de passe a été modifié avec succès!";
                 console.log("Mot de passe modifié ! ");
@@ -446,16 +451,27 @@ export default {
                 },
               }
             )
-            .then((res) => {
-              console.log(res.data.message);
-              this.errorName2 = res.data.message;
+          //
+          .then((res) => {
+              this.errorName2 = "";
+              if (res.data.type == "error") {
+                this.errorName2 = res.data.message;
+              } else {
+                this.errorName2 = "";
+                this.name2=""
+                this.btnModifyProfil();
+                // Afficher le message pendant 3 secondes
+               
+                //  "Votre mot de passe a été modifié avec succès!";
+                console.log("Pseudo  modifié ! ");
+               this.getOneUserById(this.userId);
+              }
             })
             .catch((err) => {
-              console.log(err.data.message);
-              this.errorName2 = err.data.message;
+              console.log("Erreur serveur !", err);
             });
         }
-        this.getOneUserById(this.userId);
+       location.reload()
       }
     },
 
@@ -770,9 +786,10 @@ span {
     flex-direction: column;
   }
 }
+
 @media screen and (min-width: 991px) {
   .all {
-    width: 70%;
+    width: 100%;
     margin: auto;
   }
 }

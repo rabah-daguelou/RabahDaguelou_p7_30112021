@@ -93,24 +93,40 @@ export default {
  
   data (){
     return{
-      userId:0,
+     // userId:0,
       Token:"",
       profil_picture:"",
     }
   },
-  computed () {
-    this.Token=JSON.parse(localStorage.getItem("Token"))
+  computed: {
+    userId:function(){
+      //location.reload()
+      return this.$store.state.userConnected.userId
+    }
+    
+   /*
+   this.Token=JSON.parse(localStorage.getItem("Token"))
     this.$store.commit("USER_CONNECTED")
     this.userId=this.Token.userId
+    
+   if (JSON.parse(localStorage.getItem("Token"))) {
+    this.Token=JSON.parse(localStorage.getItem("Token"))
+    this.$store.commit("USER_CONNECTED") 
+    this.userId=this.Token.userId
+    } else {
+      this.deconnected()
+    }*/
   },
   created(){
-  
+  //this.userId=this.$store.state.userConnected.userId
   if (JSON.parse(localStorage.getItem("Token"))) {
     this.Token=JSON.parse(localStorage.getItem("Token"))
     this.$store.commit("USER_CONNECTED") 
     this.userId=this.Token.userId
+    } else {
+      this.deconnected()
     }
-  
+ 
   },
   
   methods:{
@@ -120,6 +136,7 @@ export default {
       //location.reload()
     
     },
+    
   }
 };
 </script>

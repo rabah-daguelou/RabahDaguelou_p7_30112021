@@ -120,7 +120,13 @@ export default {
   background: rgb(255, 255, 255);
   box-shadow: 2px 2px 5px black;
   padding: 5px;
+  transition: transform .4s;
 }
+.userCard:hover {
+  transform: scale(1.3);
+  background: rgb(212, 209, 212);
+}
+
 img {
   margin-bottom: 5px;
   width: 70px;

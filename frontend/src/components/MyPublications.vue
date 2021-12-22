@@ -30,6 +30,13 @@
       </div>
 
 <!-- Fin publier un post -->
+
+<!-- Afficher les publications du profil -->
+
+<!-- 
+  
+-->
+
 <div v-if="publications.length">
           <div
         v-for="publication in publications"
@@ -581,5 +588,6 @@ deslike_it(postId) {
 </script>
 
 <style scoped>
+
 
 </style>

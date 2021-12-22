@@ -18,6 +18,7 @@ module.exports = (req, res, next) => {
   } catch {
     console.log("Votre requête n'est pas authentifiée! Merci de vous reconnecter.")
     res.status(200).json({
+     // type:not-identified,
       message:"Vous êtes déconnectés! Merci de vous reconnecter."
     });
     

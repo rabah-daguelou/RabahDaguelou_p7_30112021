@@ -37,8 +37,8 @@ router.patch('/users/photo/:id', auth, multer, usersCtrl.modifyProfilPicture);
 // Modifier l'Email
 router.patch('/users/email/:id', auth, checkEmail, usersCtrl.updateEmail);
 
-// Modifier le nom d'un utilisateur
-router.patch("/users/name:id", auth, usersCtrl.updateName);
+// Modifier le pseudo d'un utilisateur
+router.patch("/users/name:id", auth, checkName, usersCtrl.updateName);
 
 // Modifier le mot de passe 
 router.put ('/users/password/:id', auth, checkPassword, usersCtrl.updatePassword)

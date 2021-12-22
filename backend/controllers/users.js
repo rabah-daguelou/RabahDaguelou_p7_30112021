@@ -160,7 +160,7 @@ exports.getOneUser = (req, res) => {
 };
 ////////////////////////
 // Delete User
-
+// Première solution
 // Supression du compte, de la photo du profil, 
 // des publications et des commentaires du user
 /*
@@ -251,7 +251,7 @@ exports.deleteOneUser = (req, res) => {
   });
 
   //
-// Remplacer la photo du user dans la table posts par le logo 
+// Remplacer la photo du user dans la table comments par le logo 
 let sql6 = `UPDATE comments SET profil_picture="icon.png" WHERE userId=${id}`;
 
 db.query(sql6, (err, results) => {
@@ -333,7 +333,7 @@ db.query(sql4, (err, results) => {
     
   }
 });
-
+res.status(201).json({message:"Toutes les modifications ont été apportées sur la suppression du compte"})
 }
   
 
@@ -414,7 +414,7 @@ exports.modifyProfilPicture = (req, res) => {
 
 
 /////////////////////////////////
-// Update Email with id
+// Modifier l'email
 
 exports.updateEmail = (req, res, next) => {
   let email = req.body.email;
@@ -427,6 +427,7 @@ exports.updateEmail = (req, res, next) => {
       console.log("Erreur", err);
     } else {
       console.log("Email modifié !");
+      res.status(201).json({message: "Votre email a été modifié avec succès!" })
     }
   });
 };
@@ -491,6 +492,8 @@ exports.updatePassword = (req, res, next) => {
 /////////////////////////////
 exports.updateName = (req, res, next) => {
   console.log("Nouveau pseudo", req.body.name);
+
+  // Modifier le pseudo dans la table users
   let sql = `UPDATE users SET name='${req.body.name}' WHERE userId=${req.params.id}`;
   db.query(sql, (err, results) => {
     if (err) {
@@ -501,11 +504,33 @@ exports.updateName = (req, res, next) => {
       console.log(" Erreur Bdd ");
     } else {
       console.log(" Votre pseudo a été modifié avec succès !");
-      res.status(200).json({
+      res.status(201).json({
         message: " Votre pseudo a été modifié avec succès!",
       });
     }
   });
+// Modifier le pseudo dans la table posts
+  let sql2 = `UPDATE posts SET user_send='${req.body.name}' WHERE userId=${req.params.id}`;
+  db.query(sql2, (err, results) => {
+    if (err) {
+      
+      console.log(" Erreur Bdd ");
+    } else {
+      console.log(" Votre pseudo a été modifié avec succès !");
+      
+    }
+  });
+ // Modifier le pseudo dans la table comments
+ let sql3 = `UPDATE comments SET user_send='${req.body.name}' WHERE userId=${req.params.id}`;
+ db.query(sql3, (err, results) => {
+   if (err) {
+     
+     console.log(" Erreur Bdd ");
+   } else {
+     console.log(" Votre pseudo a été modifié avec succès !");
+     
+   }
+ }); 
 };
 
 ////////////////////////////

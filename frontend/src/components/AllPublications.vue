@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="all">
-      <div add-post>
+      <div class="add-post" >
         <h1>Publiez ...</h1>
         <!-- User connected -->
         <router-link :to="`/Profil/${userConnected.userId}`">
@@ -88,6 +88,8 @@
               "
               width="100"
               alt=""
+
+              
             />
                       
             </div>
@@ -127,14 +129,14 @@
         <!-- Likes and dislikes -->
         <div class="likes">
           <div>
-            <i
+            <i title="j'aime"
               @click="like_it(publication.postId)"
               class="fas fa-thumbs-up like"
             >
               <span class="like"> &#160; {{ publication.likes_number }} </span>
             </i>
 
-            <i
+            <i title="J'aime pas"
               @click="deslike_it(publication.postId)"
               class="fas fa-thumbs-down deslike"
             >
@@ -250,7 +252,7 @@
         <div class="allComments">
           
           <button
-            v-if="afficherCommentaires && publication.commentNumber"
+            v-if="afficherCommentaires && publication.commentNumber "
             @click="getAllComments(publication.postId)">
           
             Commentaires
@@ -265,7 +267,9 @@
           </button>
 
           <div v-if="showComments && publication.postId == comments[0].postId">
+           
             <div v-for="comment in comments" :key="comment">
+              
               <div class="oneCommentCard">
                 <div class="publicationDate">
                   <div class="userAndImage">
@@ -287,14 +291,12 @@
                   </p>
                 <div class="notShowComment">
 
-                  
-
                   <div v-if="comment.masked==0 || okMasked" class="deleteComment">
                     
                     <p> {{ comment.comment }}</p>
 
                     <!-- Supprimer un commentaire -->
-                   <p> <i v-if="comment.userId == userConnected.userId || userConnected.isAdmin==1"
+                   <p> <i title="Supprimer" v-if="comment.userId == userConnected.userId || userConnected.isAdmin==1"
                    @click="deleteComment(comment.commentId, publication.postId)" class="fas fa-trash-alt"></i> </p>
                     <!-- Fin supprimer un commentaire -->
                     
@@ -302,11 +304,11 @@
                   
 
                   <div>
-                    <i @click="maskComment(comment.commentId)"
+                    <i title="Masquer" @click="maskComment(comment.commentId)"
                       v-if="userConnected.isAdmin == 1 && comment.masked == 0 "
                       class="fas fa-eye-slash maskedIcone"> </i>
                    
-                    <i @click="demaskComment(comment.commentId)"
+                    <i title="Voir" @click="demaskComment(comment.commentId)"
                       v-if="userConnected.isAdmin == 1 && comment.masked == 1 && !okMasked"
                       class="fas fa-eye demaskedIcone"></i>
                   
@@ -431,6 +433,7 @@ export default {
             console.log(
               "Tableau des bublications:", this.publications);
               this.publications = response.data;
+              location.reload
           }
         })
         .catch((error) => {
@@ -818,7 +821,7 @@ export default {
 <style>
 /* Publier un post */
 .all {
-  margin: auto;
+  margin: auto 10px;
   text-align: center;
 }
 
@@ -1135,7 +1138,7 @@ span {
   padding: 10px;
 }
 .maskedIcone, .demaskedIcone {
-  margin-top: 10px;
+  margin-top: 20px;
   color:blue
 }
 hr {
