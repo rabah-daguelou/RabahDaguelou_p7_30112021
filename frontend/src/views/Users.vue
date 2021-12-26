@@ -68,11 +68,12 @@ export default {
           }
         })
         .then((res) => {
-          console.log('Liste des salariés:' , res.data);
-          
-           if (res.data.message){
-           // console.log ("Requête non authentifié:", this.publications.message);
-            this.authentified=res.data.message
+
+          // Si requête non authentifiée
+           if (res.data.disconnected){
+           this.authentified=res.data.message
+           localStorage.removeItem("Token");
+           this.$store.commit("DECONNEXION");
           // Si requête authentifiée
           } else {
             this.users = res.data;
@@ -82,6 +83,7 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+        // si déconnecté --- pas de token
       } else {
         this.authentified=" Merci de vous connecter d'abord !"
       }

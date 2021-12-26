@@ -17,6 +17,7 @@
             "
             width="200"
             alt=""
+            class="image"
           />
           <img v-else src="../assets/icon.png" alt="" />
 
@@ -48,6 +49,7 @@
           >
             Modifier mon profil &#160; <i class="fas fa-pen-square"> </i>
           </button>
+          <p v-if="success"> {{ success }}</p>
           <button
             v-if="!okModifyProfil"
             class="btn deleteProfil"
@@ -212,6 +214,7 @@ export default {
       text: "",
       Token: null,
       authentified: "",
+      success:"",
     };
   },
 
@@ -245,7 +248,7 @@ export default {
       if (this.Token) {
         try {
           const response = await axios.get(
-            "http://localhost:3000/api/users" + id,
+            "http://localhost:3000/api/users/" + id,
             {
               headers: {
                 authorization: `bearer ${this.Token.token}`,
@@ -253,8 +256,10 @@ export default {
             }
           );
           // Si requête non authentifiée
-          if (response.data.message) {
-            this.authentified = response.data.message;
+          if (response.data.disconnected) {
+            this.authentified = response.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
             this.oneUser = response.data[0];
@@ -274,12 +279,13 @@ export default {
       console.log("userId:", this.id);
       if (event) {
         axios
-          .delete("http://localhost:3000/api/users" + this.id, {
+          .delete("http://localhost:3000/api/users/" + this.id, {
             headers: {
               authorization: `bearer ${this.Token.token}`,
             },
           })
           .then((res) => {
+            this.success= " Le user, ses publications et ses commentaires ont été supprimés avec succès!"
             console.log(
               " Le user, ses publications et ses commentaires ont été supprimés avec succès!",
               res
@@ -310,7 +316,7 @@ export default {
     async onSubmit() {
       const formData = new FormData();
       formData.append("file", this.file);
-      //console.log ('new profil_picture:', this.file.name)
+      
       this.profil_picture = this.file.name;
 
       try {
@@ -323,7 +329,16 @@ export default {
             },
           })
           .then(function (res) {
-            // Modifier localStorage et Store
+
+            // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+
+            // Modifier profil_picture dans localStorage et Store
             console.log(
               "Profil_picture du Token avant modif:",
               self.Token.profil_picture
@@ -335,8 +350,12 @@ export default {
             console.log("Token après modif:", self.Token.profil_picture);
             localStorage.setItem("Token", JSON.stringify(self.Token));
             self.$store.commit("USER_CONNECTED");
+            this.getOneUserById(this.userId);
+            this.success=" Votre photo de profil est modifiée avec succès!"
             //
+            }
           })
+          
           .catch(function (err) {
             console.log(err);
           });
@@ -345,7 +364,7 @@ export default {
       }
       this.getOneUserById(this.userId);
       this.btnModifyProfil();
-      location.reload()
+     // location.reload()
     },
 
     /////////////////
@@ -366,6 +385,14 @@ export default {
             }
           )
           .then((res) => {
+
+            // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
             this.errorEmail2 = "";
             if (res.data.type == "error") {
               this.errorEmail2 = "Votre nouvel email n'est pas valide!";
@@ -377,7 +404,9 @@ export default {
               console.log("Email modifié ! ");
               self.btnModifyProfil();
               self.getOneUserById(this.userId);
+              this.success=" Votre email est modifié avec succès!"
             }
+          }
           })
           .catch((err) => {
             console.log("Erreur serveur !", err);
@@ -404,6 +433,15 @@ export default {
               }
             )
             .then((res) => {
+
+              // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else{
+
               this.errorPassword2 = "";
               if (res.data.type == "error") {
                 this.errorPassword2 = res.data.message;
@@ -412,12 +450,14 @@ export default {
                 this.password1="";
                 this.password2="";
                 this.password3="";
+                this.success=" Votre mot de passe a été modifié avec succès!"
                 // Afficher le message pendant 3 secondes
                // this.errorPassword2 =
                 //  "Votre mot de passe a été modifié avec succès!";
                 console.log("Mot de passe modifié ! ");
                 this.btnModifyProfil()
               }
+            }
             })
             .catch((err) => {
               console.log("Erreur serveur !", err);
@@ -441,7 +481,7 @@ export default {
         } else {
           axios
             .patch(
-              "http://localhost:3000/api/users/name" + id,
+              "http://localhost:3000/api/users/name/" + id,
               {
                 name: this.name2,
               },
@@ -453,6 +493,15 @@ export default {
             )
           //
           .then((res) => {
+
+            // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            
+            // Si requête authentifiée
+          } else {
               this.errorName2 = "";
               if (res.data.type == "error") {
                 this.errorName2 = res.data.message;
@@ -464,14 +513,19 @@ export default {
                
                 //  "Votre mot de passe a été modifié avec succès!";
                 console.log("Pseudo  modifié ! ");
-               this.getOneUserById(this.userId);
-              }
+                
+                this.getOneUserById(this.userId);
+                this.success=" Votre pseudo a été modifié avec succès!"
+                console.log (  "Pseudo  modifié ! ")
+            }
+          }
             })
             .catch((err) => {
               console.log("Erreur serveur !", err);
             });
         }
        location.reload()
+       
       }
     },
 
@@ -577,6 +631,10 @@ img {
   /*border: 1px solid black;*/
   border-radius: 35px;
   box-shadow: 3px 1px 3px rgb(219, 148, 148);
+  transition: transform .2s;
+}
+img:hover{
+  transform:scale(3.5)
 }
 
 p {

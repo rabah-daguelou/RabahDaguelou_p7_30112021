@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="all">
-      <div class="add-post" >
+      <div class="add-post">
         <h1>Publiez ...</h1>
         <!-- User connected -->
         <router-link :to="`/Profil/${userConnected.userId}`">
@@ -73,35 +73,30 @@
     <!-- Les publications  -->
     <div v-if="publications.length">
       <div
-        v-for="publication in publications" :key="publication"
-        
+        v-for="publication in publications"
+        :key="publication"
         class="publicationCard"
-      > 
-           <!-- Si la publication est partagée -->
-           
-           <div v-if="publication.shared==1" class="publicationDate shared"> 
-           <div  class="userAndImage shared">
-   
+      >
+        <!-- Si la publication est partagée -->
+
+        <div v-if="publication.shared == 1" class="publicationDate shared">
+          <div class="userAndImage shared">
             <img
               :src="
                 require(`./../../../backend/images/${publication.shared_userProfil_picture}`)
               "
               width="100"
               alt=""
-
-              
             />
-                      
-            </div>
-            <p> partagé par {{ publication.shared_userName }}</p>
-             <p class="datePub">Partagé le {{ publication.DATETIME_FR }}</p>
-            <hr/>
-            </div>
-            
-         <!-- fin si publication partagée -->
-      
+          </div>
+          <p>partagé par {{ publication.shared_userName }}</p>
+          <p class="datePub">Partagé le {{ publication.DATETIME_FR }}</p>
+          <hr />
+        </div>
+
+        <!-- fin si publication partagée -->
+
         <div class="publicationDate">
-          
           <div class="userAndImage">
             <img
               :src="
@@ -112,8 +107,10 @@
             />
           </div>
           <p>{{ publication.user_send }}</p>
-          <p v-if="publication.shared_number>0" class="datePub">Publié le {{ publication.shared_date }}</p>
-          <p v-else class="datePub">Publié le {{ publication.DATETIME_FR }} </p>
+          <p v-if="publication.shared_number > 0" class="datePub">
+            Publié le {{ publication.shared_date }}
+          </p>
+          <p v-else class="datePub">Publié le {{ publication.DATETIME_FR }}</p>
         </div>
 
         <div v-if="publication.image" class="publicationPhoto">
@@ -121,7 +118,7 @@
             :src="require(`./../../../backend/images/${publication.image}`)"
             width="200"
             alt=" pas de photo"
-          /> 
+          />
         </div>
 
         <p class="publicationText">{{ publication.post }}</p>
@@ -129,45 +126,58 @@
         <!-- Likes and dislikes -->
         <div class="likes">
           <div>
-            <i title="j'aime"
-              @click="like_it(publication.postId)"
-              class="fas fa-thumbs-up like"
-            >
-              <span class="like"> &#160; {{ publication.likes_number }} </span>
-            </i>
-
-            <i title="J'aime pas"
-              @click="deslike_it(publication.postId)"
-              class="fas fa-thumbs-down deslike"
-            >
-              <span class="like">
-                &#160; {{ publication.deslikes_number }}
-              </span>
-            </i>
+            <button class="cachedButton">
+              <i
+                title="j'aime"
+                @click="like_it(publication.postId)"
+                class="fas fa-thumbs-up like"
+              >
+                <span class="like">
+                  &#160; {{ publication.likes_number }}
+                </span>
+              </i>
+            </button>
+            <button class="cachedButton">
+              <i
+                title="J'aime pas"
+                @click="deslike_it(publication.postId)"
+                class="fas fa-thumbs-down deslike"
+              >
+                <span class="like">
+                  &#160; {{ publication.deslikes_number }}
+                </span>
+              </i>
+            </button>
           </div>
 
           <!-- Supprimer et modifier un post -->
           <div>
             <!-- Supprimer un post -->
-
-            <i
-              @click="deletePost(publication.postId)"
-              v-if="
-                publication.userId == userConnected.userId ||
-                userConnected.isAdmin == 1
-              "
-              class="fas fa-trash delete"
-            >
-              <span> Supprimer </span></i
-            >
-
+            <button class="cachedButton">
+              <i
+                @click="deletePost(publication.postId)"
+                v-if="
+                  publication.userId == userConnected.userId ||
+                  userConnected.isAdmin == 1 ||
+                  publication.shared_userId == userConnected.userId
+                "
+                class="fas fa-trash delete"
+              >
+                <span> Supprimer </span></i
+              >
+            </button>
             <!-- Modifier un post -->
-            <i
-              @click="btnModifyPost(publication.postId)"
-              v-if="publication.userId == userConnected.userId && publication.shared==0"
-              class="fas fa-pen-square modify"
-              ><span> Modifier </span></i
-            >
+            <button class="cachedButton">
+              <i
+                @click="btnModifyPost(publication.postId)"
+                v-if="
+                  publication.userId == userConnected.userId &&
+                  publication.shared == 0
+                "
+                class="fas fa-pen-square modify"
+                ><span> Modifier </span></i
+              >
+            </button>
           </div>
         </div>
 
@@ -211,24 +221,35 @@
 
         <!-- 1/ Publier un commentaire -->
         <div class="commentCard">
-       
-          <div class="commentAndPartage likes" >
+          <div class="commentAndPartage likes">
+            <!-- Bouton Commenter -->
+            <button class="cachedButton">
+              <i
+                class="far fa-comment-dots comment"
+                @click="btnComment(publication.postId)"
+              >
+                <span> Commenter </span>
+              </i>
+            </button>
 
-          <i class="far fa-comment-dots comment" @click="btnComment(publication.postId)">
-            <span> Commenter  </span> 
-          </i>
-          <!-- Bouton Partager -->
-          <i class="fas fa-share-square share">
-            <span @click="share(publication)"> Partager <span class="shared_number"> {{ publication.shared_number}}</span> </span>
-          </i>
-                  
+            <!-- Bouton Partager -->
+            <button class="cachedButton">
+              <i @click="share(publication)" class="fas fa-share-square share">
+                <span>
+                  Partager
+                  <span class="shared_number">
+                    {{ publication.shared_number }}</span
+                  >
+                </span>
+              </i>
+            </button>
           </div>
 
           <form
             v-if="okComment && publication.postId == this.postId"
             @submit.prevent=""
           >
-            <textarea 
+            <textarea
               v-model="comment"
               cols="30"
               name="text"
@@ -250,13 +271,12 @@
 
         <!--  2/ Afficher tous les commentaires du postId-->
         <div class="allComments">
-          
           <button
-            v-if="afficherCommentaires && publication.commentNumber "
-            @click="getAllComments(publication.postId)">
-          
+            v-if="afficherCommentaires && publication.commentNumber"
+            @click="getAllComments(publication.postId)"
+          >
             Commentaires
-          <span> {{ publication.commentNumber }} </span> 
+            <span> {{ publication.commentNumber }} </span>
           </button>
 
           <button
@@ -267,9 +287,7 @@
           </button>
 
           <div v-if="showComments && publication.postId == comments[0].postId">
-           
             <div v-for="comment in comments" :key="comment">
-              
               <div class="oneCommentCard">
                 <div class="publicationDate">
                   <div class="userAndImage">
@@ -287,44 +305,67 @@
 
                 <!-- Désactiver un commentaire -->
                 <p v-if="comment.masked == 1" class="masked">
-                    Ce commentaire est masqué par l'administrateur !
-                  </p>
+                  Ce commentaire est masqué par l'administrateur !
+                </p>
                 <div class="notShowComment">
-
-                  <div v-if="comment.masked==0 || okMasked" class="deleteComment">
-                    
-                    <p> {{ comment.comment }}</p>
+                  <div
+                    v-if="comment.masked == 0 || okMasked"
+                    class="deleteComment"
+                  >
+                    <p>{{ comment.comment }}</p>
 
                     <!-- Supprimer un commentaire -->
-                   <p> <i title="Supprimer" v-if="comment.userId == userConnected.userId || userConnected.isAdmin==1"
-                   @click="deleteComment(comment.commentId, publication.postId)" class="fas fa-trash-alt"></i> </p>
+                    <p>
+                      <button class="cachedButton">
+                        <i
+                          title="Supprimer"
+                          v-if="
+                            comment.userId == userConnected.userId ||
+                            userConnected.isAdmin == 1
+                          "
+                          @click="
+                            deleteComment(comment.commentId, publication.postId)
+                          "
+                          class="fas fa-trash-alt"
+                        ></i>
+                      </button>
+                    </p>
                     <!-- Fin supprimer un commentaire -->
-                    
                   </div>
-                  
 
                   <div>
-                    <i title="Masquer" @click="maskComment(comment.commentId)"
-                      v-if="userConnected.isAdmin == 1 && comment.masked == 0 "
-                      class="fas fa-eye-slash maskedIcone"> </i>
-                   
-                    <i title="Voir" @click="demaskComment(comment.commentId)"
-                      v-if="userConnected.isAdmin == 1 && comment.masked == 1 && !okMasked"
-                      class="fas fa-eye demaskedIcone"></i>
-                  
-                  </div>
-                
+                    <button class="cachedButton">
+                      <i
+                        title="Masquer"
+                        @click="maskComment(comment.commentId, publication.postId)"
+                        v-if="userConnected.isAdmin == 1 && comment.masked == 0"
+                        class="fas fa-eye-slash maskedIcone"
+                      >
+                      </i>
+                    </button>
 
+                    <button class="cachedButton">
+                      <i
+                        title="Voir"
+                        @click="demaskComment(comment.commentId)"
+                        v-if="
+                          userConnected.isAdmin == 1 &&
+                          comment.masked == 1 &&
+                          !okMasked
+                        "
+                        class="fas fa-eye demaskedIcone"
+                      ></i>
+                    </button>
+                  </div>
                 </div>
-                <!-- --> 
-                
-                <hr/>
+                <!-- -->
+
+                <hr />
               </div>
             </div>
           </div>
         </div>
         <!-- Fin afficher les commentaires  -->
-
       </div>
     </div>
     <!-- Fin les publications -->
@@ -359,11 +400,11 @@ export default {
       afficherCommentaires: true,
       authentified: "",
       Token: "",
-      demasked:false,
-      okMasked:false,
+      demasked: false,
+      okMasked: false,
     };
   },
-  
+   
   props: {
     userConnected: {
       type: Object,
@@ -375,28 +416,24 @@ export default {
     },
   },
 
+  created() {
+    this.getAllPosts();
+    this.error = "";
+    this.messageThreeSeconds();
+  //  this.userConnected = this.$store.state.userConnected;
+  },
+
   mounted() {
     this.getAllPosts();
-     
   },
-  created () {
-  this.getAllPosts();
-  this.share();
-  this.error="";
-  //this.message()
-  },
-  computed:{
-    
-    allPosts:function(){
-      return this.publications
 
-    }
-  },
   methods: {
-   /* message(){
-        this.error=null
-      },
-*/
+    messageThreeSeconds: function () {
+      setTimeout(() => {
+        this.error = "";
+      }, 3000);
+    },
+
     btnModifyPost(id) {
       this.okModifyPost = !this.okModifyPost;
       this.postId = id;
@@ -412,8 +449,7 @@ export default {
     getAllPosts() {
       this.Token = JSON.parse(localStorage.getItem("Token"));
       this.user_id = this.Token.userId;
-      console.log("Token:", this.Token.token);
-      console.log("UserId:", this.Token.userId);
+
       axios
         .get("http://localhost:3000/api/posts", {
           headers: {
@@ -422,18 +458,14 @@ export default {
         })
 
         .then((response) => {
-          this.publications = response.data;
           // Si requête non authentifiée
-          if (response.data.message) {
-            console.log("Requête non authentifié:", this.publications.message);
-            this.authentified = response.data.message;
+          if (response.data.disconnected) {
+            this.authentified = response.data.disconnected;
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
-            console.log(
-              "Tableau des bublications:", this.publications);
-              this.publications = response.data;
-              location.reload
+            this.publications = response.data;
+            // location.reload()
           }
         })
         .catch((error) => {
@@ -442,35 +474,43 @@ export default {
     },
     ///// Fin Get All posts ////////
 
-    
     // ------ Partager une publication ---//
-    share(publication){
-    
-      axios.post("http://localhost:3000/api/posts/share",
-      
-      { 
-        publication1:publication,
-        publication2:{
-          shared:1,
-          shared_userId: this.userConnected.userId,
-          shared_userName: this.userConnected.name,
-          shared_userProfil_picture: this.userConnected.profil_picture,
-        }
-     
-      },
-      {
-        headers: {
-            authorization: `bearer ${this.Token.token}`,
+    share(publication) {
+      axios
+        .post(
+          "http://localhost:3000/api/posts/share",
+
+          {
+            publication1: publication,
+            publication2: {
+              shared: 1,
+              shared_userId: this.userConnected.userId,
+              shared_userName: this.userConnected.name,
+              shared_userProfil_picture: this.userConnected.profil_picture,
+            },
           },
-      })
-    .then ((res)=> {
-      console.log ("Partager:", res)
+          {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
+          }
+        )
+        .then((res) => {
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            console.log("Partager:", res);
+            this.getAllPosts();
+          }
+        })
+        .catch((err) => {
+          console.log(" Erreur:", err);
+        });
       
-    })
-    .catch ((err)=>{
-      console.log (" Erreur:", err)
-    })
-    this.getAllPosts()
     },
     // ---- Fin partager une publication --- //
 
@@ -479,34 +519,30 @@ export default {
       let file = this.$refs.file.files[0];
       this.file = file;
     },
-   
+
     sendText(f) {
-     
       if (!this.file && !this.text) {
         this.error = " Merci de joindre du texte ou une image à publier !";
-      //  if(this.text || this.file ){}
-      //  setTimeout(this.message(), 1000)
+        this.messageThreeSeconds();
         f.preventDefault();
       }
     },
-    
+
     async onSubmit() {
+      const self=this
       this.error = "";
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      
+
       // Si le format du fichier n'est pas valide
       if (this.file && !allowedTypes.includes(this.file.type)) {
         this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
-        
       }
       // Si le fichier est trop volumineux
       else if (this.file && this.file.size > 500000) {
         this.error = "Votre fichier est trop volumineux: 500kb max! ";
-        
       }
       // Si tout va bien
       else {
-        
         const formData = new FormData();
         formData.append("file", this.file);
         formData.append("post", this.text);
@@ -523,9 +559,17 @@ export default {
               },
             })
             .then(function (res) {
-              console.log(res);
-              this.publications=res.data
-              this.allPosts()
+              // Si requête non authentifiée
+              if (res.data.disconnected) {
+                self.authentified = res.data.disconnected;
+                localStorage.removeItem("Token");
+                self.$store.commit("DECONNEXION");
+                // Si requête authentifiée
+              } else {
+                console.log(res);
+                //this.publications = res.data;
+                self.getAllPosts();
+              }
             })
             .catch(function (err) {
               console.log(err);
@@ -533,11 +577,11 @@ export default {
         } catch (err) {
           console.log(err);
         }
-        
-        this.getAllPosts();
-        this.file = null;
-        this.text = "";
-      //  location.reload();
+
+       // this.getAllPosts();
+        self.file = null;
+        self.text = "";
+        //  location.reload();
       }
     },
     //---------- Fin publier un post ---------------//
@@ -555,88 +599,102 @@ export default {
           },
         })
         .then(function (res) {
-          console.log(res);
-          self.getAllPosts();
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            console.log(res);
+            self.getAllPosts();
+          }
         })
         .catch(function (err) {
           console.log(err);
         });
     },
     // ----------- Fin supprimer un post ---------- //
-    
+
     //-- 4/ ---------- Modifier un post -------------//
-    
-     onSelected() {
+
+    onSelected() {
       const file = this.$refs.file.files[0];
       this.file = file;
-      console.log ('Photo modifiée:', this.file)
+      console.log("Photo modifiée:", this.file);
     },
 
     updatePost() {
-      this.error="";
+      this.error = "";
       if (!this.file && !this.textModified) {
         this.error = " Merci de joindre du texte ou une image pour envoyer !";
-        console.log("error:", this.error)
+        this.messageThreeSeconds();
       }
-      
     },
-   
+
     onModify() {
-       this.error="";
-       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      
+      this.error = "";
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+
       // Si ni texte ni photo
       if (!this.file && !this.textModified) {
         this.error = " Merci de joindre du texte ou une image pour envoyer !";
-      
-      // Si le format du fichier photo invalide  
-      } else if( this.file && !allowedTypes.includes(this.file.type)) {
-      
+
+        // Si le format du fichier photo invalide
+      } else if (this.file && !allowedTypes.includes(this.file.type)) {
         this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
-      
-      // Si le fichier photo trop volumineux
+
+        // Si le fichier photo trop volumineux
       } else if (this.file && this.file.size > 500000) {
         this.error = "Votre fichier est trop volumineux: 500kb max! ";
-      
-      // Si tout va bien
+
+        // Si tout va bien
       } else {
-      
-      const formData = new FormData();
-      if (this.textModified) {
-        formData.append("textModified", this.textModified);
-      }
-      if (this.file) {
-        formData.append("file", this.file);
-      }
-      console.log("FormData:", formData);
-      const self=this
-      axios
-        .put("http://localhost:3000/api/posts/" + this.postId, formData, {
-          headers: {
-            authorization: `bearer ${this.Token.token}`,
-          },
-        })
+        const formData = new FormData();
+        if (this.textModified) {
+          formData.append("textModified", this.textModified);
+        }
+        if (this.file) {
+          formData.append("file", this.file);
+        }
+        console.log("FormData:", formData);
+        const self = this;
+        axios
+          .put("http://localhost:3000/api/posts/" + this.postId, formData, {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
+          })
 
-        .then(function ( res) {
-          console.log("response:", res);
-         // self.publications=res.data  
-          //self.getAllPosts();
-        })
-        .catch(function (err) {
-          self.error=" La modification n'a pas pu se faire !"
-          console.log("Erreur :", err);
-        });
+          .then(function (res) {
+            // Si requête non authentifiée
+            if (res.data.disconnected) {
+              self.authentified = res.data.disconnected;
+              localStorage.removeItem("Token");
+              self.$store.commit("DECONNEXION");
+              // Si requête authentifiée
+            } else {
+            //  this.$forceUpdate();
+            self.getAllPosts
+            //  location.reload();
+            }
+          })
+          .catch(function (err) {
+            self.error = " La modification n'a pas pu se faire !";
+            console.log("Erreur :", err);
+            location.reload();
+          });
 
-      this.okModifyPost = !this.okModifyPost;
-      this.textModified = "";
-      this.error = "";
-      this.file="";
-      
-      this.getAllPosts();
-      location.reload()
+        this.okModifyPost = !this.okModifyPost;
+        this.textModified = "";
+        this.error = "";
+        this.file = "";
+       // this.$forceUpdate();
+        this.getAllPosts();
+        location.reload();
       }
     },
-    
+
     // ---------- Fin modifier un post ------------//
 
     // --- 5/ --- Créer un commentaire -------------- //
@@ -663,17 +721,24 @@ export default {
           }
         )
         .then(function (res) {
-          console.log(res);
-          self.getAllPosts()
-          this.okComment = false;
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            self.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            self.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            self.getAllPosts();
+            self.okComment = false;
+          }
         })
         .catch(function (err) {
           console.log(err);
         });
       this.comment = "";
-      this.okComment = false;
-      this.getAllPosts()
-     // location.reload()
+     // this.okComment = false;
+    //  this.getAllPosts();
+      // location.reload()
     },
     // ------- Fin créer un commentaire --------- //
 
@@ -689,67 +754,98 @@ export default {
           },
         })
         .then(function (res) {
-          self.getAllPosts();
-          console.log("Commentaires: ", res.data);
-          self.comments = res.data;
-          console.log("comments:", self.comments[0].user_send);
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            self.getAllPosts();
+            self.comments = res.data;
+            
+          }
         })
         .catch(function (err) {
           console.log("Erreur: ", err);
         });
     },
     //  ------- Fin afficher les comentaires d'un post ---------//
-  
-  // Supprimer un commentaire 
-  deleteComment(commentId, postId){
-    console.log ( "commentId:", commentId)
-    console.log ( "postId:", postId)
-    const self=this
-    axios.delete("http://localhost:3000/api/comments/"+ `${commentId} ${postId}`, {
-    
-       headers:{
-          authorization: `bearer ${this.Token.token}`,
-        }
-    })
-    .then(function () {
-          
-          self.okComment = false;
+
+    // Supprimer un commentaire
+    deleteComment(commentId, postId) {
+      console.log("commentId:", commentId);
+      console.log("postId:", postId);
+      const self = this;
+      axios
+        .delete(
+          "http://localhost:3000/api/comments/" + `${commentId} ${postId}`,
+          {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
+          }
+        )
+        .then(function (res) {
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            self.okComment = false;
+            self.getAllComments(postId)
+          }
         })
         .catch(function (err) {
           console.log(err);
         });
-      
-      this.okComment = false;
-      location.reload()
-  },
-  // Fin Supprimer un commentaire
 
+     // this.okComment = false;
+     // location.reload();
+    },
+    // Fin Supprimer un commentaire
 
     // ----- Masquer un commentaire par l'administrateur  -------- //
-    maskComment(commentId){
-      this.okMasked=!this.okMasked
-      console.log ('N° commentaire à masquer:', commentId)
-      axios.patch("http://localhost:3000/api/comments/" + commentId, {
-        headers:{
-          authorization: `bearer ${this.Token.token}`,
-        }
+    maskComment(commentId, postId) {
+      let self=this
+      console.log ( "commentId", commentId + "postId", postId)
+      this.okMasked = !this.okMasked;
+      console.log("N° commentaire à masquer:", commentId);
+      axios
+        .patch("http://localhost:3000/api/comments/" + commentId, {
+          headers: {
+            authorization: `bearer ${this.Token.token}`,
+          },
         })
-        .then (function (res) {
-          console.log ("Réponse de masquer un commentaire:", res.data.message)
+        .then(function (res) {
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            console.log("Réponse de masquer un commentaire:", res.data.message);
+            self.getAllComments(postId)
+            
+          }
         })
-        .catch (function (err){
-          console.log ("Erreur pour masquer un commentaire:", err)
-        })
+        .catch(function (err) {
+          console.log("Erreur pour masquer un commentaire:", err);
+        });
+        this.getAllComments(postId)
+        this.okMasked = false;
     },
 
     // ------ Fin masquer un commentaire par l'administrateur  ----//
     // --- Montrer le commentaire masqué pour l'administrateur
-    demaskComment (commentId) {
-      console.log ("commentId", commentId)
-      this.okMasked=true
+    demaskComment(commentId) {
+      console.log("commentId", commentId);
+      this.okMasked = true;
     },
     ///--------
-
 
     // ------- Fin afficher tous les commentaires ------  //
 
@@ -771,11 +867,16 @@ export default {
           }
         )
         .then(function (res) {
-          console.log("La réponse du serveur: ", res.data.status);
-
-          self.status = res.data.status;
-          console.log("Le status du users est:", self.status);
-          self.getAllPosts();
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            self.status = res.data.status;
+            self.getAllPosts();
+          }
         })
         .catch(function (err) {
           console.log(err);
@@ -801,8 +902,16 @@ export default {
           }
         )
         .then(function (res) {
-          console.log(res.data.message);
-          self.getAllPosts();
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            
+            self.getAllPosts();
+          }
         })
         .catch(function (err) {
           console.log(err);
@@ -824,7 +933,11 @@ export default {
   margin: auto 10px;
   text-align: center;
 }
-
+.cachedButton {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
 .username {
   color: #000;
   text-shadow: 1px 1px 2px #222;
@@ -978,11 +1091,10 @@ button:hover {
   align-items: center;
 }
 .shared img {
- width: 50px;
- height: 40px;
- box-shadow: 2px 1px 3px black;
+  width: 50px;
+  height: 40px;
+  box-shadow: 2px 1px 3px black;
 }
-
 
 /* Les commentaires -*/
 
@@ -1018,7 +1130,8 @@ button:hover {
   padding: 5px;
   border-radius: 5px;
 }
-.likes span.like, .shared_number {
+.likes span.like,
+.shared_number {
   display: inline-block;
   width: 20px;
   height: 20px;
@@ -1043,7 +1156,7 @@ button:hover {
   color: red;
   text-shadow: 1px 1px 1px black;
 }
-.likes .delete  {
+.likes .delete {
   margin-right: -8px;
   color: rgb(240, 62, 62);
   text-shadow: 1px 1px 1px black;
@@ -1054,20 +1167,20 @@ button:hover {
   color: rgb(67, 87, 196);
 }
 .likes .share {
-margin-right: -19px;
-color:rgb(114, 179, 50);
-text-shadow: 1px 1px 1px black;
+  margin-right: -19px;
+  color: rgb(114, 179, 50);
+  text-shadow: 1px 1px 1px black;
 }
 .likes .comment {
-  color:blue;
+  color: blue;
   text-shadow: 1px 1px 1px black;
 }
 .likes span {
   text-shadow: none;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
   font-weight: bold;
 }
- i {
+i {
   cursor: pointer;
 }
 div i {
@@ -1110,18 +1223,17 @@ span {
 }
 .allComments {
   margin-top: 20px;
-  
 }
 .allComments span {
   display: inline-block;
   width: 40px;
   height: 40px;
   line-height: 40px;
-  margin-top:-5px;
+  margin-top: -5px;
   margin-right: -20px;
   border-radius: 0px 20px 20px 0px;
   background: rgb(34, 102, 190);
-  color:#fff;
+  color: #fff;
   font-size: 1em;
 }
 .deleteComment {
@@ -1133,13 +1245,15 @@ span {
   align-items: center;
   line-height: 100%;
 }
-.masked, .deleteComment i {
-  color:crimson;
+.masked,
+.deleteComment i {
+  color: crimson;
   padding: 10px;
 }
-.maskedIcone, .demaskedIcone {
+.maskedIcone,
+.demaskedIcone {
   margin-top: 20px;
-  color:blue
+  color: blue;
 }
 hr {
   box-shadow: 2px 2px 5px black;
@@ -1153,8 +1267,13 @@ hr {
   .publicationCard {
     width: 95%;
   }
-  h2{
+  h2 {
     font-size: 2rem;
+  }
+}
+@media screen and (max-width: 480px) {
+  .likes {
+    height: 70px;
   }
 }
 </style>

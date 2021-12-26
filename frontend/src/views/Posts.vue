@@ -38,8 +38,7 @@ export default {
             Token:null,
         }
     },
-  
-    mounted() {
+    created() {
     this.getUserConnected();
     
     //this.connexion();
@@ -47,12 +46,12 @@ export default {
 
     methods: {
    
-   //// Get the User connected
+   //// Afficher l'utilisateur connecté
     async getUserConnected() {
       
       this.Token = JSON.parse(localStorage.getItem("Token"));
       if (this.Token) {
-      console.log("Token:", this.Token);
+      
       this.userId = this.Token.userId;
       try {
         const response = await axios.get(
@@ -64,13 +63,13 @@ export default {
           })
         
         // Si requête non authentifiée
-       if (response.data.message){
-         this.authentified=response.data.message;
+       if (response.data.disconnected){
+         this.authentified=response.data.disconnected;
         // Si requête authentifiée
        } else {
         this.userConnected=response.data[0];
-        console.log ("User Connected: ", this.userConnected)
         this.$store.commit("USER_CONNECTED")
+       // this.userConnected=this.$store.state.userConnected
         //
        }
                 

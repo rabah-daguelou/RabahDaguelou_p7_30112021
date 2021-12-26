@@ -29,7 +29,7 @@ router.get("/users/userConnected/:id", auth, usersCtrl.getUserConnected)
 router.get("/users", auth, usersCtrl.getAllUsers);
 
 // Afficher le profil d'un utilisateur
-router.get("/users:id", auth, usersCtrl.getOneUser);
+router.get("/users/:id", auth, usersCtrl.getOneUser);
 
 // Modifier la photo du profil
 router.patch('/users/photo/:id', auth, multer, usersCtrl.modifyProfilPicture);
@@ -38,17 +38,12 @@ router.patch('/users/photo/:id', auth, multer, usersCtrl.modifyProfilPicture);
 router.patch('/users/email/:id', auth, checkEmail, usersCtrl.updateEmail);
 
 // Modifier le pseudo d'un utilisateur
-router.patch("/users/name:id", auth, checkName, usersCtrl.updateName);
+router.patch("/users/name/:id", auth, checkName, usersCtrl.updateName);
 
 // Modifier le mot de passe 
 router.put ('/users/password/:id', auth, checkPassword, usersCtrl.updatePassword)
 
 // Supprimer un utilisateur
-router.delete("/users:id", auth, usersCtrl.deleteOneUser);
-
-
-
-// Get All my Publications
-//router.get("/users/posts/:id", usersCtrl.getAllMyPublications);
+router.delete("/users/:id", auth, usersCtrl.deleteOneUser);
 
 module.exports = router;

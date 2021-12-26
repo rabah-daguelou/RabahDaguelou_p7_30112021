@@ -262,6 +262,7 @@ export default {
     created() {
     this.getAllMyPosts();
     this.userId=this.$route.params.id
+    this.messageThreeSeconds()
     },
 
     computed (){
@@ -271,7 +272,14 @@ export default {
     mounted(){
     this.getAllMyPosts();
   },
+  
     methods: {
+
+    messageThreeSeconds:function(){
+       setTimeout(()=> {
+          this.error=""
+        }, 3000)
+     },
 
     btnModifyPost(id) {
       this.okModifyPost = !this.okModifyPost;
@@ -300,13 +308,13 @@ export default {
         .then((response) => {
           
           // Si requête non authentifiée
-          if (response.data.message){
-            console.log("Requête non authentifié:", this.publications.message);
-            this.authentified=response.data.message
+          if (response.data.disconnected){
+            
+            this.authentified=response.data.disconnected
           // Si requête authentifiée
           } else {
             this.publications = response.data;
-            console.log("Requête authentifiée: Tableau des bublications:", this.publications);
+            
           }
         })
         .catch((error) => {
@@ -321,6 +329,7 @@ export default {
      
       if (!this.file && !this.text) {
         this.error = " Merci de joindre du texte ou une image à publier !";
+        this.messageThreeSeconds()
         f.preventDefault();
       }
     },
@@ -358,8 +367,16 @@ export default {
           })
           
           .then(function (res) {
+
+            // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
             console.log(res);
-            
+          }  
           })
           .catch(function (err) {
             console.log(err);
@@ -388,8 +405,17 @@ export default {
         
 
         .then(function (res) {
+
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
           console.log(res);
           self.getAllMyPosts();
+          }
         })
         .catch(function (err) {
           console.log(err);
@@ -401,6 +427,7 @@ export default {
     onModify(f2) {
       if (!this.file && !this.textModified) {
         this.error = " Merci de joindre du texte ou une image pour envoyer !";
+        this.messageThreeSeconds()
         f2.preventDefault();
         this.okModifyPost=!this.okModifyPost
       }
@@ -438,11 +465,21 @@ export default {
         })
           
           .then(function (res) {
-            console.log(res);
+
+            // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            
             self.getAllMyPosts();
+            }
           })
           .catch(function (err) {
             console.log("Erreur :", err);
+            
           });
           
           this.okModifyPost = !this.okModifyPost;
@@ -476,9 +513,17 @@ export default {
         })
         
         .then(function (res) {
+
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
           console.log(res);
           this.okComment=false
-          
+          }
           
         })
         .catch(function (err) {
@@ -504,8 +549,16 @@ export default {
         })
       
         .then(function (res) {
-        //  self.getAllPosts()
-          console.log ("Résultats: ", res.data)
+
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            
+            // Si requête authentifiée
+          } else {
+        
           if (res.data.length>0){
             self.comments=res.data
             self.showComments==true
@@ -513,7 +566,7 @@ export default {
             self.showComments==false
           }
           
-          
+          }  
         
         })
         .catch(function (err) {
@@ -541,11 +594,20 @@ like_it(postId) {
         })
         
         .then(function (res) {
+
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
           console.log("La réponse du serveur: ", res.data.status);
           
           self.status=res.data.status
           console.log("Le status du users est:", self.status)
           self.getAllMyPosts()
+          }
         })
         .catch(function (err) {
           console.log(err);
@@ -571,8 +633,17 @@ deslike_it(postId) {
         })
         
         .then(function (res) {
+
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
           console.log(res.data.message);
           self.getAllMyPosts()
+          }
         })
         .catch(function (err) {
           console.log(err);

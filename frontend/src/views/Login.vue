@@ -186,11 +186,10 @@ export default {
                 self.errors = [];
                 self.errors.push(res.data.message);
               } else {
-                console.log("data : ", res.data);
+                
                 localStorage.setItem("Token", JSON.stringify(res.data));
                 self.$store.commit("CONNEXION")
                 self.$store.commit("USER_CONNECTED")
-                console.log (" Profil_picture:", self.$store.state.userConnected.profil_picture)
                 self.$router.push("/Posts");
               }
             })

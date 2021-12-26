@@ -96,13 +96,14 @@ exports.getAllMyPosts = (req, res, next) => {
   let userId = req.params.id;
   console.log("userId:", userId);
   db.query(
-    "SELECT * FROM posts WHERE userId=" + userId + " ORDER BY date_send DESC ",
+    "SELECT * FROM posts WHERE userId=" + userId +  " ORDER BY date_send DESC;",
     (err, results) => {
       if (err) {
         console.log("Erreur Bdd !");
       } else {
+        
         res.json(results);
-        //  console.log ( " Mes publications:", results);
+        console.log ( " Mes publications:", results);
       }
     }
   );
@@ -248,6 +249,7 @@ exports.updatePost = (req, res, next) => {
         console.log("Erreur Bdd:", err);
       } else {
         console.log(" Photo modifiée dans la Bdd aevc succès !", results);
+        res.status(201).json({ message:"Photo modifiée dans la Bdd aevc succès !"})
       }
     });
 
@@ -271,6 +273,7 @@ exports.updatePost = (req, res, next) => {
 // Partager un post
 
 exports.sharePost = (req, res, next) => {
+  console.log (" req.body.publication1: ", req.body.publication1)
   delete req.body.publication1.date_send;
   delete req.body.publication1.postId;
   req.body.publication1.shared_number += 1;
