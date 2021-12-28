@@ -92,9 +92,9 @@ exports.getAllPosts = (req, res, next) => {
 
 ///////// Afficher mes posts ( sur le profil de l'utilisateur)//////
 
-exports.getAllMyPosts = (req, res, next) => {
+exports.getAllMyPosts = (req, res) => {
   let userId = req.params.id;
-  console.log("userId:", userId);
+  
   db.query(
     "SELECT * FROM posts WHERE userId=" + userId +  " ORDER BY date_send DESC;",
     (err, results) => {
@@ -102,8 +102,8 @@ exports.getAllMyPosts = (req, res, next) => {
         console.log("Erreur Bdd !");
       } else {
         
-        res.json(results);
-        console.log ( " Mes publications:", results);
+        res.status(200).json(results);
+        
       }
     }
   );

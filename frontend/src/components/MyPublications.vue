@@ -255,7 +255,8 @@ export default {
       status:0,
       afficherCommentaires:true,
       authentified:"",
-      Token:""
+      Token:"",
+      id:""
     };
     },
 
@@ -286,6 +287,7 @@ export default {
       this.postId = id;
       console.log("postId:", this.postId);
     },
+
     btnComment(id) {
       this.okComment = !this.okComment;
       this.postId = id;
@@ -295,11 +297,14 @@ export default {
 //----  1- Afficher toutes mes publications ////////
     getAllMyPosts() {
       this.Token = JSON.parse(localStorage.getItem("Token"));
-      console.log(this.Token);
-      //this.userId = Token.userId;
-
+           
+     if (this.Token.userId==this.$route.params.id) {
+        this.id=this.Token.userId
+      } else {
+        this.id=this.$route.params.id
+      }
       axios
-        .get("http://localhost:3000/api/posts/" + this.userId, {
+        .get("http://localhost:3000/api/posts/" + this.id, {
           headers: {
           authorization: `bearer ${this.Token.token}`,
           },
@@ -314,7 +319,7 @@ export default {
           // Si requête authentifiée
           } else {
             this.publications = response.data;
-            
+            console.log ("response:",response)
           }
         })
         .catch((error) => {
@@ -659,6 +664,5 @@ deslike_it(postId) {
 </script>
 
 <style scoped>
-
 
 </style>

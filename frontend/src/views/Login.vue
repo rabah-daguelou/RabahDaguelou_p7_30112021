@@ -84,7 +84,6 @@
 <script>
 import axios from "axios";
 //import Navigation from '../components/Navigation.vue'
-
 export default {
   name: "Login",
   data: function () {
@@ -101,7 +100,6 @@ export default {
   components: {
    // Navigation
   },
-
  created:function(){
         
     },
@@ -117,7 +115,6 @@ export default {
       this.errors=[];
     },
     
-
     
     // Signup
    
@@ -133,13 +130,11 @@ export default {
               password: this.password,
               name: this.name,
             })
-
             .then(function (res) {
               console.log(res);
               if (res.data.type == "error") {
                 self.errors = [];
                 self.errors.push(res.data.message);
-
               } else {
                 self.login();
               }
@@ -196,7 +191,6 @@ export default {
             .catch(function (err) {
               console.log(err);
             });
-
         } catch (err) {
           console.log(err);
         }
@@ -211,7 +205,6 @@ export default {
         }
       }
     },
-
    
     //
    
@@ -237,13 +230,11 @@ li {
   color: #fff;
   margin: auto;
 }
-
 .form-card img {
   width: 100%;
   border-radius: 5px;
   box-shadow: 2px 2px 5px ;
 }
-
 #input-card > input,
 #input-card > button, button {
   width: 80%;
@@ -257,14 +248,12 @@ li {
 #input-card > input:hover, button:hover {
   transform: scale(1.1);
 }
-
 .haveNotCount {
   font-weight: 900;
   color: rgb(255, 0, 140);
   cursor: pointer;
   font-size: 1em;
 }
-
 button {
   background: #ffd7d7;
   color: #000;
@@ -276,7 +265,6 @@ input:focus {
   font-weight: bold;
 }
 /* medias queries */
-
 @media screen and (max-width: 769px) {
   .form-card {
     width: 80%;

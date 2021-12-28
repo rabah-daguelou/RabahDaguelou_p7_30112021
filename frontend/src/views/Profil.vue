@@ -4,7 +4,7 @@
       {{ authentified }}
     </p>
     <!---  <Profil> </Profil>  --->
-    <div v-else class="all">
+    <div v-else class="all-1">
       <h2>Le profil de {{ oneUser.name }}</h2>
 
       <!-- Profil image / name / Email / is_admin-->
@@ -224,7 +224,11 @@ export default {
     this.deleteOneUser();
     this.id = this.$route.params.id;
   },
-
+ /*
+ updated() {
+    this.getOneUserById()
+  },
+*/
   methods: {
     btnDeleteProfil: function () {
       this.okDeleteProfil = !this.okDeleteProfil;
@@ -337,7 +341,7 @@ export default {
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
-
+            
             // Modifier profil_picture dans localStorage et Store
             console.log(
               "Profil_picture du Token avant modif:",
@@ -350,9 +354,10 @@ export default {
             console.log("Token après modif:", self.Token.profil_picture);
             localStorage.setItem("Token", JSON.stringify(self.Token));
             self.$store.commit("USER_CONNECTED");
-            this.getOneUserById(this.userId);
-            this.success=" Votre photo de profil est modifiée avec succès!"
+            self.getOneUserById(this.userId);
+            self.success=" Votre photo de profil est modifiée avec succès!"
             //
+            
             }
           })
           
@@ -539,12 +544,13 @@ export default {
 
 <style scoped >
 .all {
+  
   text-align: center;
   margin: auto;
   background: #ffd7d7;
   height: 100%;
 }
-
+.all-1 { }
 /* --------- Les infos-bulles ------------ */
 [my_title] {
   position: relative;
@@ -599,8 +605,7 @@ export default {
   color: rgb(10, 10, 248);
 }
 .username .admin {
-  opacity: 0;
-  color: rgb(61, 247, 15);
+   color: rgb(61, 247, 15);
 }
 .btn {
   background: #000;
@@ -837,9 +842,7 @@ span {
   #formPub {
     width: 80%;
   }
-  .publicationCard {
-    width: 95%;
-  }
+  
   .send-it {
     flex-direction: column;
   }
@@ -847,8 +850,10 @@ span {
 
 @media screen and (min-width: 991px) {
   .all {
-    width: 100%;
+    width: 80%;
     margin: auto;
   }
+ 
+  
 }
 </style>

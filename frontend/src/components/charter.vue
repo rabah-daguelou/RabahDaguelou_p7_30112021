@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="charter">
         <h1> Charte d'utilisation </h1>
         <p>
 Groupomania est un réseau social interne
@@ -143,9 +143,32 @@ discussion à tout moment
                de sa modification et l’applique. 
         </p>
         <div>
-            <button> Refuser </button>
-            <button> Accepter </button>
+            <button @click="refused()"> Refuser </button>
+            <button @click="accepted()"> Accepter </button>
         </div>
         
     </div>
 </template>
+
+<script>
+export default {
+    
+    name:"Charter",
+    data (){
+        return {
+            charter:true
+        }
+    },
+    methods:{
+       accepted() { 
+           this.$router.push("/Posts");
+    },
+        refused(){
+            this.charter=false
+            this.$router.push("/")
+        }
+    
+
+    }
+}
+</script>

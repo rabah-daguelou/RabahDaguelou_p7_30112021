@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div :key="keyRender">
     <div class="all">
       <div class="add-post">
-        <h1>Publiez ...</h1>
+        
         <!-- User connected -->
         <router-link :to="`/Profil/${userConnected.userId}`">
           <div class="profiluser">
@@ -36,7 +36,7 @@
         <!------  Fin user connected      ----->
 
         <!-- Publier un post -->
-
+        <h1>Publiez ...<i class="fas fa-edit"></i> </h1>
         <!-- Formulaire -->
         <div class="publicationCard">
           <form @submit.prevent="onSubmit" enctype="multipart/form-data">
@@ -272,22 +272,31 @@
         <!--  2/ Afficher tous les commentaires du postId-->
         <div class="allComments">
           <button
-            v-if="afficherCommentaires && publication.commentNumber"
+            v-if="
+            publication.commentNumber"
             @click="getAllComments(publication.postId)"
           >
             Commentaires
             <span> {{ publication.commentNumber }} </span>
           </button>
+        
+          
 
-          <button
-            v-if="!afficherCommentaires && publication.commentNumber"
+          <div v-if="showComments && publication.postId == comments[0].postId">
+          <!--  
+            <button
+            v-if="!afficherCommentaires
+            && publication.commentNumber 
+            && publication.postId
+            && publication.postId == comments[0].postId"
+
             @click="getAllComments(publication.postId)"
           >
             Masquer les commentaires
           </button>
-
-          <div v-if="showComments && publication.postId == comments[0].postId">
+          -->
             <div v-for="comment in comments" :key="comment">
+              
               <div class="oneCommentCard">
                 <div class="publicationDate">
                   <div class="userAndImage">
@@ -356,6 +365,7 @@
                         class="fas fa-eye demaskedIcone"
                       ></i>
                     </button>
+                    
                   </div>
                 </div>
                 <!-- -->
@@ -365,6 +375,13 @@
             </div>
           </div>
         </div>
+        <button
+            v-if="!afficherCommentaires && 
+                  publication.commentNumber>3"
+            @click="getAllComments(publication.postId)"
+          >
+            Masquer les commentaires
+          </button>
         <!-- Fin afficher les commentaires  -->
       </div>
     </div>
@@ -402,10 +419,11 @@ export default {
       Token: "",
       demasked: false,
       okMasked: false,
+      keyRender:0
     };
   },
    
-  props: {
+ /* props: {
     userConnected: {
       type: Object,
       default() {
@@ -414,13 +432,13 @@ export default {
         };
       },
     },
-  },
+  },*/
 
   created() {
     this.getAllPosts();
     this.error = "";
     this.messageThreeSeconds();
-  //  this.userConnected = this.$store.state.userConnected;
+    this.userConnected = this.$store.state.userConnected;
   },
 
   mounted() {
@@ -428,6 +446,11 @@ export default {
   },
 
   methods: {
+
+    forceRender(){
+      this.keyRender+=1;
+    },
+
     messageThreeSeconds: function () {
       setTimeout(() => {
         this.error = "";
@@ -476,6 +499,7 @@ export default {
 
     // ------ Partager une publication ---//
     share(publication) {
+     
       axios
         .post(
           "http://localhost:3000/api/posts/share",
@@ -504,13 +528,13 @@ export default {
             // Si requête authentifiée
           } else {
             console.log("Partager:", res);
-            this.getAllPosts();
+            
           }
         })
         .catch((err) => {
           console.log(" Erreur:", err);
         });
-      
+      this.getAllPosts();
     },
     // ---- Fin partager une publication --- //
 
@@ -691,7 +715,7 @@ export default {
         this.file = "";
        // this.$forceUpdate();
         this.getAllPosts();
-        location.reload();
+      //  location.reload();
       }
     },
 
@@ -1002,24 +1026,11 @@ textarea:focus,
   color: rgb(8, 240, 8);
 }
 .errorMessage {
-  /*
-  animation-duration: 10s;
-  animation-name: errors;
-  opacity:0;*/
+  
   color: crimson;
 }
 
-/*
-@keyframes errors {
-  0% {
-    opacity:1;
-  }
-100% {
-    opacity:0;
-  }
-  
-}
-*/
+
 /* Fin publier un post */
 
 button {
@@ -1031,9 +1042,10 @@ button {
   padding: 5px 15px;
   box-shadow: 2px 2px 2px rgb(245, 189, 189);
 }
-button:hover {
-  background: #cfbaba;
+.btn-publier:hover {
+  background: #ffd7d7;
   color: black;
+  border-color: rgb(20, 20, 20);
 }
 .publicationCard {
   width: 50%;
@@ -1196,12 +1208,7 @@ span {
 .authentified {
   color: red;
 }
-/* The communts
-.commentAndPartage {
-  display: flex;
-  justify-content: space-between;
-  background:#ffd7d7;
-} */
+
 .commentCard textarea {
   height: 70px;
 }
@@ -1248,12 +1255,16 @@ span {
 .masked,
 .deleteComment i {
   color: crimson;
-  padding: 10px;
+ 
 }
 .maskedIcone,
 .demaskedIcone {
-  margin-top: 20px;
+  
+  padding-top: 30px;
   color: blue;
+}
+.cachedButton{
+  padding-bottom: 30px;
 }
 hr {
   box-shadow: 2px 2px 5px black;

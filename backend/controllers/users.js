@@ -50,13 +50,15 @@ exports.signup = (req, res, next) => {
             });
           } else {
             db.query("INSERT INTO Users SET ?", [user], (err, results) => {
-              if (err) throw err;
-
-              res.status(200).json({
-                type: "succes",
-                message: "Compte créé avec succès !",
-              });
+              if (err)  {
+                throw err;
+              } else {
+                console.log (results)
+                res.status(200).json(results.data);
               console.log(" Compte créé !");
+              }
+
+              
             });
           }
         }
@@ -360,12 +362,14 @@ exports.modifyProfilPicture = (req, res) => {
     "SELECT profil_picture FROM users WHERE userId=?",
     [id],
     (err, results) => {
-     // res.json(results);
+     if (err){
+       console.log (err)  
+     } else {
       console.log(results[0].profil_picture);
-      let profil_picture = results[0].profil_picture;
+      const profil_picture = results[0].profil_picture;
 
       // Supprimer l'ancienne profil_picture du dossier images
-      if (profil_picture != "icon.png") {
+     /* if (profil_picture != "icon.png") {
         fs.unlink("./images/" + profil_picture, (err) => {
           if (err) {
             console.log("L'image n'est pas supprimée: " + err);
@@ -373,7 +377,8 @@ exports.modifyProfilPicture = (req, res) => {
             console.log("L'image est supprimée avec succès dans le dossier images !");
           }
         });
-      }
+      }*/
+    }
     }
   );
     // Mettre à jour la photo du profil dans la table users
@@ -419,7 +424,18 @@ exports.modifyProfilPicture = (req, res) => {
       console.log("profil_picture modifiée avec succès dans la table comments!");
     }
   });
-
+  
+   // Supprimer l'ancienne profil_picture du dossier images
+      if (profil_picture != "icon.png") {
+        fs.unlink("./images/" + profil_picture, (err) => {
+          if (err) {
+            console.log("L'image n'est pas supprimée: " + err);
+          } else {
+            console.log("L'image est supprimée avec succès dans le dossier images !");
+          }
+        });
+      }
+      
 };
 
 /////////////////////////////////
