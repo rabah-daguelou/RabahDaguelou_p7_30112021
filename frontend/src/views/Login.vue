@@ -263,6 +263,8 @@ input:focus {
   color:black;
   font-size: 1.2em;
   font-weight: bold;
+  outline: none;
+  border: 2px dashed green;
 }
 /* medias queries */
 @media screen and (max-width: 769px) {
@@ -271,6 +273,7 @@ input:focus {
   }
   h1 {
     font-size: 1.5em;
+    text-shadow: 1px 2px 5px #ffd7d7;
   }
 }
 </style>

@@ -165,6 +165,7 @@ exports.getOneUser = (req, res) => {
 };
 
 //----------- Supprimer le profil d'un utilisateur ----
+
 // Première solution
 // Supression du compte, de la photo du profil,
 // des publications et des commentaires du user
@@ -312,6 +313,16 @@ exports.deleteOneUser = (req, res) => {
       console.log(" Erreur Bdd ");
     } else {
       console.log(" Votre pseudo a été modifié avec succès !");
+    }
+  });
+
+    // Modifier userDeleted dans la table users
+  let sqll = `UPDATE users SET isDeleted='1' WHERE userId=${id}`;
+  db.query(sqll, (err, results) => {
+    if (err) {
+      console.log(" Erreur Bdd ");
+    } else {
+      console.log(" Le user est en statut supprimé dans la bdd !");
     }
   });
 

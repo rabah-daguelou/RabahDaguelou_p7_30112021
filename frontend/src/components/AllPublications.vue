@@ -66,7 +66,6 @@
       </div>
     </div>
     <!-- Fin publier un post -->
-
     <!-- Afficher les publications -->
 
     <h2>P U B L I C A T I O N S</h2>
@@ -106,9 +105,9 @@
               alt=""
             />
           </div>
-          <p>{{ publication.user_send }}</p>
+          <p> Publié par {{ publication.user_send }}</p>
           <p v-if="publication.shared_number > 0" class="datePub">
-            Publié le {{ publication.shared_date }}
+           Le {{ publication.shared_date }}
           </p>
           <p v-else class="datePub">Publié le {{ publication.DATETIME_FR }}</p>
         </div>
@@ -221,7 +220,7 @@
 
         <!-- 1/ Publier un commentaire -->
         <div class="commentCard">
-          <div class="commentAndPartage likes">
+          <div class="commentAndPartage likes share">
             <!-- Bouton Commenter -->
             <button class="cachedButton">
               <i
@@ -280,21 +279,8 @@
             <span> {{ publication.commentNumber }} </span>
           </button>
         
-          
-
           <div v-if="showComments && publication.postId == comments[0].postId">
-          <!--  
-            <button
-            v-if="!afficherCommentaires
-            && publication.commentNumber 
-            && publication.postId
-            && publication.postId == comments[0].postId"
-
-            @click="getAllComments(publication.postId)"
-          >
-            Masquer les commentaires
-          </button>
-          -->
+         
             <div v-for="comment in comments" :key="comment">
               
               <div class="oneCommentCard">
@@ -321,7 +307,7 @@
                     v-if="comment.masked == 0 || okMasked"
                     class="deleteComment"
                   >
-                    <p>{{ comment.comment }}</p>
+                    <p >{{ comment.comment }}</p>
 
                     <!-- Supprimer un commentaire -->
                     <p>
@@ -462,6 +448,7 @@ export default {
       this.postId = id;
       console.log("postId:", this.postId);
     },
+
     btnComment(id) {
       this.okComment = !this.okComment;
       this.postId = id;
@@ -488,6 +475,7 @@ export default {
             // Si requête authentifiée
           } else {
             this.publications = response.data;
+            console.log (" Tableau de toutes les publications:", this.publications)
             // location.reload()
           }
         })
@@ -495,7 +483,8 @@ export default {
           console.log(error);
         });
     },
-    ///// Fin Get All posts ////////
+
+    ///// Fin afficher toutes les publications ////////
 
     // ------ Partager une publication ---//
     share(publication) {
@@ -503,8 +492,7 @@ export default {
       axios
         .post(
           "http://localhost:3000/api/posts/share",
-
-          {
+         {
             publication1: publication,
             publication2: {
               shared: 1,
@@ -523,12 +511,12 @@ export default {
           // Si requête non authentifiée
           if (res.data.disconnected) {
             this.authentified = res.data.disconnected;
-            localStorage.removeItem("Token");
+            //localStorage.removeItem("Token");
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
+            this.publications=res.data
             console.log("Partager:", res);
-            
           }
         })
         .catch((err) => {
@@ -536,6 +524,7 @@ export default {
         });
       this.getAllPosts();
     },
+
     // ---- Fin partager une publication --- //
 
     // ---- 2- Publier un post //
@@ -592,7 +581,7 @@ export default {
               } else {
                 console.log(res);
                 //this.publications = res.data;
-                self.getAllPosts();
+               // self.getAllPosts();
               }
             })
             .catch(function (err) {
@@ -602,7 +591,7 @@ export default {
           console.log(err);
         }
 
-       // this.getAllPosts();
+      //  this.getAllPosts();
         self.file = null;
         self.text = "";
         //  location.reload();
@@ -656,7 +645,7 @@ export default {
       }
     },
 
-    onModify() {
+    async onModify() {
       this.error = "";
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
 
@@ -698,24 +687,23 @@ export default {
               self.$store.commit("DECONNEXION");
               // Si requête authentifiée
             } else {
-            //  this.$forceUpdate();
-            self.getAllPosts
-            //  location.reload();
+           // console.log (" nouveau tableau:", res.data)
+            self.publications=res.data
+            self.getAllPosts()
             }
           })
           .catch(function (err) {
             self.error = " La modification n'a pas pu se faire !";
             console.log("Erreur :", err);
-            location.reload();
+           // location.reload();
           });
 
         this.okModifyPost = !this.okModifyPost;
         this.textModified = "";
         this.error = "";
         this.file = "";
-       // this.$forceUpdate();
         this.getAllPosts();
-      //  location.reload();
+        //location.reload();
       }
     },
 
@@ -742,8 +730,7 @@ export default {
             headers: {
               authorization: `bearer ${this.Token.token}`,
             },
-          }
-        )
+          })
         .then(function (res) {
           // Si requête non authentifiée
           if (res.data.disconnected) {
@@ -1161,6 +1148,7 @@ button {
   padding-right: 0;
 }
 .like {
+  margin-top: 5px;
   color: green;
   text-shadow: 1px 1px 1px black;
 }
@@ -1169,12 +1157,13 @@ button {
   text-shadow: 1px 1px 1px black;
 }
 .likes .delete {
-  margin-right: -8px;
+  margin-right: -15px;
   color: rgb(240, 62, 62);
   text-shadow: 1px 1px 1px black;
+  padding-top:15px;
 }
 .likes .modify {
-  margin-right: -8px;
+  margin-right: -6px;
   margin-left: 5px;
   color: rgb(67, 87, 196);
 }
@@ -1269,6 +1258,8 @@ span {
 hr {
   box-shadow: 2px 2px 5px black;
 }
+
+
 /** MEDIAS QUERIES  */
 
 @media screen and (max-width: 768px) {
@@ -1284,7 +1275,10 @@ hr {
 }
 @media screen and (max-width: 480px) {
   .likes {
-    height: 70px;
+    height: 75px;
   }
+  .share {
+  height: 40px;
+}
 }
 </style>

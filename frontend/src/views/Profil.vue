@@ -49,7 +49,8 @@
           >
             Modifier mon profil &#160; <i class="fas fa-pen-square"> </i>
           </button>
-          <p v-if="success"> {{ success }}</p>
+          <p v-if="myMessage" class="message"> {{myMessage }} </p>
+          
           <button
             v-if="!okModifyProfil"
             class="btn deleteProfil"
@@ -150,9 +151,12 @@
                 <input type="file" ref="file" @change="onSelect" />
               </div>
               <button class="btn" @click="updateProfilPicture">Valider</button>
+            
             </form>
+            
           </div>
         </div>
+          
       </div>
 
       <!-- Mes publications -->
@@ -173,6 +177,7 @@
       </div>
       <!-- Fin mes publications  -->
     </div>
+  
   </div>
 </template>
 
@@ -214,7 +219,7 @@ export default {
       text: "",
       Token: null,
       authentified: "",
-      success:"",
+      myMessage:"",
     };
   },
 
@@ -223,6 +228,7 @@ export default {
     this.getOneUserById(this.userId);
     this.deleteOneUser();
     this.id = this.$route.params.id;
+    this.messageThreeSeconds()
   },
  /*
  updated() {
@@ -230,6 +236,13 @@ export default {
   },
 */
   methods: {
+
+    messageThreeSeconds: function () {
+      setTimeout(() => {
+        this.myMessage = "";
+      }, 3000);
+    },
+
     btnDeleteProfil: function () {
       this.okDeleteProfil = !this.okDeleteProfil;
       if (this.okDeleteProfil) {
@@ -355,8 +368,7 @@ export default {
             localStorage.setItem("Token", JSON.stringify(self.Token));
             self.$store.commit("USER_CONNECTED");
             self.getOneUserById(this.userId);
-            self.success=" Votre photo de profil est modifiée avec succès!"
-            //
+           
             
             }
           })
@@ -369,7 +381,9 @@ export default {
       }
       this.getOneUserById(this.userId);
       this.btnModifyProfil();
-     // location.reload()
+      this.myMessage = "Votre photo de profil a été modifiée avec succès!";
+      this.messageThreeSeconds()
+     
     },
 
     /////////////////
@@ -405,7 +419,8 @@ export default {
             } else {
               this.email2=""
               // Afficher le message pendant 3 secondes
-              //self.errorEmail2 = "Votre email a été modifié avec succès!";
+              self.myMessage = "Votre email a été modifié avec succès!";
+              self.messageThreeSeconds()
               console.log("Email modifié ! ");
               self.btnModifyProfil();
               self.getOneUserById(this.userId);
@@ -461,6 +476,8 @@ export default {
                 //  "Votre mot de passe a été modifié avec succès!";
                 console.log("Mot de passe modifié ! ");
                 this.btnModifyProfil()
+                self.myMessage = "Votre photo de profil a été modifiée avec succès!";
+                self.messageThreeSeconds()
               }
             }
             })
@@ -520,16 +537,16 @@ export default {
                 console.log("Pseudo  modifié ! ");
                 
                 this.getOneUserById(this.userId);
-                this.success=" Votre pseudo a été modifié avec succès!"
-                console.log (  "Pseudo  modifié ! ")
-            }
+                this.myMessage = " Votre pseudo a été modifié avec succès!";
+                this.messageThreeSeconds()
+              }
           }
             })
             .catch((err) => {
               console.log("Erreur serveur !", err);
             });
         }
-       location.reload()
+      // location.reload()
        
       }
     },
@@ -543,6 +560,17 @@ export default {
 <!--   Style --->
 
 <style scoped >
+.message {
+  position: fixed;
+  top:380px;
+  width: 80%;
+  margin-left:  18px;
+  height: 30px;
+  line-height: 30px;
+  background:rgb(250, 216, 216, .9);
+  color: rgb(36, 100, 6);
+  
+}
 .all {
   
   text-align: center;

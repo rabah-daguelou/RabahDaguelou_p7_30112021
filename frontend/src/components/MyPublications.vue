@@ -33,16 +33,31 @@
 
 <!-- Afficher les publications du profil -->
 
-<!-- 
-  
--->
-
 <div v-if="publications.length">
           <div
         v-for="publication in publications"
         :key="publication"
-        class="publicationCard"
-      >
+        class="publicationCard">
+
+                <!-- Si la publication est partagée -->
+
+        <div v-if="publication.shared == 1 && publication.shared_userId==Token.userId" class="publicationDate shared">
+          <div class="userAndImage shared">
+            <img
+              :src="
+                require(`./../../../backend/images/${publication.shared_userProfil_picture}`)
+              "
+              width="100"
+              alt=""
+            />
+          </div>
+          <p>partagé par {{ publication.shared_userName }}</p>
+          <p class="datePub">Partagé le {{ publication.DATETIME_FR }}</p>
+          <hr />
+        </div>
+
+        <!-- fin si publication partagée -->
+
         <div class="publicationDate">
 
           <div class="userAndImage">
@@ -54,8 +69,8 @@
               alt=""
             />
           </div>
-          <p> {{ publication.user_send }} </p>
-          <p class="datePub">Publiée le: {{ publication.date_send }}</p>
+          <p> Publié par {{ publication.user_send }} </p>
+          <p class="datePub">Le {{ publication.DATETIME_FR }}</p>
         </div>
 
         <div v-if=" publication.image" class="publicationPhoto">
@@ -79,7 +94,7 @@
           </div>
 
           <!-- Supprimer et modifier un post -->
-          <div>
+          <div class="deleteModify">
             <!-- Supprimer un post -->
 
             <i v-if="
@@ -140,9 +155,167 @@
           </form>
         </div>
 
+<!-- début modif -->
+      <!-- Commentaires -->
+
+        <!-- 1/ Publier un commentaire -->
+        <div class="commentCard">
+          <div class="commentAndPartage likes share">
+            <!-- Bouton Commenter -->
+            <button class="cachedButton">
+              <i
+                class="far fa-comment-dots comment"
+                @click="btnComment(publication.postId)"
+              >
+                <span> Commenter </span>
+              </i>
+            </button>
+
+            <!-- Bouton Partager -->
+            <button class="cachedButton">
+              <i @click="share(publication)" class="fas fa-share-square share">
+                <span>
+                  Partager
+                  <span class="shared_number">
+                    {{ publication.shared_number }}</span
+                  >
+                </span>
+              </i>
+            </button>
+          </div>
+
+          <form
+            v-if="okComment && publication.postId == this.postId"
+            @submit.prevent=""
+          >
+            <textarea
+              v-model="comment"
+              cols="30"
+              name="text"
+              rows="10"
+              placeholder=" Votre commentaire "
+            >
+            </textarea>
+            <button
+              v-if="comment"
+              @click="createComment(publication.postId)"
+              type="submit"
+              class="btn btnComment"
+            >
+              Envoyer
+            </button>
+          </form>
+        </div>
+        <!--- Fin publier un commentaire    -->
+
+        <!--  2/ Afficher tous les commentaires du postId-->
+        <div class="allComments">
+          <button
+            v-if="
+            publication.commentNumber"
+            @click="getAllComments(publication.postId)"
+          >
+            Commentaires
+            <span> {{ publication.commentNumber }} </span>
+          </button>
+        
+          <div v-if="showComments && publication.postId == comments[0].postId">
+         
+            <div v-for="comment in comments" :key="comment">
+              
+              <div class="oneCommentCard">
+                <div class="publicationDate">
+                  <div class="userAndImage">
+                    <img
+                      :src="
+                        require(`./../../../backend/images/${comment.profil_picture}`)
+                      "
+                      width="200"
+                      alt=""
+                    />
+                  </div>
+                  <p>{{ comment.user_send }}</p>
+                  <p class="datePub">Publié le {{ comment.DATETIME_FR }}</p>
+                </div>
+
+                <!-- Désactiver un commentaire -->
+                <p v-if="comment.masked == 1" class="masked">
+                  Ce commentaire est masqué par l'administrateur !
+                </p>
+                <div class="notShowComment">
+                  <div
+                    v-if="comment.masked == 0 || okMasked"
+                    class="deleteComment"
+                  >
+                    <p >{{ comment.comment }}</p>
+
+                    <!-- Supprimer un commentaire -->
+                    <p>
+                      <button class="cachedButton">
+                        <i
+                          title="Supprimer"
+                          v-if="
+                            comment.userId == userConnected.userId ||
+                            userConnected.isAdmin == 1
+                          "
+                          @click="
+                            deleteComment(comment.commentId, publication.postId)
+                          "
+                          class="fas fa-trash-alt"
+                        ></i>
+                      </button>
+                    </p>
+                    <!-- Fin supprimer un commentaire -->
+                  </div>
+
+                  <div>
+                    <button class="cachedButton">
+                      <i
+                        title="Masquer"
+                        @click="maskComment(comment.commentId, publication.postId)"
+                        v-if="userConnected.isAdmin == 1 && comment.masked == 0"
+                        class="fas fa-eye-slash maskedIcone"
+                      >
+                      </i>
+                    </button>
+
+                    <button class="cachedButton">
+                      <i
+                        title="Voir"
+                        @click="demaskComment(comment.commentId)"
+                        v-if="
+                          userConnected.isAdmin == 1 &&
+                          comment.masked == 1 &&
+                          !okMasked
+                        "
+                        class="fas fa-eye demaskedIcone"
+                      ></i>
+                    </button>
+                    
+                  </div>
+                </div>
+                <!-- -->
+
+                <hr />
+              </div>
+            </div>
+          </div>
+        </div>
+        <button
+            v-if="!afficherCommentaires && 
+                  publication.commentNumber>3"
+            @click="getAllComments(publication.postId)"
+          >
+            Masquer les commentaires
+          </button>
+
+<!-- Fin modif    -->
+
+
         <!-- Commentaires -->
 
         <!-- 1/ Publier un commentaire -->
+  <!--
         <div class="commentCard">
           <button @click="btnComment(publication.postId)">Commenter</button>
           <form
@@ -167,45 +340,8 @@
             </button>
           </form>
         </div>
+  -->
         <!--- Fin publier un commentaire    -->
-
-        <!--  2/ Afficher tous les commentaires du postId-->
-        <div class="allComments">
-          
-          <button v-if="!showComments && publication.commentNumber>0" @click="getAllComments(publication.postId)">
-            Afficher tous les commentaires ( {{ publication.commentNumber }})
-          </button>
-          <button v-if="showComments" @click="getAllComments(publication.postId)">
-            Masquer les commentaires
-          </button>       
-     
-          
-            <div v-for="comment in comments" :key="comment">
-              <div v-if="showComments && publication.postId==comments[0].postId" >
-              <div class="oneCommentCard">
-                <div class="publicationDate">
-                  <div class="userAndImage">
-                    <img
-                      :src="
-                        require(`./../../../backend/images/${comment.profil_picture}`)
-                      "
-                      width="200"
-                      alt=""
-                    />
-                  </div>
-                  <p>{{ comment.user_send }}  </p>
-                  <p class="datePub">Publiée le: {{ comment.date_send }}</p>
-                  
-                </div>
-                <p class="comment"> {{ comment.comment }}</p>
-                <hr>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <!-- Fin afficher les commentaires  -->
-
 
       </div>
     </div>
@@ -256,7 +392,10 @@ export default {
       afficherCommentaires:true,
       authentified:"",
       Token:"",
-      id:""
+      id:"",
+      demasked: false,
+      okMasked: false,
+      keyRender:0
     };
     },
 
@@ -264,6 +403,8 @@ export default {
     this.getAllMyPosts();
     this.userId=this.$route.params.id
     this.messageThreeSeconds()
+    this.error = "";
+   // this.userConnected = this.$store.state.userConnected;
     },
 
     computed (){
@@ -314,8 +455,9 @@ export default {
           
           // Si requête non authentifiée
           if (response.data.disconnected){
-            
             this.authentified=response.data.disconnected
+            //localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
           // Si requête authentifiée
           } else {
             this.publications = response.data;
@@ -327,7 +469,48 @@ export default {
         });
     },
     ///// Fin afficher tous mes posts ////////
-  
+  // ------ Partager une publication ---//
+    share(publication) {
+     
+      axios
+        .post(
+          "http://localhost:3000/api/posts/share",
+         {
+            publication1: publication,
+            publication2: {
+              shared: 1,
+              shared_userId: this.userConnected.userId,
+              shared_userName: this.userConnected.name,
+              shared_userProfil_picture: this.userConnected.profil_picture,
+            },
+          },
+          {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
+          }
+        )
+        .then((res) => {
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            //localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            this.publications=res.data
+            this.getAllMyPosts();
+            console.log("Partager:", res);
+          }
+        })
+        .catch((err) => {
+          console.log(" Erreur:", err);
+        });
+      this.getAllMyPosts();
+    },
+
+
+
   // ---- 2- Publier un post //
 
     sendText(f) {
@@ -381,6 +564,7 @@ export default {
             // Si requête authentifiée
           } else {
             console.log(res);
+            this.getAllMyPosts();
           }  
           })
           .catch(function (err) {
@@ -502,6 +686,7 @@ export default {
       console.log("postId:", postId);
       console.log("UserId", this.userConnected.userId);
       console.log("User_send:", this.userConnected.user_send);
+      //let self = this;
 
       axios
         .post("http://localhost:3000/api/comments", {
@@ -526,8 +711,10 @@ export default {
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
-          console.log(res);
-          this.okComment=false
+            console.log(res);
+            self.okComment = false;
+            self.getAllComments(postId)
+            self.getAllMyPosts(postId)
           }
           
         })
@@ -536,7 +723,8 @@ export default {
         });
          this.okComment=false
          this.comment=""
-         //this.getAllComments()
+         this.getAllComments(postId)
+         this.getAllMyPosts(postId)
     },
     // ------- Fin créer un commentaire --------- //
 
@@ -653,16 +841,97 @@ deslike_it(postId) {
         .catch(function (err) {
           console.log(err);
         });
-}
-// --- Fin Liker un post ------- //
+},
+// --- Fin Desliker un post ------- //
+
+// Supprimer un commentaire
+    deleteComment(commentId, postId) {
+      console.log("commentId:", commentId);
+      console.log("postId:", postId);
+      const self = this;
+      axios
+        .delete(
+          "http://localhost:3000/api/comments/" + `${commentId} ${postId}`,
+          {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
+          }
+        )
+        .then(function (res) {
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            self.okComment = false;
+            self.getAllComments(postId)
+            self.getAllMyPosts(postId)
+          }
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+    },
+    // Fin Supprimer un commentaire
   
-  },
-/////
+  // ----- Masquer un commentaire par l'administrateur  -------- //
+    maskComment(commentId, postId) {
+     let self=this
+      console.log ( "commentId", commentId + "postId", postId)
+      this.okMasked = !this.okMasked;
+      console.log("N° commentaire à masquer:", commentId);
+      axios
+        .patch("http://localhost:3000/api/comments/" + commentId, {
+          headers: {
+            authorization: `bearer ${this.Token.token}`,
+          },
+        })
+        .then(function (res) {
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            console.log("Réponse de masquer un commentaire:", res.data.message);
+           self.getAllComments(postId)
+          //self.getAllMyPosts(postId)
+            
+            
+          }
+        })
+        .catch(function (err) {
+          console.log("Erreur pour masquer un commentaire:", err);
+        });
+        this.getAllComments(postId)
+        this.okMasked = false;
+    },
+    // ------ Fin masquer un commentaire par l'administrateur  ----//
+    
+    // --- Montrer le commentaire masqué pour l'administrateur
+    demaskComment(commentId) {
+      console.log("commentId", commentId);
+      this.okMasked = true;
+    },
+    ///--------
+// -----------fin methods  -----------//
+},
+///// ------- Fin exports ----------
 }
 
 
 </script>
 
-<style scoped>
+<style>
+.deleteModify .delete, .deleteModify .modify {
+ padding-right: 10px;
+}
+/****    */
+
+
 
 </style>

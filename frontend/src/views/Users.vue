@@ -23,6 +23,7 @@
             
             <p>{{ user.name }}</p>
             <p v-if="user.isAdmin==1" class="identifiant"> Administrateur </p>
+            <p v-if="user.isDeleted==1"> Compte supprimé </p>
           </div>
       </router-link> 
 
@@ -50,6 +51,8 @@ export default {
 
   created() {
     this.getAllUsers();
+   // this.search()
+    
  },
   computed(){
     this.users=[this.searchUser]
@@ -89,7 +92,18 @@ export default {
       }
     },
 
-    //
+    //---------------
+/*
+    search(){
+     let tableau=this.users.filter(function(v){
+       return ((v["name"]=="Rabah"))
+       })
+     console.log ("tableau filtré:", tableau)
+    
+    }
+*/
+    //---------------
+
   },
 };
 </script>

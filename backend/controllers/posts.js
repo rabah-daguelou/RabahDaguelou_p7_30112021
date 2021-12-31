@@ -96,7 +96,8 @@ exports.getAllMyPosts = (req, res) => {
   let userId = req.params.id;
   
   db.query(
-    "SELECT * FROM posts WHERE userId=" + userId +  " ORDER BY date_send DESC;",
+    "SELECT *, DATE_FORMAT (date_send, '%d/%m/%Y à %H:%i:%s') as DATETIME_FR FROM posts WHERE userId="+userId+ " OR shared_userId="+userId+ " ORDER BY date_send DESC",
+  
     (err, results) => {
       if (err) {
         console.log("Erreur Bdd !");
@@ -148,20 +149,15 @@ exports.deletePost = (req, res, next) => {
 ///// ------- Modifier un post -------- ////////
 
 exports.updatePost = (req, res, next) => {
+  
   //1------  Si photo + texte
   if (req.file && req.body.textModified) {
     const image = req.file.filename;
     const post = req.body.textModified;
     const postId = req.params.id;
 
-    console.log("image:", image);
-    console.log("texte:", post);
-    console.log("postId:", postId);
-
     // Chercher l'ancienne image de la bdd
-
     db.query(`SELECT * FROM posts WHERE postId=${postId}`, (err, results) => {
-      //res.json(results);
       if (err) {
         console.log("Erreur Bdd:", err);
       } else {
@@ -177,13 +173,10 @@ exports.updatePost = (req, res, next) => {
             console.log(" Post modifié dans la Bdd aevc succès !", results);
           }
         });
-        res.status(201).json({
-          message: " Le texte ainsi que la photo ont été modifiés avec succès!",
-        });
-        
+               
         // si le post n'est pas partagé,
         // on supprime le fichier dans le dossier image
-        /*
+        
         if (results[0].shared_number == 0) {
           fs.unlink("./images/" + imageToDelete, (err) => {
             if (err) {
@@ -195,22 +188,11 @@ exports.updatePost = (req, res, next) => {
             }
           });
         }
-        */
+        
       }
     });
    
-    /*
-    // Modifier la publication ( texte + photo) dans la Bdd
-    let sql1 = `UPDATE posts SET post="${post}", image="${image}" WHERE postId=${postId}`;
-    db.query(sql1, (err, results) => {
-      if (err) {
-        console.log("Erreur Bdd:", err);
-      } else {
-        console.log(" Post modifié dans la Bdd aevc succès !", results);
-      }
-    });
-    res.status(201).json({ message: " Le texte ainsi que la photo ont été modifiés avec succès!"})
-*/
+    
     // 2--- Si modifier uniquement la photo
   } else if (req.file && !req.body.textModified) {
     const image = req.file.filename;
@@ -219,7 +201,7 @@ exports.updatePost = (req, res, next) => {
     // Chercher l'ancienne image de la bdd
 
     db.query(`SELECT * FROM posts WHERE postId=${postId}`, (err, results) => {
-      //res.json(results);
+      
       if (err) {
         console.log("Erreur Bdd:", err);
       } else {
@@ -249,7 +231,7 @@ exports.updatePost = (req, res, next) => {
         console.log("Erreur Bdd:", err);
       } else {
         console.log(" Photo modifiée dans la Bdd aevc succès !", results);
-        res.status(201).json({ message:"Photo modifiée dans la Bdd aevc succès !"})
+       
       }
     });
 
@@ -268,8 +250,25 @@ exports.updatePost = (req, res, next) => {
       }
     });
   }
+  ////////// Ajouté ////////////
+  
+  let sql4 = `select * from posts`;
+
+    // Récupérer le nouveau tableau après modifications dans la bdd
+    db.query(sql4, (err, results) => {
+      if (err) {
+        console.log("Erreur Bdd:", err);
+      } else {
+
+        res.status(201).json(results)  
+        console.log(" J'ai envoyé le nouveau tableau", results);
+      }
+    });
+ 
 };
 
+
+///////////////////////-----------------------------///////////////////////
 // Partager un post
 
 exports.sharePost = (req, res, next) => {
