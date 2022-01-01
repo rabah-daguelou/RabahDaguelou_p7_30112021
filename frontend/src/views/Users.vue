@@ -5,7 +5,14 @@
     <h1>Liste des salariés</h1>
 
     <!-- Bouton de recherche -->
-    <input v-model="searchKey" type="search" class="searchInput" placeholder="Chercher un utilisateur">
+     <div class="search">
+       <div class="searchInput"> 
+      <input v-model="searchKey" type="search" placeholder="Chercher un utilisateur">
+      </div>
+      <div class="searchIcone">
+      <i class="fas fa-search"></i>
+      </div>
+      </div>
     <h3 v-if="search.length==0"> Aucun résultat avec {{ searchKey }}</h3>
 
     <!-- -->
@@ -159,6 +166,9 @@ img {
 .identifiant {
   font-size: .7em;
 }
+h1{
+  margin-bottom: 20px;
+}
 p, h1 {
   color: black;
   text-decoration: none;
@@ -168,5 +178,36 @@ p, h1 {
 .authentified {
   color:red;
   font-weight: bold;
+}
+
+.search{
+  display: flex;
+  justify-content: center;
+}
+
+input {
+  border: none;
+  line-height: 36px;
+  text-align: center;
+  border-radius:5px 0px 0px 5px;
+}
+.searchInput {
+  width: 180px;
+  height: 40px;
+  background: rgb(247, 250, 247);
+  border-radius:5px 0px 0px 5px;
+  border: 1px solid #000;
+}
+
+i {
+  color:#fff;
+  padding-left: 10px;
+  line-height: 40px;
+}
+.searchIcone {
+  width: 40px;
+  height: 40px;
+  background: #000;
+  border-radius:0px 5px 5px 0px;
 }
 </style>
