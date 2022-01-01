@@ -45,7 +45,7 @@ exports.createPost = (req, res, next) => {
         console.log("Erreur Bdd:", err);
         // results(err, null);
       } else {
-        res.json(results);
+        res.status(200).json(results);
         console.log("Post enregistré en Bdd !");
         // results(null, results);
       }
@@ -66,7 +66,7 @@ exports.createPost = (req, res, next) => {
       if (err) {
         console.log("Erreur Bdd", err);
       } else {
-        res.json(results);
+        res.status(200).json(results);
         console.log("Post enregistré dans la Bdd");
       }
     });
@@ -80,10 +80,12 @@ exports.getAllPosts = (req, res, next) => {
   db.query(
     "SELECT *, DATE_FORMAT (date_send, '%d/%m/%Y à %H:%i:%s') as DATETIME_FR FROM posts ORDER BY date_send DESC",
     (err, results) => {
-      res.json(results);
+      
       if (err) {
+        res.status(500).json({message:"Erreur dans la base de données"}, results);
         console.log("Erreur Bdd !");
       } else {
+        res.status(200).json(results);
         console.log(" Toutes les publicatiions seront affichées avec succès !");
       }
     }
@@ -94,17 +96,19 @@ exports.getAllPosts = (req, res, next) => {
 
 exports.getAllMyPosts = (req, res) => {
   let userId = req.params.id;
-  
+
   db.query(
-    "SELECT *, DATE_FORMAT (date_send, '%d/%m/%Y à %H:%i:%s') as DATETIME_FR FROM posts WHERE userId="+userId+ " OR shared_userId="+userId+ " ORDER BY date_send DESC",
-  
+    "SELECT *, DATE_FORMAT (date_send, '%d/%m/%Y à %H:%i:%s') as DATETIME_FR FROM posts WHERE userId=" +
+      userId +
+      " OR shared_userId=" +
+      userId +
+      " ORDER BY date_send DESC",
+
     (err, results) => {
       if (err) {
         console.log("Erreur Bdd !");
       } else {
-        
         res.status(200).json(results);
-        
       }
     }
   );
@@ -118,30 +122,38 @@ exports.deletePost = (req, res, next) => {
     "SELECT image FROM posts WHERE postId=?",
     [req.params.id],
     (err, results) => {
-      res.json(results);
-      console.log(results);
+      if (err) {
+        console.log("Erreur Bdd:", err);
+      } else {
+        res.json(results);
+        console.log("results:", results);
 
-      // Supprimer l'image du dossier si le post a une image
+        // Supprimer l'image du dossier si le post a une image
 
-      if (results[0].image && results[0].shared == 0) {
-        let image = results[0].image;
-        fs.unlink("./images/" + image, (err) => {
-          if (err) {
-            console.log("L'image n'est pas supprimée: " + err);
-          } else {
-            console.log("L'image est supprimée avec succès!");
-          }
-        });
-      }
-      // Supprimer le post de la Bdd
-
-      db.query(
-        "DELETE FROM posts WHERE postId=?",
-        [req.params.id],
-        (err, results) => {
-          console.log(" Le post a été supprimé de la Bdd ! ");
+        if (results[0].image && results[0].shared == 0) {
+          let image = results[0].image;
+          fs.unlink("./images/" + image, (err) => {
+            if (err) {
+              console.log("L'image n'est pas supprimée: " + err);
+            } else {
+              console.log("L'image est supprimée avec succès!");
+            }
+          });
         }
-      );
+        // Supprimer le post de la Bdd
+
+        db.query(
+          "DELETE FROM posts WHERE postId=?",
+          [req.params.id],
+          (err, results) => {
+            if (err) {
+              console.log(" Erreur Bdd:", err);
+            } else {
+              console.log(" Le post a été supprimé de la Bdd ! ", results);
+            }
+          }
+        );
+      }
     }
   );
 };
@@ -149,7 +161,6 @@ exports.deletePost = (req, res, next) => {
 ///// ------- Modifier un post -------- ////////
 
 exports.updatePost = (req, res, next) => {
-  
   //1------  Si photo + texte
   if (req.file && req.body.textModified) {
     const image = req.file.filename;
@@ -173,10 +184,10 @@ exports.updatePost = (req, res, next) => {
             console.log(" Post modifié dans la Bdd aevc succès !", results);
           }
         });
-               
+
         // si le post n'est pas partagé,
         // on supprime le fichier dans le dossier image
-        
+
         if (results[0].shared_number == 0) {
           fs.unlink("./images/" + imageToDelete, (err) => {
             if (err) {
@@ -188,11 +199,9 @@ exports.updatePost = (req, res, next) => {
             }
           });
         }
-        
       }
     });
-   
-    
+
     // 2--- Si modifier uniquement la photo
   } else if (req.file && !req.body.textModified) {
     const image = req.file.filename;
@@ -201,7 +210,6 @@ exports.updatePost = (req, res, next) => {
     // Chercher l'ancienne image de la bdd
 
     db.query(`SELECT * FROM posts WHERE postId=${postId}`, (err, results) => {
-      
       if (err) {
         console.log("Erreur Bdd:", err);
       } else {
@@ -231,7 +239,6 @@ exports.updatePost = (req, res, next) => {
         console.log("Erreur Bdd:", err);
       } else {
         console.log(" Photo modifiée dans la Bdd aevc succès !", results);
-       
       }
     });
 
@@ -251,28 +258,25 @@ exports.updatePost = (req, res, next) => {
     });
   }
   ////////// Ajouté ////////////
-  
+
   let sql4 = `select * from posts`;
 
-    // Récupérer le nouveau tableau après modifications dans la bdd
-    db.query(sql4, (err, results) => {
-      if (err) {
-        console.log("Erreur Bdd:", err);
-      } else {
-
-        res.status(201).json(results)  
-        console.log(" J'ai envoyé le nouveau tableau", results);
-      }
-    });
- 
+  // Récupérer le nouveau tableau après modifications dans la bdd
+  db.query(sql4, (err, results) => {
+    if (err) {
+      console.log("Erreur Bdd:", err);
+    } else {
+      res.status(201).json(results);
+      console.log(" J'ai envoyé le nouveau tableau", results);
+    }
+  });
 };
-
 
 ///////////////////////-----------------------------///////////////////////
 // Partager un post
 
 exports.sharePost = (req, res, next) => {
-  console.log (" req.body.publication1: ", req.body.publication1)
+  console.log(" req.body.publication1: ", req.body.publication1);
   delete req.body.publication1.date_send;
   delete req.body.publication1.postId;
   req.body.publication1.shared_number += 1;

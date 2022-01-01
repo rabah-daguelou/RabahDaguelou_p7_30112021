@@ -5,12 +5,13 @@
     <h1>Liste des salariés</h1>
 
     <!-- Bouton de recherche -->
-    <input v-model="searchUser" type="text" placeholder="Chercher un utilisateur">
-    <p> {{ searchUser }}</p>
+    <input v-model="searchKey" type="search" class="searchInput" placeholder="Chercher un utilisateur">
+    <h3 v-if="search.length==0"> Aucun résultat avec {{ searchKey }}</h3>
+
     <!-- -->
 
     <div class="usersList">
-      <div v-for="user in users" :key="user.userId">
+      <div v-for="user in search" :key="user.userId">
         
       <router-link :to="{ name: 'Profil', params: { id: user.userId } }">
           <div class="userCard">
@@ -45,7 +46,7 @@ export default {
       users: [],
       authentified:"",
       Token:null,
-      searchUser:""
+      searchKey:""
     };
   },
 
@@ -54,9 +55,14 @@ export default {
    // this.search()
     
  },
-  computed(){
-    this.users=[this.searchUser]
+  computed:{
+    search() {
+      return this.users.filter((user)=>{
+        return user.name.toLowerCase().startsWith(this.searchKey.toLowerCase())
+      })
+    }
   },
+
   methods: {
     // Get all users
     getAllUsers() {

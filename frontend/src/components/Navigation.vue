@@ -24,9 +24,6 @@
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-right">
 
-
-
-
 <!-- Bouton Seconnecter --------->
 
           <li v-if="$store.state.isConnected==false" my_title=" Se connecter" class="infobulle">
@@ -42,14 +39,7 @@
           <li my_title=" Utilisateurs" class="infobulle">
             <router-link to="/Users"> <i class="fas fa-users"></i></router-link>
           </li>
-<!--
-          <li my_title=" Mon profil" class="infobulle">
-             <router-link :to="{ name: 'Profil', params: {id:userId}}">
-            <i class="fas fa-user-tie"></i>
-             
-            </router-link>
-          </li>88888888888888888888888888888888888*9
--->
+
 <!-- Bouton Mon profil ---------------->              
            
             <li v-if="$store.state.isConnected==true" my_title=" Mon profil" class="infobulle">
@@ -63,7 +53,6 @@
                 height="30"
                 alt=""
               />
-              
               <i v-else class=" fas fa-user-tie"></i>
             
                         
@@ -100,25 +89,12 @@ export default {
   },
   computed: {
     userId:function(){
-      //location.reload()
       return this.$store.state.userConnected.userId
     }
-    
-   /*
-   this.Token=JSON.parse(localStorage.getItem("Token"))
-    this.$store.commit("USER_CONNECTED")
-    this.userId=this.Token.userId
-    
-   if (JSON.parse(localStorage.getItem("Token"))) {
-    this.Token=JSON.parse(localStorage.getItem("Token"))
-    this.$store.commit("USER_CONNECTED") 
-    this.userId=this.Token.userId
-    } else {
-      this.deconnected()
-    }*/
+
   },
   created(){
-  //this.userId=this.$store.state.userConnected.userId
+  
   if (JSON.parse(localStorage.getItem("Token"))) {
     this.Token=JSON.parse(localStorage.getItem("Token"))
     this.$store.commit("USER_CONNECTED") 
@@ -133,8 +109,6 @@ export default {
     deconnected(){
       localStorage.removeItem("Token");
       this.$store.commit("DECONNEXION");
-      //location.reload()
-    
     },
     
   }
@@ -199,8 +173,6 @@ li i {
   [my_title]:after {
     right:0px;
     bottom: -4px;
-    
-    
- }
+  }
 }
 </style>

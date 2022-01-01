@@ -89,7 +89,7 @@
             />
           </div>
           <p>partagé par {{ publication.shared_userName }}</p>
-          <p class="datePub">Partagé le {{ publication.DATETIME_FR }}</p>
+          <p class="datePub">Le {{ publication.DATETIME_FR }}</p>
           <hr />
         </div>
 
@@ -109,7 +109,7 @@
           <p v-if="publication.shared_number > 0" class="datePub">
            Le {{ publication.shared_date }}
           </p>
-          <p v-else class="datePub">Publié le {{ publication.DATETIME_FR }}</p>
+          <p v-else class="datePub"> Le {{ publication.DATETIME_FR }}</p>
         </div>
 
         <div v-if="publication.image" class="publicationPhoto">
@@ -428,7 +428,7 @@ export default {
   },
 
   mounted() {
-    this.getAllPosts();
+  //  this.getAllPosts();
   },
 
   methods: {
@@ -581,7 +581,7 @@ export default {
               } else {
                 console.log(res);
                 //this.publications = res.data;
-               // self.getAllPosts();
+                self.getAllPosts();
               }
             })
             .catch(function (err) {
@@ -591,7 +591,7 @@ export default {
           console.log(err);
         }
 
-      //  this.getAllPosts();
+        this.getAllPosts();
         self.file = null;
         self.text = "";
         //  location.reload();
