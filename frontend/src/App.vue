@@ -1,63 +1,51 @@
 <template >
   <div class="all">
-    
-   <navigation class="navigation"> </navigation>
-   
-   <router-view />
-    
-  </div>
+    <navigation class="navigation"> </navigation>
 
+    <router-view />
+  </div>
 </template>
 
 <script>
-import Navigation from './components/Navigation.vue';
-
-//import {eventBus} from './main';
-
+import Navigation from "./components/Navigation.vue";
 
 export default {
-  name: 'App',
-  
-  components: { 
+  name: "App",
+
+  components: {
     Navigation,
-    
   },
-  
-  data (){
+
+  data() {
     return {
-      isConnected:false
-    }
+      isConnected: false,
+    };
   },
 
-  created(){
-  //  
-  if (JSON.parse(localStorage.getItem("Token"))) {
-    this.Token=JSON.parse(localStorage.getItem("Token"))
-    this.$store.commit("CONNEXION")
-    this.$store.commit("USER_CONNECTED") 
+  created() {
+    
+    if (JSON.parse(localStorage.getItem("Token"))) {
+      this.Token = JSON.parse(localStorage.getItem("Token"));
+      this.$store.commit("CONNEXION");
+      this.$store.commit("USER_CONNECTED");
     }
-    console.log ("isConnected:", this.isConnected)
+    console.log("isConnected:", this.isConnected);
   },
-  computed(){
-    //this.$store.commit("USER_CONNECTED")
-    this.isConnected==this.$store.state.userConnected
-    //this.$store.commit("CONNEXION")
-  }
 
-}
+  computed() {
+   this.isConnected == this.$store.state.userConnected;
+  },
+};
 </script>
 
 <style scoped>
-
 body {
   height: 100vh;
 }
-.all{
-  
-  background:#ffd7d7;
+.all {
+  background: #ffd7d7;
 }
 .navigation {
   text-align: right;
 }
-
 </style>

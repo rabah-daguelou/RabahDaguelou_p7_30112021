@@ -1,47 +1,51 @@
 <template>
-    <div class="all">
-      <!-- Publier un post -->
+  <div class="all">
+    <!-- Publier un post -->
 
-<!-- Formulaire -->
-      <div v-if="userId==Token.userId" class="publicationCard">
-        <h2> Publiez...</h2>
-        <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-          <div>
-            <textarea
-              v-model="text"
-              name="text"
-              id=""
-              cols="30"
-              rows="10"
-              placeholder="Tapez votre texte ici"
-            ></textarea>
-          </div>
+    <!-- Formulaire -->
+    <div v-if="userId == Token.userId" class="publicationCard">
+      <h2>Publiez...</h2>
+      <form @submit.prevent="onSubmit" enctype="multipart/form-data">
+        <div>
+          <textarea
+            v-model="text"
+            name="text"
+            id=""
+            cols="30"
+            rows="10"
+            placeholder="Tapez votre texte ici"
+          ></textarea>
+        </div>
 
-          <div class="send-it">
-            <input type="file" ref="file" @change="onSelect" />
+        <div class="send-it">
+          <input id="file" type="file" ref="file" @change="onSelect" />
 
-            <button @click="sendText" type="submit" class="btn btn-publier">
-              Publier
-            </button>
-                       
-          </div>
-          <p class="errorMessage" v-if="error">{{ error }}</p>
-        </form>
-      </div>
+          <button @click="sendText" type="submit" class="btn btn-publier">
+            Publier
+          </button>
+        </div>
+        <p class="errorMessage" v-if="error">{{ error }}</p>
+      </form>
+    </div>
 
-<!-- Fin publier un post -->
+    <!-- Fin publier un post -->
 
-<!-- Afficher les publications du profil -->
+    <!-- Afficher les publications du profil -->
 
-<div v-if="publications.length">
-          <div
+    <div v-if="publications.length">
+      <div
         v-for="publication in publications"
         :key="publication"
-        class="publicationCard">
+        class="publicationCard"
+      >
+        <!-- Si la publication est partagée -->
 
-                <!-- Si la publication est partagée -->
-
-        <div v-if="publication.shared == 1 && publication.shared_userId==Token.userId" class="publicationDate shared">
+        <div
+          v-if="
+            publication.shared == 1 && publication.shared_userId == Token.userId
+          "
+          class="publicationDate shared"
+        >
           <div class="userAndImage shared">
             <img
               :src="
@@ -59,7 +63,6 @@
         <!-- fin si publication partagée -->
 
         <div class="publicationDate">
-
           <div class="userAndImage">
             <img
               :src="
@@ -69,57 +72,63 @@
               alt=""
             />
           </div>
-          <p> Publié par {{ publication.user_send }} </p>
+          <p>Publié par {{ publication.user_send }}</p>
           <p class="datePub">Le {{ publication.DATETIME_FR }}</p>
         </div>
 
-        <div v-if=" publication.image" class="publicationPhoto">
+        <div v-if="publication.image" class="publicationPhoto">
           <img
             :src="require(`./../../../backend/images/${publication.image}`)"
             width="200"
             alt=""
           />
-         
         </div>
 
         <p class="publicationText">{{ publication.post }}</p>
 
-         
-        <!-- Likes and dislikes -->
+        <!-- Likes && dislikes -->
         <div class="likes">
-          <div >
-            <i @click='like_it(publication.postId)' class="fas fa-thumbs-up like"> <span class="like"> &#160;  {{ publication.likes_number }}  </span> </i>
-            
-            <i @click='deslike_it(publication.postId)' class="fas fa-thumbs-down deslike"> <span class="like"> &#160; {{ publication.deslikes_number }} </span> </i>
+          <div>
+            <i
+              @click="like_it(publication.postId)"
+              class="fas fa-thumbs-up like"
+            >
+              <span class="like"> &#160; {{ publication.likes_number }} </span>
+            </i>
+
+            <i
+              @click="deslike_it(publication.postId)"
+              class="fas fa-thumbs-down deslike"
+            >
+              <span class="like">
+                &#160; {{ publication.deslikes_number }}
+              </span>
+            </i>
           </div>
 
           <!-- Supprimer et modifier un post -->
           <div class="deleteModify">
             <!-- Supprimer un post -->
 
-            <i v-if="
-                publication.userId == Token.userId ||
-                Token.isAdmin == 1
-              "
+            <i
+              v-if="publication.userId == Token.userId || Token.isAdmin == 1"
               @click="deletePost(publication.postId)"
-              
               class="fas fa-trash delete"
             >
               <span> Supprimer </span></i
             >
 
             <!-- Modifier un post -->
-           
-            <i v-if="publication.userId==Token.userId"
+
+            <i
+              v-if="publication.userId == Token.userId"
               @click="btnModifyPost(publication.postId)"
-                         
               class="fas fa-pen-square modify"
-              ><span > Modifier </span></i
-            > 
+              ><span> Modifier </span></i
+            >
           </div>
-          
         </div>
-        
+
         <div
           v-if="okModifyPost && publication.postId == this.postId"
           class="publicationCard modifyPostCard"
@@ -155,8 +164,7 @@
           </form>
         </div>
 
-<!-- début modif -->
-      <!-- Commentaires -->
+        <!-- Commentaires -->
 
         <!-- 1/ Publier un commentaire -->
         <div class="commentCard">
@@ -211,18 +219,15 @@
         <!--  2/ Afficher tous les commentaires du postId-->
         <div class="allComments">
           <button
-            v-if="
-            publication.commentNumber"
+            v-if="publication.commentNumber"
             @click="getAllComments(publication.postId)"
           >
             Commentaires
             <span> {{ publication.commentNumber }} </span>
           </button>
-        
+
           <div v-if="showComments && publication.postId == comments[0].postId">
-         
             <div v-for="comment in comments" :key="comment">
-              
               <div class="oneCommentCard">
                 <div class="publicationDate">
                   <div class="userAndImage">
@@ -238,7 +243,7 @@
                   <p class="datePub">Publié le {{ comment.DATETIME_FR }}</p>
                 </div>
 
-                <!-- Désactiver un commentaire -->
+                <!-- Masquer un commentaire -->
                 <p v-if="comment.masked == 1" class="masked">
                   Ce commentaire est masqué par l'administrateur !
                 </p>
@@ -247,7 +252,7 @@
                     v-if="comment.masked == 0 || okMasked"
                     class="deleteComment"
                   >
-                    <p >{{ comment.comment }}</p>
+                    <p>{{ comment.comment }}</p>
 
                     <!-- Supprimer un commentaire -->
                     <p>
@@ -272,7 +277,9 @@
                     <button class="cachedButton">
                       <i
                         title="Masquer"
-                        @click="maskComment(comment.commentId, publication.postId)"
+                        @click="
+                          maskComment(comment.commentId, publication.postId)
+                        "
                         v-if="userConnected.isAdmin == 1 && comment.masked == 0"
                         class="fas fa-eye-slash maskedIcone"
                       >
@@ -291,77 +298,36 @@
                         class="fas fa-eye demaskedIcone"
                       ></i>
                     </button>
-                    
                   </div>
                 </div>
-                <!-- -->
-
                 <hr />
               </div>
             </div>
           </div>
         </div>
         <button
-            v-if="!afficherCommentaires && 
-                  publication.commentNumber>3"
-            @click="getAllComments(publication.postId)"
-          >
-            Masquer les commentaires
-          </button>
-
-<!-- Fin modif    -->
-
-
-        <!-- Commentaires -->
-
-        <!-- 1/ Publier un commentaire -->
-  <!--
-        <div class="commentCard">
-          <button @click="btnComment(publication.postId)">Commenter</button>
-          <form
-            v-if="okComment && publication.postId == this.postId"
-            @submit.prevent=""
-          >
-            <textarea
-              v-model="comment"
-              cols="30"
-              name="text"
-              rows="10"
-              placeholder=" Votre commentaire "
-            >
-            </textarea>
-            <button
-              v-if="comment"
-              @click="createComment(publication.postId)"
-              type="submit"
-              class="btn"
-            >
-              Envoyer
-            </button>
-          </form>
-        </div>
-  -->
+          v-if="!afficherCommentaires && publication.commentNumber > 3"
+          @click="getAllComments(publication.postId)"
+        >
+          Masquer les commentaires
+        </button>
+      
         <!--- Fin publier un commentaire    -->
-
       </div>
     </div>
 
-<div v-else> Il n'y a aucune publication à afficher !</div>
-<p class="authentified"> {{ authentified }}</p>
-
-
-<!--  -->       
-    </div>
+    <div v-else>Il n'y a aucune publication à afficher !</div>
+    <p class="authentified">{{ authentified }}</p>
+  </div>
 </template>
 
 <script>
 import axios from "axios";
 
 export default {
-    name:"MyPublications",
+  name: "MyPublications",
 
-    props: {
-
+  props: {
     userConnected: {
       type: Object,
       default() {
@@ -372,9 +338,9 @@ export default {
     },
   },
 
-    data() {
+  data() {
     return {
-      userId:"",
+      userId: "",
       text: "",
       file: "",
       publications: [],
@@ -384,84 +350,79 @@ export default {
       textModified: "",
       comment: "",
       okComment: false,
-      okAllComments:true,
+      okAllComments: true,
       commentNumber: 0,
       comments: [],
-      showComments:false,
-      status:0,
-      afficherCommentaires:true,
-      authentified:"",
-      Token:"",
-      id:"",
+      showComments: false,
+      status: 0,
+      afficherCommentaires: true,
+      authentified: "",
+      Token: "",
+      id: "",
       demasked: false,
       okMasked: false,
-      keyRender:0
+     
     };
-    },
+  },
 
-    created() {
+  created() {
     this.getAllMyPosts();
-    this.userId=this.$route.params.id
-    this.messageThreeSeconds()
+    this.userId = this.$route.params.id;
+    this.messageThreeSeconds();
     this.error = "";
-   // this.userConnected = this.$store.state.userConnected;
-    },
+  },
 
-    computed (){
-      this.$route.params.id
-    },
+  computed() {
+    this.$route.params.id;
+  },
 
-    mounted(){
+  mounted() {
     this.getAllMyPosts();
   },
-  
-    methods: {
 
-    messageThreeSeconds:function(){
-       setTimeout(()=> {
-          this.error=""
-        }, 3000)
-     },
+  methods: {
+    messageThreeSeconds: function () {
+      setTimeout(() => {
+        this.error = "";
+      }, 3000);
+    },
 
     btnModifyPost(id) {
       this.okModifyPost = !this.okModifyPost;
       this.postId = id;
-      console.log("postId:", this.postId);
+      
     },
 
     btnComment(id) {
       this.okComment = !this.okComment;
       this.postId = id;
-    },  
+    },
 
-
-//----  1- Afficher toutes mes publications ////////
+    //----  1- Afficher toutes mes publications ////////
     getAllMyPosts() {
       this.Token = JSON.parse(localStorage.getItem("Token"));
-           
-     if (this.Token.userId==this.$route.params.id) {
-        this.id=this.Token.userId
+
+      if (this.Token.userId == this.$route.params.id) {
+        this.id = this.Token.userId;
       } else {
-        this.id=this.$route.params.id
+        this.id = this.$route.params.id;
       }
       axios
         .get("http://localhost:3000/api/posts/" + this.id, {
           headers: {
-          authorization: `bearer ${this.Token.token}`,
+            authorization: `bearer ${this.Token.token}`,
           },
         })
 
         .then((response) => {
-          
           // Si requête non authentifiée
-          if (response.data.disconnected){
-            this.authentified=response.data.disconnected
-            //localStorage.removeItem("Token");
+          if (response.data.disconnected) {
+            this.authentified = response.data.disconnected;
+            localStorage.removeItem("Token");
             this.$store.commit("DECONNEXION");
-          // Si requête authentifiée
+            // Si requête authentifiée
           } else {
             this.publications = response.data;
-            console.log ("response:",response)
           }
         })
         .catch((error) => {
@@ -469,13 +430,13 @@ export default {
         });
     },
     ///// Fin afficher tous mes posts ////////
-  // ------ Partager une publication ---//
+
+    // -2/----- Partager une publication ---//
     share(publication) {
-     
       axios
         .post(
           "http://localhost:3000/api/posts/share",
-         {
+          {
             publication1: publication,
             publication2: {
               shared: 1,
@@ -494,13 +455,12 @@ export default {
           // Si requête non authentifiée
           if (res.data.disconnected) {
             this.authentified = res.data.disconnected;
-            //localStorage.removeItem("Token");
+            localStorage.removeItem("Token");
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
-            this.publications=res.data
+            this.publications = res.data;
             this.getAllMyPosts();
-            console.log("Partager:", res);
           }
         })
         .catch((err) => {
@@ -509,30 +469,27 @@ export default {
       this.getAllMyPosts();
     },
 
-
-
-  // ---- 2- Publier un post //
+    // ---- 3/- Publier un post //
 
     sendText(f) {
-     
       if (!this.file && !this.text) {
         this.error = " Merci de joindre du texte ou une image à publier !";
-        this.messageThreeSeconds()
+        this.messageThreeSeconds();
         f.preventDefault();
       }
     },
 
     onSelect() {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
       const file = this.$refs.file.files[0];
       this.file = file;
       if (!allowedTypes.includes(file.type)) {
-        this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
-        this.file="";
+        this.error = "Merci de choisir un fichier PNG, JPG, JPEG ou GIF!";
+        this.file = "";
       }
       if (file.size > 500000) {
         this.error = "Votre fichier est trop volumineux: 500kb max! ";
-        this.file="";
+        this.file = "";
       }
     },
 
@@ -542,59 +499,51 @@ export default {
       formData.append("post", this.text);
       formData.append("user_send", this.userConnected.name);
       formData.append("userId", this.userConnected.userId);
-      formData.append("profil_picture", this.userConnected.profil_picture)
-           console.log ('file: ', this.file)
-           console.log ('user_send: ', this.userConnected.name)
+      formData.append("profil_picture", this.userConnected.profil_picture);
+      let self=this
       try {
-        await axios.post("http://localhost:3000/api/posts", formData,
-        {
-          headers: {
-          authorization: `bearer ${this.Token.token}`,
-          },
-                  
+        await axios
+          .post("http://localhost:3000/api/posts", formData, {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
           })
-          
-          .then(function (res) {
 
+          .then(function (res) {
             // Si requête non authentifiée
-          if (res.data.disconnected) {
-            this.authentified = res.data.disconnected;
-            localStorage.removeItem("Token");
-            this.$store.commit("DECONNEXION");
-            // Si requête authentifiée
-          } else {
-            console.log(res);
-            this.getAllMyPosts();
-          }  
+            if (res.data.disconnected) {
+              this.authentified = res.data.disconnected;
+              localStorage.removeItem("Token");
+              this.$store.commit("DECONNEXION");
+              // Si requête authentifiée
+            } else {
+              self.getAllMyPosts();
+            }
           })
           .catch(function (err) {
-            console.log(err);
+            console.log("Erreur 1:", err);
           });
       } catch (err) {
-        console.log(err);
+        console.log("Erreur 2:", err);
       }
-      
-      this.text="";
-      this.getAllMyPosts();
-      !this.onSelect
-    },
-//---------- Fin publier un post ---------------//
 
-//---3/- Supprimer un post ------------ //
+      this.text = "";
+      self.getAllMyPosts();
+      document.getElementById('file').value=""
+    },
+    //---------- Fin publier un post ---------------//
+
+    //---4/- Supprimer un post ------------ //
     deletePost(id) {
-      console.log("postId:", id);
       const self = this;
       axios
-        .delete("http://localhost:3000/api/posts/" + id,
-        {
-        headers: {
-          authorization: `bearer ${this.Token.token}`,
-          }
+        .delete("http://localhost:3000/api/posts/" + id, {
+          headers: {
+            authorization: `bearer ${this.Token.token}`,
+          },
         })
-        
 
         .then(function (res) {
-
           // Si requête non authentifiée
           if (res.data.disconnected) {
             this.authentified = res.data.disconnected;
@@ -602,8 +551,7 @@ export default {
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
-          console.log(res);
-          self.getAllMyPosts();
+            self.getAllMyPosts();
           }
         })
         .catch(function (err) {
@@ -612,21 +560,21 @@ export default {
     },
     // ----------- Fin supprimer un post ---------- //
 
-//-- 4/ ---------- Modifier un post -------------//
+    //-- 5/ ---------- Modifier un post -------------//
     onModify(f2) {
       if (!this.file && !this.textModified) {
         this.error = " Merci de joindre du texte ou une image pour envoyer !";
-        this.messageThreeSeconds()
+        this.messageThreeSeconds();
         f2.preventDefault();
-        this.okModifyPost=!this.okModifyPost
+        this.okModifyPost = !this.okModifyPost;
       }
     },
     onSelected() {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
       const file = this.$refs.file.files[0];
       this.file = file;
       if (!allowedTypes.includes(file.type)) {
-        this.error = "Merci de choisir un fichier PNG, JPG ou JPEG!";
+        this.error = "Merci de choisir un fichier PNG, JPG, JPEG ou GIF!";
       }
       if (file.size > 500000) {
         this.error = "Votre fichier est trop volumineux: 500kb max! ";
@@ -643,67 +591,15 @@ export default {
       if (this.file) {
         formData.append("file", this.file);
       }
-      console.log(formData);
-      const self=this
+      const self = this;
       axios
-          .put("http://localhost:3000/api/posts/" + this.postId, formData,
-          {
-        headers: {
-          authorization: `bearer ${this.Token.token}`,
-          }
+        .put("http://localhost:3000/api/posts/" + this.postId, formData, {
+          headers: {
+            authorization: `bearer ${this.Token.token}`,
+          },
         })
-          
-          .then(function (res) {
 
-            // Si requête non authentifiée
-          if (res.data.disconnected) {
-            this.authentified = res.data.disconnected;
-            localStorage.removeItem("Token");
-            this.$store.commit("DECONNEXION");
-            // Si requête authentifiée
-          } else {
-            
-            self.getAllMyPosts();
-            }
-          })
-          .catch(function (err) {
-            console.log("Erreur :", err);
-            
-          });
-          
-          this.okModifyPost = !this.okModifyPost;
-          this.textModified="";
-          this.error="";
-          this.getAllMyPosts();
-          location.reload()
-    },
-    
-    // ---------- Fin modifier un post ------------//
-
-// --- 5/ --- Créer un commentaire -------------- //
-    createComment(postId) {
-      console.log("comment:", this.comment);
-      console.log("postId:", postId);
-      console.log("UserId", this.userConnected.userId);
-      console.log("User_send:", this.userConnected.user_send);
-      //let self = this;
-
-      axios
-        .post("http://localhost:3000/api/comments", {
-          comment: this.comment,
-          postId: postId,
-          userId: this.userConnected.userId,
-          user_send: this.userConnected.name,
-          profil_picture: this.userConnected.profil_picture,
-        },
-        {
-        headers: {
-          authorization: `bearer ${this.Token.token}`,
-          }
-        })
-        
         .then(function (res) {
-
           // Si requête non authentifiée
           if (res.data.disconnected) {
             this.authentified = res.data.disconnected;
@@ -711,83 +607,115 @@ export default {
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
-            console.log(res);
-            self.okComment = false;
-            self.getAllComments(postId)
-            self.getAllMyPosts(postId)
+            self.getAllMyPosts();
           }
-          
+        })
+        .catch(function (err) {
+          console.log("Erreur :", err);
+        });
+
+      this.okModifyPost = !this.okModifyPost;
+      this.textModified = "";
+      this.error = "";
+      this.getAllMyPosts();
+      location.reload();
+    },
+    // ---------- Fin modifier un post ------------//
+
+    // --- 6/ --- Créer un commentaire -------------- //
+    createComment(postId) {
+      axios
+        .post(
+          "http://localhost:3000/api/comments",
+          {
+            comment: this.comment,
+            postId: postId,
+            userId: this.userConnected.userId,
+            user_send: this.userConnected.name,
+            profil_picture: this.userConnected.profil_picture,
+          },
+          {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
+          }
+        )
+
+        .then(function (res) {
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            self.okComment = false;
+            self.getAllComments(postId);
+            self.getAllMyPosts(postId);
+          }
         })
         .catch(function (err) {
           console.log(err);
         });
-         this.okComment=false
-         this.comment=""
-         this.getAllComments(postId)
-         this.getAllMyPosts(postId)
+      this.okComment = false;
+      this.comment = "";
+      this.getAllComments(postId);
+      this.getAllMyPosts(postId);
     },
     // ------- Fin créer un commentaire --------- //
 
-// --6/ ----- Afficher tous les commentaires d'un post--------- //
+    // --7/ ----- Afficher tous les commentaires d'un post--------- //
     getAllComments(postId) {
-      //this.afficherCommentaires=false;
-      //this.afficherCommentaires=!this.afficherCommentaires;
-      this.showComments=!this.showComments
-      const self=this
-      axios.get("http://localhost:3000/api/comments/" + postId,
-      {
-        headers: {
-          authorization: `bearer ${this.Token.token}`,
-          }
+      this.showComments = !this.showComments;
+      const self = this;
+      axios
+        .get("http://localhost:3000/api/comments/" + postId, {
+          headers: {
+            authorization: `bearer ${this.Token.token}`,
+          },
         })
-      
-        .then(function (res) {
 
+        .then(function (res) {
           // Si requête non authentifiée
           if (res.data.disconnected) {
             this.authentified = res.data.disconnected;
             localStorage.removeItem("Token");
             this.$store.commit("DECONNEXION");
-            
+
             // Si requête authentifiée
           } else {
-        
-          if (res.data.length>0){
-            self.comments=res.data
-            self.showComments==true
-          } else {
-            self.showComments==false
+            if (res.data.length > 0) {
+              self.comments = res.data;
+              self.showComments == true;
+            } else {
+              self.showComments == false;
+            }
           }
-          
-          }  
-        
         })
         .catch(function (err) {
           console.log("Erreur: ", err);
         });
     },
+  // ------- Fin afficher tous les commentaires ------  //
 
-    // ------- Fin afficher tous les commentaires ------  //
-
-// -- 7/ -- Liker un post ---- //
-like_it(postId) {
-  console.log ("postId: ", postId)
-  const self = this
-  axios
-        .post("http://localhost:3000/api/like/"+ postId, {
-          
-          postId: postId,
-          userId: this.userConnected.userId,
-          
-        },
-        {
-        headers: {
-          authorization: `bearer ${this.Token.token}`,
+    // -- 8/ -- Liker un post ---- //
+    like_it(postId) {
+      const self = this;
+      axios
+        .post(
+          "http://localhost:3000/api/like/" + postId,
+          {
+            postId: postId,
+            userId: this.userConnected.userId,
+          },
+          {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
           }
-        })
-        
-        .then(function (res) {
+        )
 
+        .then(function (res) {
           // Si requête non authentifiée
           if (res.data.disconnected) {
             this.authentified = res.data.disconnected;
@@ -795,38 +723,34 @@ like_it(postId) {
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
-          console.log("La réponse du serveur: ", res.data.status);
-          
-          self.status=res.data.status
-          console.log("Le status du users est:", self.status)
-          self.getAllMyPosts()
+            self.status = res.data.status;
+            self.getAllMyPosts();
           }
         })
         .catch(function (err) {
           console.log(err);
         });
-},
-// --- Fin Liker un post ------- //
+    },
+    // --- Fin Liker un post ------- //
 
-// --8/ ----- Desliker un post ---- //
-deslike_it(postId) {
-  console.log ("postId: ", postId)
-  const self=this
-  axios
-        .post("http://localhost:3000/api/deslike/"+ postId, {
-          
-          postId: postId,
-          userId: this.userConnected.userId,
-          
-        },
-        {
-        headers: {
-          authorization: `bearer ${this.Token.token}`,
+    // --9/ ----- Desliker un post ---- //
+    deslike_it(postId) {
+      const self = this;
+      axios
+        .post(
+          "http://localhost:3000/api/deslike/" + postId,
+          {
+            postId: postId,
+            userId: this.userConnected.userId,
+          },
+          {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
           }
-        })
-        
-        .then(function (res) {
+        )
 
+        .then(function (res) {
           // Si requête non authentifiée
           if (res.data.disconnected) {
             this.authentified = res.data.disconnected;
@@ -834,20 +758,17 @@ deslike_it(postId) {
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
-          console.log(res.data.message);
-          self.getAllMyPosts()
+            self.getAllMyPosts();
           }
         })
         .catch(function (err) {
           console.log(err);
         });
-},
-// --- Fin Desliker un post ------- //
+    },
+    // --- Fin Desliker un post ------- //
 
-// Supprimer un commentaire
+    // -10/------Supprimer un commentaire
     deleteComment(commentId, postId) {
-      console.log("commentId:", commentId);
-      console.log("postId:", postId);
       const self = this;
       axios
         .delete(
@@ -867,8 +788,8 @@ deslike_it(postId) {
             // Si requête authentifiée
           } else {
             self.okComment = false;
-            self.getAllComments(postId)
-            self.getAllMyPosts(postId)
+            self.getAllComments(postId);
+            self.getAllMyPosts(postId);
           }
         })
         .catch(function (err) {
@@ -876,13 +797,12 @@ deslike_it(postId) {
         });
     },
     // Fin Supprimer un commentaire
-  
-  // ----- Masquer un commentaire par l'administrateur  -------- //
+
+    // --11/ --- Masquer un commentaire par l'administrateur  -------- //
     maskComment(commentId, postId) {
-     let self=this
-      console.log ( "commentId", commentId + "postId", postId)
+      let self = this;
       this.okMasked = !this.okMasked;
-      console.log("N° commentaire à masquer:", commentId);
+     
       axios
         .patch("http://localhost:3000/api/comments/" + commentId, {
           headers: {
@@ -897,41 +817,33 @@ deslike_it(postId) {
             this.$store.commit("DECONNEXION");
             // Si requête authentifiée
           } else {
-            console.log("Réponse de masquer un commentaire:", res.data.message);
-           self.getAllComments(postId)
-          //self.getAllMyPosts(postId)
-            
-            
+            self.getAllComments(postId);
           }
         })
         .catch(function (err) {
           console.log("Erreur pour masquer un commentaire:", err);
         });
-        this.getAllComments(postId)
-        this.okMasked = false;
+      this.getAllComments(postId);
+      this.okMasked = false;
     },
     // ------ Fin masquer un commentaire par l'administrateur  ----//
-    
-    // --- Montrer le commentaire masqué pour l'administrateur
+
+    // --12/----- Montrer le commentaire masqué pour l'administrateur
     demaskComment(commentId) {
       console.log("commentId", commentId);
       this.okMasked = true;
     },
-    ///--------
-// -----------fin methods  -----------//
-},
-///// ------- Fin exports ----------
-}
-
-
+    
+    // -----------fin methods  -----------//
+  },
+  ///// ------- Fin exports ----------
+};
 </script>
 
 <style>
-.deleteModify .delete, .deleteModify .modify {
- padding-right: 10px;
+.deleteModify .delete,
+.deleteModify .modify {
+  padding-right: 10px;
 }
-/****    */
-
-
 
 </style>

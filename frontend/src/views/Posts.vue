@@ -1,102 +1,87 @@
 <template>
   <div>
-    <p v-if="authentified || Token==null" class="authentified"> {{ authentified }}</p>
+    <p v-if="authentified || Token == null" class="authentified">
+      {{ authentified }}
+    </p>
     <div v-else class="all">
-
-        <div class="bar-nav">
+      <div class="bar-nav">
         <p class="bienvenue">Bienvenue chez</p>
         <img src="../assets/iconlogoleft.png" width="200" height="50" alt="" />
-        </div>
-      <!-- Publier un post -->
+      </div>
       
-
-      <!-- Fin publier un post --> 
-    
-    <!--    <PublishPost v-if="userConnected" :userConnected="userConnected"> </PublishPost> -->
-        <all-publications :userConnected="userConnected"> </all-publications>
-    
+      <all-publications :userConnected="userConnected"> </all-publications>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-//import PublishPost from "../components/PublishPost.vue"
-import AllPublications from "../components/AllPublications.vue"
+import axios from "axios";
+import AllPublications from "../components/AllPublications.vue";
 
 export default {
-    name:"Posts",
+  name: "Posts",
 
-    components: {
-      //  PublishPost,
-        AllPublications,
-    },
-    data() {
-        return {
-            userConnected: {},
-            authentified:"",
-            Token:null,
-        }
-    },
-    created() {
-    this.getUserConnected();
-    
-    //this.connexion();
+  components: {
+    AllPublications,
   },
 
-    methods: {
-   
-   //// Afficher l'utilisateur connecté
+  data() {
+    return {
+      userConnected: {},
+      authentified: "",
+      Token: null,
+    };
+  },
+
+  created() {
+    this.getUserConnected();
+  },
+
+  methods: {
+    
+    //--1/----  Afficher l'utilisateur connecté
     async getUserConnected() {
-      
       this.Token = JSON.parse(localStorage.getItem("Token"));
       if (this.Token) {
-      
-      this.userId = this.Token.userId;
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/api/users/userConnected/" + this.userId,{
-        headers: {
-           authorization: `bearer ${this.Token.token}`,
-          },
-          
-          })
-        
-        // Si requête non authentifiée
-       if (response.data.disconnected){
-         this.authentified=response.data.disconnected;
-        // Si requête authentifiée
-       } else {
-        this.userConnected=response.data[0];
-        this.$store.commit("USER_CONNECTED")
-       // this.userConnected=this.$store.state.userConnected
-        //
-       }
-                
-      } catch (err) {
-        console.log(err);
+        this.userId = this.Token.userId;
+        try {
+          const response = await axios.get(
+            "http://localhost:3000/api/users/userConnected/" + this.userId,
+            {
+              headers: {
+                authorization: `bearer ${this.Token.token}`,
+              },
+            }
+          );
+
+          // Si requête non authentifiée
+          if (response.data.disconnected) {
+            this.authentified = response.data.disconnected;
+            // Si requête authentifiée
+          } else {
+            this.userConnected = response.data[0];
+            this.$store.commit("USER_CONNECTED");
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      } else {
+        this.authentified = " Merci de vous connecter d'abord !";
       }
-      }else {
-        this.authentified=" Merci de vous connecter d'abord !"
-      }
-      
     },
 
     /////////// fin getUserConnected //////
 
-    ///// Fin methods ////////    
-   }
-//////// Fin Export///////////
-}
-
-
+    ///// Fin methods ////////
+  },
+  //////// Fin Export///////////
+};
 </script>
 
 <style scoped>
 .authentified {
-  color:red;
+  color: red;
   font-weight: bold;
-  
 }
 .all {
   margin: auto;

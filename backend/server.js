@@ -1,7 +1,5 @@
 const http = require('http');
 const app = require('./app');
-const fs= require('fs');
-const multer= require ('multer');
 const mysql = require("mysql2");
 
 

@@ -3,11 +3,9 @@
     <p v-if="authentified || Token == null" class="authentified">
       {{ authentified }}
     </p>
-    <!---  <Profil> </Profil>  --->
+    
     <div v-else class="all-1">
       <h2>Le profil de {{ oneUser.name }}</h2>
-
-      <!-- Profil image / name / Email / is_admin-->
       <div class="user-infos">
         <div>
           <img
@@ -38,8 +36,8 @@
           <p v-if="oneUser.isAdmin == 1">Administrateur</p>
         </div>
       </div>
-      <!--   -->
       <div>
+        <p v-if="myMessage" class="message">{{ myMessage }}</p>
         <!-- Modifier ou supprimer mon profil -->
         <div v-if="oneUser.userId == Token.userId" class="modify">
           <button
@@ -49,8 +47,8 @@
           >
             Modifier mon profil &#160; <i class="fas fa-pen-square"> </i>
           </button>
-          <p v-if="myMessage" class="message"> {{myMessage }} </p>
           
+
           <button
             v-if="!okModifyProfil"
             class="btn deleteProfil"
@@ -151,12 +149,9 @@
                 <input type="file" ref="file" @change="onSelect" />
               </div>
               <button class="btn" @click="updateProfilPicture">Valider</button>
-            
             </form>
-            
           </div>
         </div>
-          
       </div>
 
       <!-- Mes publications -->
@@ -177,7 +172,6 @@
       </div>
       <!-- Fin mes publications  -->
     </div>
-  
   </div>
 </template>
 
@@ -219,7 +213,7 @@ export default {
       text: "",
       Token: null,
       authentified: "",
-      myMessage:"",
+      myMessage: "",
     };
   },
 
@@ -228,15 +222,10 @@ export default {
     this.getOneUserById(this.userId);
     this.deleteOneUser();
     this.id = this.$route.params.id;
-    this.messageThreeSeconds()
+    this.messageThreeSeconds();
   },
- /*
- updated() {
-    this.getOneUserById()
-  },
-*/
-  methods: {
-
+ 
+ methods: {
     messageThreeSeconds: function () {
       setTimeout(() => {
         this.myMessage = "";
@@ -259,7 +248,7 @@ export default {
       this.okShowMyPublications = !this.okShowMyPublications;
     },
 
-    // Get one user
+    //--1/ --- Afficher un profil --------
     async getOneUserById(id) {
       this.Token = JSON.parse(localStorage.getItem("Token"));
       if (this.Token) {
@@ -288,12 +277,12 @@ export default {
         this.authentified = " Merci de vous connecter d'abord !";
       }
     },
-    ///////////////////
-    // Delete One User
+    ///--- Fin afficher un profil --- //////
+    
+    //---2/ Supprimer un utilisateur ------//
 
     deleteOneUser: function (event) {
       this.id = this.$route.params.id;
-      console.log("userId:", this.id);
       if (event) {
         axios
           .delete("http://localhost:3000/api/users/" + this.id, {
@@ -301,12 +290,7 @@ export default {
               authorization: `bearer ${this.Token.token}`,
             },
           })
-          .then((res) => {
-            this.success= " Le user, ses publications et ses commentaires ont été supprimés avec succès!"
-            console.log(
-              " Le user, ses publications et ses commentaires ont été supprimés avec succès!",
-              res
-            );
+          .then(() => {
             localStorage.removeItem("Token");
             this.$store.commit("DECONNEXION");
           })
@@ -315,10 +299,9 @@ export default {
           });
       }
     },
-
-    ////////////////////////
-    // Update Photo
-
+    //-- Fin supprimer un profil --- ///
+    
+    //--3/ Modifier la photo du profil -----//
     onSelect() {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const file = this.$refs.file.files[0];
@@ -333,7 +316,6 @@ export default {
     async onSubmit() {
       const formData = new FormData();
       formData.append("file", this.file);
-      
       this.profil_picture = this.file.name;
 
       try {
@@ -346,33 +328,22 @@ export default {
             },
           })
           .then(function (res) {
-
             // Si requête non authentifiée
-          if (res.data.disconnected) {
-            this.authentified = res.data.disconnected;
-            localStorage.removeItem("Token");
-            this.$store.commit("DECONNEXION");
-            // Si requête authentifiée
-          } else {
-            
-            // Modifier profil_picture dans localStorage et Store
-            console.log(
-              "Profil_picture du Token avant modif:",
-              self.Token.profil_picture
-            );
-            console.log("response:", res.data.image);
-            Object.defineProperty(self.Token, "profil_picture", {
-              value: res.data.image,
-            });
-            console.log("Token après modif:", self.Token.profil_picture);
-            localStorage.setItem("Token", JSON.stringify(self.Token));
-            self.$store.commit("USER_CONNECTED");
-            self.getOneUserById(this.userId);
-           
-            
+            if (res.data.disconnected) {
+              this.authentified = res.data.disconnected;
+              localStorage.removeItem("Token");
+              this.$store.commit("DECONNEXION");
+              // Si requête authentifiée
+            } else {
+              // Modifier profil_picture dans localStorage et Store
+              Object.defineProperty(self.Token, "profil_picture", {
+                value: res.data.image,
+              });
+              localStorage.setItem("Token", JSON.stringify(self.Token));
+              self.$store.commit("USER_CONNECTED");
+              self.getOneUserById(this.userId);
             }
           })
-          
           .catch(function (err) {
             console.log(err);
           });
@@ -382,14 +353,14 @@ export default {
       this.getOneUserById(this.userId);
       this.btnModifyProfil();
       this.myMessage = "Votre photo de profil a été modifiée avec succès!";
-      this.messageThreeSeconds()
-     
+      this.messageThreeSeconds();
     },
 
-    /////////////////
-    // update Email
+    //-- Fin modifier photo profil ///
+
+    // ---- 4/ Modifier l'email
     updateEmail: function (event) {
-      let self=this
+      let self = this;
       if (event) {
         axios
           .patch(
@@ -404,38 +375,36 @@ export default {
             }
           )
           .then((res) => {
-
             // Si requête non authentifiée
-          if (res.data.disconnected) {
-            this.authentified = res.data.disconnected;
-            localStorage.removeItem("Token");
-            this.$store.commit("DECONNEXION");
-            // Si requête authentifiée
-          } else {
-            this.errorEmail2 = "";
-            if (res.data.type == "error") {
-              this.errorEmail2 = "Votre nouvel email n'est pas valide!";
-              this.email2=""
+            if (res.data.disconnected) {
+              this.authentified = res.data.disconnected;
+              localStorage.removeItem("Token");
+              this.$store.commit("DECONNEXION");
+              // Si requête authentifiée
             } else {
-              this.email2=""
-              // Afficher le message pendant 3 secondes
-              self.myMessage = "Votre email a été modifié avec succès!";
-              self.messageThreeSeconds()
-              console.log("Email modifié ! ");
-              self.btnModifyProfil();
-              self.getOneUserById(this.userId);
-              this.success=" Votre email est modifié avec succès!"
+              this.errorEmail2 = "";
+              if (res.data.type == "error") {
+                this.errorEmail2 = "Votre nouvel email n'est pas valide!";
+                this.email2 = "";
+              } else {
+                this.email2 = "";
+                // Afficher le message pendant 3 secondes
+                self.myMessage = "Votre email a été modifié avec succès!";
+                self.messageThreeSeconds();
+                self.btnModifyProfil();
+                self.getOneUserById(this.userId);
+                this.success = " Votre email est modifié avec succès!";
+              }
             }
-          }
           })
           .catch((err) => {
             console.log("Erreur serveur !", err);
           });
       }
     },
+    ///---- Fin modifier email ---- ///
 
-    /////////////////////////////////////
-    // update Password
+    // -5/---- Modifier le mot de passe ----- /
     updatePassword: function (event) {
       if (event) {
         if (this.password2 == this.password3) {
@@ -453,33 +422,27 @@ export default {
               }
             )
             .then((res) => {
-
               // Si requête non authentifiée
-          if (res.data.disconnected) {
-            this.authentified = res.data.disconnected;
-            localStorage.removeItem("Token");
-            this.$store.commit("DECONNEXION");
-            // Si requête authentifiée
-          } else{
-
-              this.errorPassword2 = "";
-              if (res.data.type == "error") {
-                this.errorPassword2 = res.data.message;
+              if (res.data.disconnected) {
+                this.authentified = res.data.disconnected;
+                localStorage.removeItem("Token");
+                this.$store.commit("DECONNEXION");
+                // Si requête authentifiée
               } else {
                 this.errorPassword2 = "";
-                this.password1="";
-                this.password2="";
-                this.password3="";
-                this.success=" Votre mot de passe a été modifié avec succès!"
-                // Afficher le message pendant 3 secondes
-               // this.errorPassword2 =
-                //  "Votre mot de passe a été modifié avec succès!";
-                console.log("Mot de passe modifié ! ");
-                this.btnModifyProfil()
-                self.myMessage = "Votre photo de profil a été modifiée avec succès!";
-                self.messageThreeSeconds()
+                if (res.data.type == "error") {
+                  this.errorPassword2 = res.data.message;
+                } else {
+                  this.errorPassword2 = "";
+                  this.password1 = "";
+                  this.password2 = "";
+                  this.password3 = "";
+                  this.btnModifyProfil();
+                  self.myMessage =
+                    "Votre mot de passe a été modifié avec succès!";
+                  self.messageThreeSeconds();
+                }
               }
-            }
             })
             .catch((err) => {
               console.log("Erreur serveur !", err);
@@ -489,11 +452,10 @@ export default {
             "Vos nouveaux mots de passe ne correspondent pas !";
         }
       }
-      
     },
+    /// --- Fin modifier le mot de passe -////
 
-    /////////////////////////////////////
-    // Update Name
+    // 6/-------- Modifer le pseudo --------//
     updateName: function (event) {
       let id = this.oneUser.userId;
       if (event) {
@@ -513,45 +475,36 @@ export default {
                 },
               }
             )
-          //
-          .then((res) => {
+            //
+            .then((res) => {
+              // Si requête non authentifiée
+              if (res.data.disconnected) {
+                this.authentified = res.data.disconnected;
+                localStorage.removeItem("Token");
+                this.$store.commit("DECONNEXION");
 
-            // Si requête non authentifiée
-          if (res.data.disconnected) {
-            this.authentified = res.data.disconnected;
-            localStorage.removeItem("Token");
-            this.$store.commit("DECONNEXION");
-            
-            // Si requête authentifiée
-          } else {
-              this.errorName2 = "";
-              if (res.data.type == "error") {
-                this.errorName2 = res.data.message;
+                // Si requête authentifiée
               } else {
                 this.errorName2 = "";
-                this.name2=""
-                this.btnModifyProfil();
-                // Afficher le message pendant 3 secondes
-               
-                //  "Votre mot de passe a été modifié avec succès!";
-                console.log("Pseudo  modifié ! ");
-                
-                this.getOneUserById(this.userId);
-                this.myMessage = " Votre pseudo a été modifié avec succès!";
-                this.messageThreeSeconds()
+                if (res.data.type == "error") {
+                  this.errorName2 = res.data.message;
+                } else {
+                  this.errorName2 = "";
+                  this.name2 = "";
+                  this.btnModifyProfil();
+                  this.getOneUserById(this.userId);
+                  this.myMessage = " Votre pseudo a été modifié avec succès!";
+                  this.messageThreeSeconds();
+                }
               }
-          }
             })
             .catch((err) => {
               console.log("Erreur serveur !", err);
             });
         }
-      // location.reload()
-       
       }
     },
-
-    ////////////
+  //------ Fin modifier pseudo ----- ///
   },
 };
 </script>
@@ -560,25 +513,25 @@ export default {
 <!--   Style --->
 
 <style scoped >
+
 .message {
-  position: fixed;
-  top:380px;
+  
   width: 80%;
-  margin-left:  18px;
   height: 30px;
   line-height: 30px;
-  background:rgb(250, 216, 216, .9);
-  color: rgb(36, 100, 6);
+  background: rgb(250, 216, 216, 0.5);
+  color:  rgb(60, 168, 9);
+  text-shadow: 1px 1px black;
   
 }
 .all {
-  
   text-align: center;
-  margin: auto;
+  margin: 10px auto;
+  padding-bottom: 100px;
   background: #ffd7d7;
-  height: 100%;
+
 }
-.all-1 { }
+
 /* --------- Les infos-bulles ------------ */
 [my_title] {
   position: relative;
@@ -601,7 +554,7 @@ export default {
 [my_title]:after:active {
   visibility: hidden;
 }
-/* ----  */
+
 /*-- userInfos -- */
 .user-infos {
   display: flex;
@@ -618,8 +571,6 @@ export default {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
-/* ----- */
-
 .authentified {
   color: red;
   font-weight: bold;
@@ -633,7 +584,7 @@ export default {
   color: rgb(10, 10, 248);
 }
 .username .admin {
-   color: rgb(61, 247, 15);
+  color: rgb(61, 247, 15);
 }
 .btn {
   background: #000;
@@ -661,13 +612,12 @@ export default {
 img {
   width: 70px;
   height: 70px;
-  /*border: 1px solid black;*/
   border-radius: 35px;
   box-shadow: 3px 1px 3px rgb(219, 148, 148);
-  transition: transform .2s;
+  transition: transform 0.2s;
 }
-img:hover{
-  transform:scale(3.5)
+img:hover {
+  transform: scale(3.5);
 }
 
 p {
@@ -701,9 +651,6 @@ p {
   margin: auto;
   text-align: center;
 }
-
-/******** */
-
 .bar-nav {
   width: 100%;
   height: 50px;
@@ -743,9 +690,6 @@ label {
   font-style: italic;
   color: #1e304f;
 }
-
-/* /////////////  */
-
 .publicationCard {
   width: 80%;
 
@@ -755,7 +699,6 @@ label {
   border-radius: 10px;
   box-shadow: 2px 2px 5px grey;
 }
-
 textarea {
   width: 85%;
   height: 50px;
@@ -764,14 +707,12 @@ textarea {
   border-radius: 5px;
   box-shadow: 1px 2px 5px grey;
 }
-
 .send-it {
   margin: 15px 5px;
   display: flex;
   justify-content: space-between;
   color: red;
 }
-
 .send-it button {
   background: #1e304f;
   width: 80px;
@@ -787,7 +728,6 @@ h2 {
   font-family: "Courier New", Courier, monospace;
   border-bottom: 3px solid white;
 }
-
 .userAndImage {
   width: 60px;
   height: 60px;
@@ -810,7 +750,6 @@ h2 {
   border-bottom: 2px solid black;
   margin: 5px;
 }
-
 .publicationDate p {
   margin-left: 5px;
   font-size: 1rem;
@@ -859,7 +798,6 @@ span {
   margin-top: 20px;
   border-top: 2px solid black;
 }
-
 .yourCommunt {
   margin-left: 50px;
 }
@@ -870,7 +808,6 @@ span {
   #formPub {
     width: 80%;
   }
-  
   .send-it {
     flex-direction: column;
   }
@@ -881,7 +818,5 @@ span {
     width: 80%;
     margin: auto;
   }
- 
-  
 }
 </style>

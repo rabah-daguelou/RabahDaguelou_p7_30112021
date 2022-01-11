@@ -2,10 +2,10 @@
 Groupomania est un réseau social interne de l'entreprise. C'est un outil d'échange et d'interaction entre les collègues. Les employés de l'entreprise peuvent publier, partager et commenter des publications et des articles de sujets divers pour favoriser l'ambiance et la motivation au sein de l'équipe. Plusieurs fonctionnalités ont été développées afin de faciliter la communication entre collègues. Néanmoins, le projet demeure un MVP à améliorer selon les besoins de l'entreprise! 
 
 Pour lancer l'application:
-dsdxw
+
 1- Accédez à votre terminal ( cmd, gitbush, shell ...)
 
-2- Clonez le repos GitHub: git clone https://github.com/rabah-daguelou/RabahDaguelou_p7_20082021.git
+2- Clonez le repos GitHub: git clone https://github.com/rabah-daguelou/RabahDaguelou_p7_30112021.git
 
 3- Créez un fichier .env dans le dossier backend et renseignez votre token et éventuellement le PORT.
 

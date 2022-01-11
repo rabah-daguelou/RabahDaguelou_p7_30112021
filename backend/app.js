@@ -33,6 +33,8 @@ app.use("/api", postsRoutes);
 app.use("/api", commentsRoutes);
 app.use("/api", likes_deslikesRoutes)
 
-//app.use('/images', express.static(path.join(__dirname,'images')));
+app.use(express.static(path.join(__dirname,'images')));
+//app.use('./images', express.static(path.join(__dirname,'images')));
+//app.use('../frontend/images', express.static(path.join(__dirname,'../frontend/images')));
 
 module.exports=app;

@@ -1,31 +1,22 @@
-const express    = require("express");
-const bodyParser = require("body-parser");
-const app        = express();
-const mysql      = require("mysql2");
-const sharp      = require('sharp');
-const path       = require ('path');
-const cors       = require ('cors');
-const fs         = require ('fs')
-
-const router = express.Router();
-
-const usersCtrl= require ('../controllers/users')
-const checkEmail=require ('../middlewares/checkEmail')
-const checkPassword=require ('../middlewares/checkPassword')
-const checkName=require ('../middlewares/checkName')
-const auth= require('../middlewares/auth')
-
-const multer= require ('../middlewares/multer_config')
+const express       = require("express");
+const router        = express.Router();
+const usersCtrl     = require ('../controllers/users')
+const checkEmail    = require ('../middlewares/checkEmail')
+const checkPassword = require ('../middlewares/checkPassword')
+const checkName     = require ('../middlewares/checkName')
+const auth          = require('../middlewares/auth')
+const multer        = require ('../middlewares/multer_config')
 
 // s'inscrire
 router.post("/signup", checkEmail, checkPassword, checkName, usersCtrl.signup );
+
 // se connecter
 router.post("/login", usersCtrl.login);
 
 // Afficher l'utilisateur connecté
 router.get("/users/userConnected/:id", auth, usersCtrl.getUserConnected)
 
-// Afficher la liste des salariés
+// Afficher la liste des utilisateurs
 router.get("/users", auth, usersCtrl.getAllUsers);
 
 // Afficher le profil d'un utilisateur
