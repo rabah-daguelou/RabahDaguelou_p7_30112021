@@ -4,8 +4,8 @@
       <div class="add-post">
         <!-- L'utilisateur connecté -->
         <router-link :to="`/Profil/${userConnected.userId}`">
-          <div class="profiluser" title="Administrateur">
-            <div class="profilPhoto" >
+          <div class="profiluser">
+            <div class="profilPhoto">
               <img
                 v-if="userConnected.profil_picture"
                 :src="
@@ -26,7 +26,7 @@
             </div>
             <p class="username">
               {{ userConnected.name }}
-              <span v-if="userConnected.isAdmin == 1" >
+              <span v-if="userConnected.isAdmin == 1" title="Administrateur">
                 <i class="fas fa-user-cog"> </i>
               </span>
             </p>
@@ -505,7 +505,12 @@ export default {
     },
     async onSubmit() {
       this.error = "";
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+      ];
 
       // Si le format du fichier n'est pas valide
       if (this.file && !allowedTypes.includes(this.file.type)) {
@@ -526,36 +531,31 @@ export default {
         formData.append("userId", this.userConnected.userId);
         formData.append("profil_picture", this.userConnected.profil_picture);
 
-        // Publier un post
-        try {
-          await axios
-            .post("http://localhost:3000/api/posts", formData, {
-              headers: {
-                authorization: `bearer ${this.Token.token}`,
-              },
-            })
-            .then((res) => {
-              // Si requête non authentifiée
-              if (res.data.disconnected) {
-                this.authentified = res.data.disconnected;
-                localStorage.removeItem("Token");
-                this.$store.commit("DECONNEXION");
+        axios
+          .post("http://localhost:3000/api/posts", formData, {
+            headers: {
+              authorization: `bearer ${this.Token.token}`,
+            },
+          })
+          .then((res) => {
+            // Si requête non authentifiée
+            if (res.data.disconnected) {
+              this.authentified = res.data.disconnected;
+              localStorage.removeItem("Token");
+              this.$store.commit("DECONNEXION");
 
-                // Si requête authentifiée
-              } else {
-                document.getElementById("file").value = "";
-                this.text = "";
-                this.publications = res.data;
-                this.getAllPosts();
-                this.file=""
-              }
-            })
-            .catch((err) => {
-              console.log("erreur:", err);
-            });
-        } catch (err) {
-          console.log("erreur:", err);
-        }
+              // Si requête authentifiée
+            } else {
+              document.getElementById("file").value = "";
+              this.text = "";
+              this.publications = res.data;
+              this.getAllPosts();
+              this.file = "";
+            }
+          })
+          .catch((err) => {
+            console.log("erreur:", err);
+          });
       }
     },
     //---------- Fin publier un post ---------------//
@@ -603,7 +603,12 @@ export default {
 
     async onModify() {
       this.error = "";
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+      ];
 
       // Si ni texte ni photo
       if (!this.file && !this.textModified) {
@@ -643,7 +648,6 @@ export default {
               // Si requête authentifiée
             } else {
               self.publications = res.data;
-              console.log("Nouveau tableau:", self.publications);
               self.getAllPosts();
             }
           })
@@ -789,8 +793,7 @@ export default {
     // ------ Fin masquer un commentaire par l'administrateur  ----//
 
     // --10/------- Montrer le commentaire masqué pour l'administrateur
-    demaskComment(commentId) {
-      console.log("commentId", commentId);
+    demaskComment() {
       this.okMasked = true;
     },
     ///-------- Fin Montrer le commentaire masqué //

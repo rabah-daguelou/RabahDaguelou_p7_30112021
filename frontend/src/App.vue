@@ -23,7 +23,6 @@ export default {
   },
 
   created() {
-    
     if (JSON.parse(localStorage.getItem("Token"))) {
       this.Token = JSON.parse(localStorage.getItem("Token"));
       this.$store.commit("CONNEXION");
@@ -33,7 +32,7 @@ export default {
   },
 
   computed() {
-   this.isConnected == this.$store.state.userConnected;
+    this.isConnected == this.$store.state.userConnected;
   },
 };
 </script>

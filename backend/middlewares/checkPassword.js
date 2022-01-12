@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
       : res.status(200).json({
           type: "error",
           message:
-            "Votre mot de passe est invalide! Au moins 8 caractères, une majuscule, un chiffre !",
+            "Votre mot de passe est invalide! Au moins 8 caractères, une majuscule, une miniscule, un chiffre !",
         });
   };
   passwordTrue(req.body.password);

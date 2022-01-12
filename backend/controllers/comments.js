@@ -1,11 +1,11 @@
-const express              = require("express");
-const mysql                = require("mysql2");
-const multer               = require("multer");
-const sharp                = require("sharp");
-const path                 = require("path");
-const cors                 = require("cors");
-const fs                   = require("fs");
-const { isContext }        = require("vm");
+const express = require("express");
+const mysql = require("mysql2");
+const multer = require("multer");
+const sharp = require("sharp");
+const path = require("path");
+const cors = require("cors");
+const fs = require("fs");
+const { isContext } = require("vm");
 const { brotliDecompress } = require("zlib");
 
 require("dotenv").config();
@@ -34,11 +34,9 @@ exports.createComment = (req, res, next) => {
     profil_picture: req.body.profil_picture,
   };
   db.query("INSERT INTO comments SET ?", [commenter], (err, results) => {
-    
     if (err) {
       throw err;
     } else {
-     
       // -- Incrémenter le nombre de commentaires au postId
       let sql =
         " UPDATE posts SET commentNumber=commentNumber+1 WHERE postId=" +
@@ -47,7 +45,7 @@ exports.createComment = (req, res, next) => {
         if (err) {
           throw err;
         }
-        res.status(201).json({message:"Commentaire ajouté avec succès!"})
+        res.status(201).json({ message: "Commentaire ajouté avec succès!" });
       });
     }
   });
@@ -86,7 +84,6 @@ exports.maskComment = (req, res) => {
 // 4/------- Supprimer un commentaire
 
 exports.deleteComment = (req, res) => {
-
   //A-- Récupérer commentId et postId dans les paramètres
   const commentId = req.params.id.split(" ")[0];
   const postId = req.params.id.split(" ")[1];
@@ -98,7 +95,7 @@ exports.deleteComment = (req, res) => {
   db.query(sql1, (err, results) => {
     if (err) {
       throw err;
-    } 
+    }
   });
 
   //C-- Décrémenter le nombre de commentaire pour la publication dans la table posts

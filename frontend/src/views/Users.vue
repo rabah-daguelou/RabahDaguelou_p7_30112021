@@ -19,9 +19,11 @@
           <i class="fas fa-search"></i>
         </div>
       </div>
-      
-      <h4 v-if="search.length && !searchKey"> {{ search.length }} salariés inscrits </h4>
-      <h4 v-else > {{ search.length }} salariés avec {{ searchKey}}</h4>
+
+      <h4 v-if="search.length && !searchKey">
+        {{ search.length }} salariés inscrits
+      </h4>
+      <h4 v-else>{{ search.length }} salariés avec {{ searchKey }}</h4>
       <!-- Fin bouton de recherche -->
 
       <div class="usersList">
@@ -39,8 +41,15 @@
               <img v-else src="../assets/icon.png" alt="" />
 
               <p>{{ user.name }}</p>
-              <p v-if="user.isAdmin == 1" class="identifiant">Administrateur <i class=" admin fas fa-users-cog"></i> </p>
-              <p v-if="user.isDeleted == 1">Compte supprimé <span class="deleted"> <i class="fas fa-minus-circle"></i></span></p>
+              <p v-if="user.isAdmin == 1" class="identifiant">
+                Administrateur <i class="admin fas fa-users-cog"></i>
+              </p>
+              <p v-if="user.isDeleted == 1">
+                Compte supprimé
+                <span class="deleted">
+                  <i class="fas fa-minus-circle"></i
+                ></span>
+              </p>
             </div>
           </router-link>
         </div>
@@ -77,7 +86,6 @@ export default {
   },
 
   methods: {
-
     //---1/ Afficher la liste de tous les utilisateurs //
     getAllUsers() {
       this.Token = JSON.parse(localStorage.getItem("Token"));
@@ -199,7 +207,7 @@ i {
   border-radius: 0px 5px 5px 0px;
 }
 .deleted i {
-  color:red
+  color: red;
 }
 .admin {
   color: blue;

@@ -3,7 +3,7 @@
     <p v-if="authentified || Token == null" class="authentified">
       {{ authentified }}
     </p>
-    
+
     <div v-else class="all-1">
       <h2>Le profil de {{ oneUser.name }}</h2>
       <div class="user-infos">
@@ -47,7 +47,6 @@
           >
             Modifier mon profil &#160; <i class="fas fa-pen-square"> </i>
           </button>
-          
 
           <button
             v-if="!okModifyProfil"
@@ -224,8 +223,8 @@ export default {
     this.id = this.$route.params.id;
     this.messageThreeSeconds();
   },
- 
- methods: {
+
+  methods: {
     messageThreeSeconds: function () {
       setTimeout(() => {
         this.myMessage = "";
@@ -278,7 +277,7 @@ export default {
       }
     },
     ///--- Fin afficher un profil --- //////
-    
+
     //---2/ Supprimer un utilisateur ------//
 
     deleteOneUser: function (event) {
@@ -300,7 +299,7 @@ export default {
       }
     },
     //-- Fin supprimer un profil --- ///
-    
+
     //--3/ Modifier la photo du profil -----//
     onSelect() {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
@@ -384,7 +383,7 @@ export default {
             } else {
               this.errorEmail2 = "";
               if (res.data.type == "error") {
-                this.errorEmail2 = "Votre nouvel email n'est pas valide!";
+                this.errorEmail2 = res.data.message;
                 this.email2 = "";
               } else {
                 this.email2 = "";
@@ -504,7 +503,7 @@ export default {
         }
       }
     },
-  //------ Fin modifier pseudo ----- ///
+    //------ Fin modifier pseudo ----- ///
   },
 };
 </script>
@@ -513,23 +512,19 @@ export default {
 <!--   Style --->
 
 <style scoped >
-
 .message {
-  
   width: 80%;
   height: 30px;
   line-height: 30px;
   background: rgb(250, 216, 216, 0.5);
-  color:  rgb(60, 168, 9);
+  color: rgb(60, 168, 9);
   text-shadow: 1px 1px black;
-  
 }
 .all {
   text-align: center;
   margin: 10px auto;
   padding-bottom: 100px;
   background: #ffd7d7;
-
 }
 
 /* --------- Les infos-bulles ------------ */

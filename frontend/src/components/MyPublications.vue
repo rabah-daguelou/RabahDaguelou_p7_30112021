@@ -260,8 +260,9 @@
                         <i
                           title="Supprimer"
                           v-if="
-                            comment.userId == userConnected.userId ||
-                            userConnected.isAdmin == 1
+                            comment.userId ==
+                              $store.state.userConnected.userId ||
+                            $store.state.userConnected.isAdmin == 1
                           "
                           @click="
                             deleteComment(comment.commentId, publication.postId)
@@ -280,7 +281,10 @@
                         @click="
                           maskComment(comment.commentId, publication.postId)
                         "
-                        v-if="userConnected.isAdmin == 1 && comment.masked == 0"
+                        v-if="
+                          $store.state.userConnected.isAdmin == 1 &&
+                          comment.masked == 0
+                        "
                         class="fas fa-eye-slash maskedIcone"
                       >
                       </i>
@@ -311,7 +315,7 @@
         >
           Masquer les commentaires
         </button>
-      
+
         <!--- Fin publier un commentaire    -->
       </div>
     </div>
@@ -361,7 +365,6 @@ export default {
       id: "",
       demasked: false,
       okMasked: false,
-     
     };
   },
 
@@ -390,7 +393,6 @@ export default {
     btnModifyPost(id) {
       this.okModifyPost = !this.okModifyPost;
       this.postId = id;
-      
     },
 
     btnComment(id) {
@@ -480,7 +482,12 @@ export default {
     },
 
     onSelect() {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+      ];
       const file = this.$refs.file.files[0];
       this.file = file;
       if (!allowedTypes.includes(file.type)) {
@@ -500,36 +507,32 @@ export default {
       formData.append("user_send", this.userConnected.name);
       formData.append("userId", this.userConnected.userId);
       formData.append("profil_picture", this.userConnected.profil_picture);
-      let self=this
-      try {
-        await axios
-          .post("http://localhost:3000/api/posts", formData, {
-            headers: {
-              authorization: `bearer ${this.Token.token}`,
-            },
-          })
+      let self = this;
 
-          .then(function (res) {
-            // Si requête non authentifiée
-            if (res.data.disconnected) {
-              this.authentified = res.data.disconnected;
-              localStorage.removeItem("Token");
-              this.$store.commit("DECONNEXION");
-              // Si requête authentifiée
-            } else {
-              self.getAllMyPosts();
-            }
-          })
-          .catch(function (err) {
-            console.log("Erreur 1:", err);
-          });
-      } catch (err) {
-        console.log("Erreur 2:", err);
-      }
+      axios
+        .post("http://localhost:3000/api/posts", formData, {
+          headers: {
+            authorization: `bearer ${this.Token.token}`,
+          },
+        })
 
+        .then(function (res) {
+          // Si requête non authentifiée
+          if (res.data.disconnected) {
+            this.authentified = res.data.disconnected;
+            localStorage.removeItem("Token");
+            this.$store.commit("DECONNEXION");
+            // Si requête authentifiée
+          } else {
+            self.getAllMyPosts();
+          }
+        })
+        .catch(function (err) {
+          console.log("Erreur 1:", err);
+        });
       this.text = "";
       self.getAllMyPosts();
-      document.getElementById('file').value=""
+      document.getElementById("file").value = "";
     },
     //---------- Fin publier un post ---------------//
 
@@ -570,7 +573,12 @@ export default {
       }
     },
     onSelected() {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+      ];
       const file = this.$refs.file.files[0];
       this.file = file;
       if (!allowedTypes.includes(file.type)) {
@@ -696,7 +704,7 @@ export default {
           console.log("Erreur: ", err);
         });
     },
-  // ------- Fin afficher tous les commentaires ------  //
+    // ------- Fin afficher tous les commentaires ------  //
 
     // -- 8/ -- Liker un post ---- //
     like_it(postId) {
@@ -802,7 +810,7 @@ export default {
     maskComment(commentId, postId) {
       let self = this;
       this.okMasked = !this.okMasked;
-     
+
       axios
         .patch("http://localhost:3000/api/comments/" + commentId, {
           headers: {
@@ -833,7 +841,7 @@ export default {
       console.log("commentId", commentId);
       this.okMasked = true;
     },
-    
+
     // -----------fin methods  -----------//
   },
   ///// ------- Fin exports ----------
@@ -845,5 +853,4 @@ export default {
 .deleteModify .modify {
   padding-right: 10px;
 }
-
 </style>

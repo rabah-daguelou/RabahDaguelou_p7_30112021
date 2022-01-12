@@ -1,8 +1,8 @@
-const express    = require("express");
-const router     = express.Router();
-const auth       = require("../middlewares/auth");
-const postsCtrl  = require("../controllers/posts");
-const multer     = require("../middlewares/multer_config");
+const express = require("express");
+const router = express.Router();
+const auth = require("../middlewares/auth");
+const postsCtrl = require("../controllers/posts");
+const multer = require("../middlewares/multer_config");
 
 // Publier un post //
 router.post("/posts", auth, multer, postsCtrl.createPost);

@@ -24,7 +24,6 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
-            
             <!-- Bouton Seconnecter --------->
             <li
               v-if="$store.state.isConnected == false"
@@ -37,7 +36,10 @@
             <!-- Bouton Forum --------------->
             <li my_title=" Forum" class="infobulle">
               <router-link to="/Posts">
-                <img src="../assets/icon.png" alt="" width="23" />
+                <i class="fas fa-people-arrows"></i>
+                <!--
+                <img src="../assets/icon.png" alt="" width="30" />
+              -->
               </router-link>
             </li>
 
@@ -71,7 +73,6 @@
                   alt=""
                 />
                 <i v-else class="fas fa-user-tie"></i>
-                
               </router-link>
             </li>
 
@@ -86,7 +87,6 @@
                 ><i class="fas fa-sign-out-alt"></i
               ></router-link>
             </li>
-
           </ul>
         </div>
       </div>
@@ -139,7 +139,7 @@ li {
 }
 li i {
   color: #ffd7d7;
-  text-shadow: 1px 1px 10px black;
+  text-shadow: 2px 2px 10px #162948;
 }
 .isDeconnected {
   color: red;
@@ -174,8 +174,6 @@ li i {
   color: greenyellow;
   font-size: 12px;
   margin-right: 20px;
- 
-  
 }
 
 @media screen and (min-width: 768px) {
@@ -187,6 +185,5 @@ li i {
     right: 10px;
     bottom: -4px;
   }
-  
 }
 </style>

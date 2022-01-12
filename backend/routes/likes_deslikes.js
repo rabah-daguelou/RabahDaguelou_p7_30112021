@@ -1,6 +1,6 @@
-const express            = require("express");
-const router             = express.Router();
-const auth               = require("../middlewares/auth");
+const express = require("express");
+const router = express.Router();
+const auth = require("../middlewares/auth");
 const likes_deslikesCtrl = require("../controllers/likes_deslikes");
 
 // Liker un post //

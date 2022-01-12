@@ -15,10 +15,8 @@ module.exports = (req, res, next) => {
       next();
     }
   } catch {
-    res
-      .status(200)
-      .json({
-        disconnected: "Vous êtes déconnectés! Merci de vous reconnecter.",
-      });
+    res.status(200).json({
+      disconnected: "Vous êtes déconnectés! Merci de vous reconnecter.",
+    });
   }
 };

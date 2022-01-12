@@ -1,10 +1,10 @@
-const express       = require("express");
-const bcrypt        = require("bcrypt");
-const mysql         = require("mysql2");
-const multer        = require("multer");
-const cors          = require("cors");
-const fs            = require("fs");
-const jwt           = require("jsonwebtoken");
+const express = require("express");
+const bcrypt = require("bcrypt");
+const mysql = require("mysql2");
+const multer = require("multer");
+const cors = require("cors");
+const fs = require("fs");
+const jwt = require("jsonwebtoken");
 const { isContext } = require("vm");
 
 require("dotenv").config();
@@ -34,6 +34,7 @@ exports.signup = (req, res, next) => {
       name: req.body.name,
     };
 
+    // Si l'Email existe déjà dans la bdd
     db.query(
       "SELECT * FROM Users WHERE email = ? ",
       req.body.email,
@@ -46,7 +47,7 @@ exports.signup = (req, res, next) => {
               type: "error",
               message: "Cette adresse mail est déjà utilisée !",
             });
-      // Enregistrer le nouveau user dans la Bdd
+            // Enregistrer le nouveau user dans la Bdd
           } else {
             db.query("INSERT INTO Users SET ?", [user], (err, results) => {
               if (err) {
@@ -85,7 +86,7 @@ exports.login = (req, res) => {
               res.status(200).json({
                 type: "error",
                 message: "Ce mot de passe est incorrect !",
-                passwordForgot:true
+                passwordForgot: true,
               });
               // Si le mot de passe est valide, on renvoie un token au backend
             } else {
@@ -257,7 +258,7 @@ exports.deleteOneUser = (req, res) => {
         if (profil_picture != "icon.png") {
           fs.unlink("./images/" + profil_picture, (err) => {
             if (err) {
-              throw err
+              throw err;
             } else {
               res.status(200).json(res);
             }
@@ -298,7 +299,7 @@ exports.deleteOneUser = (req, res) => {
       throw err;
     }
   });
- 
+
   // Modifier le user_send dans la table comments
   let sql4 = `UPDATE comments SET user_send='Groupomania${id}' WHERE userId=${id}`;
   db.query(sql4, (err, results) => {
@@ -328,27 +329,27 @@ exports.modifyProfilPicture = (req, res) => {
       } else {
         let profil_picture = results[0].profil_picture;
 
-// B- Supprimer l'ancienne profil_picture du dossier images
-         if (profil_picture != "icon.png") {
-        fs.unlink("./images/" + profil_picture, (err) => {
-          if (err) {
-            throw err;
-          }
-        });
-      }
+        // B- Supprimer l'ancienne profil_picture du dossier images
+        if (profil_picture != "icon.png") {
+          fs.unlink("./images/" + profil_picture, (err) => {
+            if (err) {
+              throw err;
+            }
+          });
+        }
       }
     }
   );
-// C- Mettre à jour la photo du profil dans la table users
+  // C- Mettre à jour la photo du profil dans la table users
   let sql1 = `UPDATE users SET profil_picture="${image}" WHERE userId=${id}`;
-  
+
   db.query(sql1, (err, results) => {
     if (err) {
       throw err;
     }
   });
 
-// D- Mettre à jour profil_picture dans la table posts
+  // D- Mettre à jour profil_picture dans la table posts
   let sql2 = `UPDATE posts SET profil_picture="${image}" WHERE userId=${id}`;
 
   db.query(sql2, (err, results) => {
@@ -357,7 +358,7 @@ exports.modifyProfilPicture = (req, res) => {
     }
   });
 
-// E- Mettre à jour shared_userProfil_picture dans la table posts
+  // E- Mettre à jour shared_userProfil_picture dans la table posts
   let sql5 = `UPDATE posts SET shared_userProfil_picture="${image}" WHERE userId=${id}`;
 
   db.query(sql5, (err, results) => {
@@ -366,7 +367,7 @@ exports.modifyProfilPicture = (req, res) => {
     }
   });
 
-// F- Mettre à jour la photo du profil dans la table comments
+  // F- Mettre à jour la photo du profil dans la table comments
   let sql3 = `UPDATE comments SET profil_picture="${image}" WHERE userId=${id}`;
 
   db.query(sql3, (err, results) => {
@@ -382,26 +383,39 @@ exports.updateEmail = (req, res, next) => {
   let email = req.body.email;
   let id = req.params.id;
 
-  let sql = `UPDATE users SET email="${email}" WHERE userId=${id}`;
-  db.query(sql, (err, results) => {
+  // Si l'Email existe déjà dans la bdd
+  db.query(`SELECT * FROM users WHERE email= '${email}'`, (err, results) => {
     if (err) {
-      throw err;
+      console.log(err);
     } else {
-      res
-        .status(201)
-        .json({ message: "Votre email a été modifié avec succès!" });
+      if (parseInt(results.length) > 0) {
+        res.status(200).json({
+          type: "error",
+          message: "Cette adresse mail est déjà utilisée !",
+        });
+      } else {
+        let sql = `UPDATE users SET email="${email}" WHERE userId=${id}`;
+        db.query(sql, (err, results) => {
+          if (err) {
+            throw err;
+          } else {
+            res
+              .status(201)
+              .json({ message: "Votre email a été modifié avec succès!" });
+          }
+        });
+      }
     }
   });
 };
 
 // 8/---  Modifier le mot de passe  //////
 exports.updatePassword = (req, res, next) => {
-  
   //A- Hacher le nouveau mot de passe
   bcrypt.hash(req.body.password, 10).then((hash) => {
     const newPassword = hash;
-    
-  //B- Vérifier l'ancien mot de passe dans la bdd
+
+    //B- Vérifier l'ancien mot de passe dans la bdd
     let sql = `SELECT password FROM users WHERE userId=${req.params.id}`;
     db.query(sql, (err, results) => {
       if (err) {
@@ -421,8 +435,8 @@ exports.updatePassword = (req, res, next) => {
                   type: "error",
                   message: "L'ancien mot de passe est incorrect !",
                 });
-    // Si l'ancien mot de passe est valide
-// C- Modifier le mot de passe dans la bdd
+                // Si l'ancien mot de passe est valide
+                // C- Modifier le mot de passe dans la bdd
               } else {
                 let sql = `UPDATE users SET password='${newPassword}' WHERE userId=${req.params.id}`;
                 db.query(sql, (err, results) => {
@@ -444,7 +458,6 @@ exports.updatePassword = (req, res, next) => {
 
 // 9/------- Modifier le pseudo
 exports.updateName = (req, res, next) => {
-  
   // A- Modifier le pseudo dans la table users
   let sql = `UPDATE users SET name='${req.body.name}' WHERE userId=${req.params.id}`;
   db.query(sql, (err, results) => {

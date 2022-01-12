@@ -8,7 +8,7 @@
         <p class="bienvenue">Bienvenue chez</p>
         <img src="../assets/iconlogoleft.png" width="200" height="50" alt="" />
       </div>
-      
+
       <all-publications :userConnected="userConnected"> </all-publications>
     </div>
   </div>
@@ -38,7 +38,6 @@ export default {
   },
 
   methods: {
-    
     //--1/----  Afficher l'utilisateur connecté
     async getUserConnected() {
       this.Token = JSON.parse(localStorage.getItem("Token"));

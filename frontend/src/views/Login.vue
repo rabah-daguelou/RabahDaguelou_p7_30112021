@@ -1,6 +1,5 @@
 <template>
   <div class="all">
-
     <!-- Carte du formulaire -->
     <div class="form-card">
       <div class="form-card1">
@@ -44,7 +43,7 @@
           <li v-for="error in errors" :key="error">{{ error }}</li>
         </ul>
       </div>
-      <p v-if="passwordForgot"> Mot de passe oublié ?</p>
+      <p v-if="passwordForgot">Mot de passe oublié ?</p>
       <!-- Valider l'inscription et se diriger vers publications -->
       <div id="input-card">
         <div v-if="mode == 'signup'">
@@ -74,7 +73,6 @@
           Vous avez déjà un compte?
           <span class="haveNotCount" @click="loginOne()">me connecter</span>
         </p>
-        
       </div>
     </div>
     <router-view />
@@ -94,10 +92,10 @@ export default {
       name: null,
       errors: [],
       error: "",
-      passwordForgot:false
+      passwordForgot: false,
     };
   },
-  
+
   created: function () {},
 
   methods: {
@@ -105,13 +103,13 @@ export default {
       this.mode = "signup";
       this.errors = [];
     },
-   
+
     loginOne: function () {
       this.mode = "login";
       this.errors = [];
     },
 
-  // 1/----- S'inscrire -----
+    // 1/----- S'inscrire -----
     async createAccount() {
       if (this.email && this.password && this.name) {
         try {
@@ -123,7 +121,6 @@ export default {
               name: this.name,
             })
             .then(function (res) {
-              
               if (res.data.type == "error") {
                 self.errors = [];
                 self.errors.push(res.data.message);
@@ -154,7 +151,7 @@ export default {
     // --2/----- Se connecter -----
     //
     async login() {
-      this.errors=[]
+      this.errors = [];
       if (this.email.toLowerCase().startsWith("groupomania")) {
         this.errors.push("Cette adresse email est interdite !");
       } else {
@@ -170,9 +167,9 @@ export default {
                 if (res.data.type == "error") {
                   self.errors = [];
                   self.errors.push(res.data.message);
-                  if(res.data.passwordForgot){
-                    self.passwordForgot=true
-                   // self.errors.push("Mot de passe oublié?")
+                  if (res.data.passwordForgot) {
+                    self.passwordForgot = true;
+                    // self.errors.push("Mot de passe oublié?")
                   }
                 } else {
                   localStorage.setItem("Token", JSON.stringify(res.data));
@@ -211,7 +208,6 @@ export default {
 li {
   color: red;
   list-style: none;
-  
 }
 .form-card {
   width: 50%;

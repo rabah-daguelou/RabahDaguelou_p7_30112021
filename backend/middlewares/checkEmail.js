@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
       ? next()
       : res.status(200).json({
           type: "error",
-          message: "Ce mail n'est pas valide",
+          message: "Ce mail n'est pas valide!",
         });
   };
   emailTrue(req.body.email);
